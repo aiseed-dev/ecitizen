@@ -1,0 +1,124 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/PrefPyramid.cshtml の移植。
+   m = 都道府県モデル (DATA_CONTRACT §2.3)、pyramid = ピラミッドモデル (§2.5相当)、
+   svgs = [(year, kind, svg_str), ...] 15年分 (年ごとに事前描画済み)。
+   都道府県は市町村と異なり将来推計の欠損(fukushima相当)がないため分岐なし。 #}
+
+{% block content %}
+<h2>{{ m.name }}の男女別5歳年齢階級別人口 人口ピラミッド</h2>
+<p class="chart-switch">
+    <a class="btn" href="/Population/Prefecture/{{ m.code }}">積み上げグラフ</a>
+    <a class="btn disabled" aria-disabled="true">人口ピラミッド</a>
+</p>
+<div class="pyramid-viewer">
+{% for year, kind, svg in svgs %}
+    <figure class="pyramid-year chart"{{ '' if year == 2020 else ' hidden' }} data-year="{{ year }}">{{ svg | safe }}</figure>
+{% endfor %}
+</div>
+<div id="selects">
+    表示年
+    <input id="pervyear" value="&lt;" type="button"/>
+    <select id="year">
+{% for year, kind, svg in svgs %}
+        <option value="{{ year }}"{{ ' selected' if year == 2020 }}>{{ year }}</option>
+{% endfor %}
+    </select>
+    <input id="nextyear" value="&gt;" type="button"/>
+    <input id="auto" value="自動動画" type="button"/>
+</div>
+
+<div class="section">
+    <h3>{{ m.name }} の男性人口(1980年～2020年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in range(1980, 2025, 5) %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.census_m %}
+        <tr>
+            <td class="left nowrap">{{ ages3[loop.index0] }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+    <h3>{{ m.name }} の女性人口(1980年～2020年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in range(1980, 2025, 5) %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.census_f %}
+        <tr>
+            <td class="left nowrap">{{ ages3[loop.index0] }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+    <p>男女別年齢階級別等の人口の数字は、国勢調査(総務省)のデータです。2020年は国勢調査による実績値です。</p>
+</div>
+
+<div class="section">
+    <h3>{{ m.name }} の将来推計人口男性(2020年～2050年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in range(2020, 2055, 5) %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.projection_m %}
+        <tr>
+            <td class="left nowrap">{{ pd.series }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h3>{{ m.name }} の将来推計人口女性(2020年～2050年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in range(2020, 2055, 5) %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.projection_f %}
+        <tr>
+            <td class="left nowrap">{{ pd.series }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+    <p>国立社会保障・人口問題研究所の<a href="https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp">『日本の地域別将来推計人口(令和5(2023)年推計)』</a>を使用しています。</p>
+</div>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>都道府県の男女別5歳年齢階級別人口 人口ピラミッドグラフ</h5>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/PrefPyramid/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+    <h5>世界の国の男女別5歳年齢階級別人口 人口ピラミッドグラフ</h5>
+    <ul class="linklist">
+        <li class="chartlink"><a href="/Population/CountryPyramid/JP">日本</a></li>
+        <li class="chartlink"><a href="/Population/CountryPyramid/UK">イギリス</a></li>
+        <li class="chartlink"><a href="/Population/CountryPyramid/FR">フランス</a></li>
+        <li class="chartlink"><a href="/Population/CountryPyramid/DE">ドイツ</a></li>
+    </ul>
+{% endblock %}

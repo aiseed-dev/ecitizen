@@ -1,0 +1,65 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/Population2015.cshtml の移植。
+   rows = data/cityinfo2015.json をソート済みのもの (rankings.build_population2015_ranking)。
+   order = "popu"|"inc"|"rate"|"code"、pref = 都道府県コード(2桁) or None(全国) #}
+
+{% block content %}
+<h2>2015年市区町村別人口ランキング{{ " - " + prefs[pref] if pref else "" }}</h2>
+<p>2015年国勢調査の確報が公開されたので、市区町村別人口のランキング表を作ってみました。</p>
+
+<form class="form-inline">
+    <label for="pref">都道府県の選択:</label>
+    <select id="pref" data-order="{{ order }}">
+        <option value="">全国</option>
+{% for k, v in prefs.items() %}
+        <option value="{{ k }}"{{ ' selected' if k == pref }}>{{ v }}</option>
+{% endfor %}
+    </select>
+</form>
+<p class="chart-switch">
+{% for key, label in orders.items() %}
+    <a class="btn{{ ' disabled' if key == order }}" aria-disabled="{{ 'true' if key == order else 'false' }}"
+       href="/Population/Population2015/{{ (pref + '/') if pref else '' }}{{ key }}/">{{ label }}</a>
+{% endfor %}
+</p>
+<div class="table-responsive">
+<table class="ranking">
+    <tr>
+        <th>市町村名</th><th>2015年人口</th><th>2010年人口</th>
+        <th>増減数</th><th>増減率</th><th>2015年順位</th><th>2010年順位</th>
+    </tr>
+{% for d in rows %}
+{% set rate = (d.popu2015 - d.popu2010) * 100.0 / d.popu2010 %}
+    <tr class="{{ rate | rate_class }}">
+        <td class="left"><a href="/Population/City/{{ d.code }}">{{ d.code }} {{ prefs[d.code[:2]] }}{{ d.name }}</a></td>
+        <td>{{ d.popu2015 | num }}</td>
+        <td>{{ d.popu2010 | num }}</td>
+        <td>{{ (d.popu2015 - d.popu2010) | num }}</td>
+        <td>{{ rate | f1 }}</td>
+        <td>{{ d.order2015 }}</td>
+        <td>{{ d.order2010 }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+<p>出典:政府統計の総合窓口(e-Stat)(<a href="https://www.e-stat.go.jp/">https://www.e-stat.go.jp/</a>)</p>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>都道府県の5歳年齢階級別人口の推移のグラフ</h5>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/Prefecture/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+{% endblock %}
+
+{% block add_script %}
+<script>
+    document.getElementById("pref").addEventListener("change", function () {
+        var order = this.dataset.order;
+        var v = this.value;
+        location.href = "/Population/Population2015/" + (v ? v + "/" : "") + order + "/";
+    });
+</script>
+{% endblock %}

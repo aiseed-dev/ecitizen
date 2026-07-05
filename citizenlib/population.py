@@ -27,6 +27,8 @@ class SourceData:
         self.city_m_dir = base / "CityM"
         self.city_f_dir = base / "CityF"
         self.pref_dir = base / "Pref"
+        self.pref_m_dir = base / "PrefM"
+        self.pref_f_dir = base / "PrefF"
         self.country_dir = base / "Country"
         self.info2015 = base / "2015" / "population2015.json"
         self.ranking2045 = base / "Ranking" / "CityRanking2045.json"
@@ -70,6 +72,10 @@ class SourceData:
     def load_city_gender_pd(self, sex: str, code: str) -> list:
         d = self.city_m_dir if sex == "M" else self.city_f_dir
         return self._load_merged(d, "pd", code, masters.CODETRANS_PD)
+
+    def load_pref_gender_pd(self, sex: str, pref: str) -> list:
+        d = self.pref_m_dir if sex == "M" else self.pref_f_dir
+        return self._load_rows(d, "pd", pref)
 
     def load_cityinfo2015(self) -> list:
         return json.loads(self.info2015.read_text(encoding="utf-8-sig"))
@@ -327,6 +333,41 @@ def build_city_pyramid_model(source: SourceData, code: str, ipss) -> dict:
         # 生表示用の全列データ (テーブルは "years" の年別スライスではなく
         # こちらをそのまま描画する。census 21行×9列(fukushimaは8列)、
         # projection 21行×7列 or (fukushima 時) [])
+        "census_m": census_m,
+        "census_f": census_f,
+        "projection_m": projection_m,
+        "projection_f": projection_f,
+    }
+
+
+def build_pref_pyramid_model(source: SourceData, pref: str, ipss) -> dict:
+    """DATA_CONTRACT §2.5 相当の都道府県版人口ピラミッドモデル。
+
+    都道府県は市町村と異なり将来推計が必ずある (fukushima 相当の欠損なし)。
+    """
+    ipss_pref = ipss.prefecture(pref)
+    census_m = _append_ipss_census(source.load_pref_gender_pd("M", pref), ipss_pref["male"])
+    census_f = _append_ipss_census(source.load_pref_gender_pd("F", pref), ipss_pref["female"])
+    projection_m = ipss_pref["male"]
+    projection_f = ipss_pref["female"]
+
+    years = []
+    max_value = 0
+    for year, col in PYRAMID_CENSUS_YEARS:
+        male = [r["population"][col] for r in census_m[1:20]]
+        female = [r["population"][col] for r in census_f[1:20]]
+        years.append({"year": year, "kind": "census", "male": male, "female": female})
+        max_value = max(max_value, max(male), max(female))
+    for year, col in PYRAMID_PROJECTION_YEARS:
+        male = [r["population"][col] for r in projection_m[1:20]]
+        female = [r["population"][col] for r in projection_f[1:20]]
+        years.append({"year": year, "kind": "projection", "male": male, "female": female})
+        max_value = max(max_value, max(male), max(female))
+
+    return {
+        "code": pref,
+        "max_value": max_value,
+        "years": years,
         "census_m": census_m,
         "census_f": census_f,
         "projection_m": projection_m,

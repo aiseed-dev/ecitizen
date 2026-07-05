@@ -30,6 +30,7 @@ DATA_CITY = ROOT / "data" / "population" / "city"
 DATA_PREF = ROOT / "data" / "population" / "pref"
 DATA_COUNTRY = ROOT / "data" / "population" / "country"
 DATA_PYRAMID = ROOT / "data" / "population" / "pyramid" / "city"
+DATA_PREF_PYRAMID = ROOT / "data" / "population" / "pyramid" / "pref"
 DATA_RANKINGS = ROOT / "data" / "rankings"
 
 # city ページ指数表の行定義 (pct=True は f1 書式)
@@ -179,6 +180,20 @@ def _build_pref(pref: str) -> str:
     })
     html = _env.get_template("population/prefecture.html").render(ctx)
     write_text(f"Population/Prefecture/{pref}/index.html", html)
+
+    pyramid = json.loads((DATA_PREF_PYRAMID / f"{pref}.json").read_text(encoding="utf-8"))
+    svgs = [(y["year"], y["kind"],
+             city_pyramid_svg(model["name"], y["year"], y["male"], y["female"], pyramid["max_value"]))
+            for y in pyramid["years"]]
+    ctx = dict(_ctx_common)
+    ctx.update({
+        "m": model,
+        "pyramid": pyramid,
+        "svgs": svgs,
+        "page_title": f"{model['name']} - 都道府県別の男女別5歳年齢階級別人口 人口ピラミッド",
+    })
+    html = _env.get_template("population/pref_pyramid.html").render(ctx)
+    write_text(f"Population/PrefPyramid/{pref}/index.html", html)
     return pref
 
 
@@ -264,6 +279,21 @@ def build_rankings(ctx_common: dict) -> None:
                   "2020年から2050年の30年間で75歳以上の人口が増加する市区町村のランキングを作成してみました。"))
     write_text("Population/CityOldOld2045/index.html", html)
 
+    # Population2015 ランキング (人口順/増減数順/増減率順/コード順 × 全国+47都道府県)
+    cityinfo = json.loads((ROOT / "data" / "cityinfo2015.json").read_text(encoding="utf-8"))
+    scopes = [None] + [p for p in masters.PREF_CODE]
+    for pref in scopes:
+        for order, (label, _) in rankings.POPULATION2015_ORDERS.items():
+            rows = rankings.build_population2015_ranking(cityinfo, order, pref)
+            title = "2015年市区町村別人口ランキング" + (f" - {masters.PREF_CODE[pref]}" if pref else "")
+            html = env.get_template("population/population2015.html").render(dict(
+                ctx_common, rows=rows, order=order, pref=pref,
+                orders={k: v[0] for k, v in rankings.POPULATION2015_ORDERS.items()},
+                page_title=title))
+            rel = f"Population/Population2015/{(pref + '/') if pref else ''}{order}/index.html"
+            write_text(rel, html)
+    print(f"Population2015ランキング {len(scopes) * len(rankings.POPULATION2015_ORDERS)} 件")
+
 
 def copy_assets(source: Path) -> None:
     shutil.copytree(ROOT / "assets" / "css", PUBLIC / "css", dirs_exist_ok=True)
@@ -334,7 +364,12 @@ def main() -> None:
     })
 
     copy_assets(args.source)
-    write_text("_redirects", REDIRECTS)
+    population2015_redirects = "".join(
+        f"/Population/Population2015/{(p + '/') if p else ''} "
+        f"/Population/Population2015/{(p + '/') if p else ''}popu/ 301\n"
+        for p in [None] + list(masters.PREF_CODE)
+    )
+    write_text("_redirects", REDIRECTS + population2015_redirects)
     write_text("_headers", HEADERS)
 
     # スモークチェック (DESIGN.md §10)
@@ -343,6 +378,7 @@ def main() -> None:
     n_list = len(list(PUBLIC.glob("Population/CityList/*.json")))
     n_pyramid = len(list(PUBLIC.glob("Population/CityPyramid/*/index.html")))
     n_pref = len(list(PUBLIC.glob("Population/Prefecture/*/index.html")))
+    n_pref_pyramid = len(list(PUBLIC.glob("Population/PrefPyramid/*/index.html")))
     n_country = len(list(PUBLIC.glob("Population/Country/*/index.html")))
     n_files = sum(1 for p in PUBLIC.rglob("*") if p.is_file())
     assert n_html == len(codes), f"HTML {n_html} != {len(codes)}"
@@ -350,10 +386,10 @@ def main() -> None:
     assert n_list == 47
     assert n_pyramid == len(codes), f"CityPyramid {n_pyramid} != {len(codes)}"
     if codes == list(masters.CITY_DIC):
-        assert n_pref == 47 and n_country == 33
+        assert n_pref == 47 and n_country == 33 and n_pref_pyramid == 47
     print(f"HTML {n_html} / CityData {n_json} / CityList {n_list} / "
-          f"CityPyramid {n_pyramid} / Prefecture {n_pref} / Country {n_country} / "
-          f"総ファイル数 {n_files}")
+          f"CityPyramid {n_pyramid} / Prefecture {n_pref} / PrefPyramid {n_pref_pyramid} / "
+          f"Country {n_country} / 総ファイル数 {n_files}")
     if n_files > 15000:
         print(f"警告: ファイル数 {n_files} — Cloudflare Pages の上限 20,000 に接近 (DESIGN.md §9.1)")
 

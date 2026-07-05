@@ -179,12 +179,18 @@ eCitizenStatic/
 
 - ★実装済み `/Population/Prefecture/{id}` (47件) + `PrefData/{id}.json`
 - ★実装済み `/Population/Country/{id}` (33件) + `CountryData/{id}.json`
-  (日本以外は census が Ages2/kaikyu=85、CH・IS のみ将来推計が6列(2045年分なし)
-  という実データの差異を確認・対応済み。§8 追記参照)
+  (日本以外は census が Ages2/kaikyu=85。当初は旧App_Data由来だったが
+  K12(§14)で Eurostat/ONS に全面更新済み)
 - ★実装済み `/Population/CityPyramid/{id}` (1,741件、男女別人口ピラミッド)。
-  年ごとのエンドポイント分割はせず 1 市町村 1 ファイルに 14 年分を SVG として
+  年ごとのエンドポイント分割はせず 1 市町村 1 ファイルに 15 年分を SVG として
   事前描画・埋め込み、表示切替はブラウザ側で表示/非表示を切り替えるのみ
   (§9.1 のファイル数対策と K8 のクライアント側チャートライブラリ不使用を両立)
+- ★実装済み `/Population/PrefPyramid/{id}` (47件)。CityPyramid と同じ方式
+  (都道府県は将来推計の欠損 = fukushima 相当のケースがないため分岐なし)
+- ★実装済み `/Population/Population2015/{order}/`・`{pref}/{order}/`
+  (人口順・増減数順・増減率順・コード順 × 全国+47都道府県 = 192ページ)。
+  新規データ取得不要 (`data/cityinfo2015.json` を並べ替えるだけ)。
+  旧URL(orderクエリ省略時)は `_redirects` で `popu/` へ301
 - ★実装済み ローカルデータのみで完結するランキング系:
   `Ranking` (全国+都道府県別)、`CityAging2045`、`CityOldOld2045`、
   `ListOfCitiesByArea`、`ListOfCitiesByTfr`
@@ -192,14 +198,15 @@ eCitizenStatic/
   構築済みの市町村モデルの将来推計指数から再集計するだけで再現できることが
   判明した)
 - **廃止(決定事項)**: `City3d`/`Country3d`/`Prefecture3d`。移植しない (§8.6)。
-- 未着手: `Population2015` (ソート順ごとの静的ページ化方針が未定)、
-  Population2010 系 (`Census2010`, `Ranking`, `City` ほか)、
-  PrefPyramid/CountryPyramid (CityPyramid と同じ方式で追加予定)
-- **スコープ変更**: `Aging2015`・`Young2015`・`Population2015` ランキングの一部・
-  `YoungMigration`・`Migration` は、調査の結果**旧実装がリクエスト時に e-Stat API を
-  直接呼んでいる**ことが判明した (appId が C# ソースにハードコードされていた)。
-  K5(データ処理はローカル完結)の方針に従い、これらは Phase 3 の e-Stat 系
-  ページとまとめて実装する (下記 Phase 3 に統合)
+- 未着手: Population2010 系 (`Census2010`, `Ranking`, `City` ほか)、
+  CountryPyramid (Country の census/projection は現状 sex=T(男女計)のみ
+  取得しているため、実装するには Eurostat/ONS から男女別データを追加取得
+  する必要がある)
+- **スコープ変更**: `Aging2015`・`Young2015`・`YoungMigration`・`Migration` は、
+  調査の結果**旧実装がリクエスト時に e-Stat API を直接呼んでいる**ことが
+  判明した (appId が C# ソースにハードコードされていた)。K5(データ処理は
+  ローカル完結)の方針に従い、これらは Phase 3 の e-Stat 系ページとまとめて
+  実装する (下記 Phase 3 に統合)
 
 ### Phase 3: e-Stat 由来ページ(定期更新が必要)
 

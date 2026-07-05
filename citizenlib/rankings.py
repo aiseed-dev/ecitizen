@@ -111,3 +111,25 @@ def rank_generation(rows: list, field: str) -> list:
     ranked = sorted(rows, key=lambda r: -(r[field][6] - r[field][0]))
     assign_rank(ranked, key=lambda r: r[field][6] - r[field][0])
     return ranked
+
+
+# 旧 PopulationController.Population2015 の order パラメータ (4種)。
+# "順位"列(2015年順位/2010年順位)は旧実装と同じく全国順位を表示するのみで、
+# 都道府県フィルタ時でも再計算しない(ソートのみ都道府県内で行う)。
+POPULATION2015_ORDERS = {
+    "popu": ("人口順", lambda r: -r["popu2015"]),
+    "inc": ("増減数順", lambda r: -(r["popu2015"] - r["popu2010"])),
+    "rate": ("増減率順", lambda r: -(r["popu2015"] / r["popu2010"])),
+    "code": ("コード順", lambda r: r["code"]),
+}
+
+
+def build_population2015_ranking(cityinfo: list, order: str, pref: str | None) -> list:
+    """旧 PopulationController.Population2015(id, order) の移植。
+
+    cityinfo は data/cityinfo2015.json (旧 App_Data/Population2015/2015/
+    population2015.json、Phase 1 で読み込み済みのもの) をそのまま渡す。
+    """
+    rows = [r for r in cityinfo if pref is None or r["code"].startswith(pref)]
+    _, key = POPULATION2015_ORDERS[order]
+    return sorted(rows, key=key)

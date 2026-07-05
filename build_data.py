@@ -14,7 +14,7 @@ from citizenlib import masters, rankings
 from citizenlib.ipss import IpssData
 from citizenlib.population import (
     SourceData, build_city_model, build_city_pyramid_model, build_country_model,
-    build_pref_model,
+    build_pref_model, build_pref_pyramid_model,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -63,6 +63,15 @@ def main() -> None:
         assert len(model["index"]) == 16, pref
         write_json(pref_dir / f"{pref}.json", model)
     print(f"都道府県モデル {len(masters.PREF_CODE)} 件")
+
+    # --- 都道府県 人口ピラミッド (常に将来推計あり、fukushima相当の欠損なし) ---
+    pref_pyramid_dir = ROOT / "data" / "population" / "pyramid" / "pref"
+    for pref in masters.PREF_CODE:
+        model = build_pref_pyramid_model(source, pref, ipss)
+        assert len(model["years"]) == 15, pref
+        assert all(len(y["male"]) == 19 and len(y["female"]) == 19 for y in model["years"]), pref
+        write_json(pref_pyramid_dir / f"{pref}.json", model)
+    print(f"都道府県ピラミッドモデル {len(masters.PREF_CODE)} 件")
 
     # --- 国 (Phase 2、日本以外は Eurostat(census/EUROPOP2023)・UKのみ ONS へ切替) ---
     country_dir = ROOT / "data" / "population" / "country"
