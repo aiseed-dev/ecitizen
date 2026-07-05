@@ -315,6 +315,12 @@ def build_rankings(ctx_common: dict) -> None:
             write_text(rel, html)
     print(f"Population2015ランキング {len(scopes) * len(rankings.POPULATION2015_ORDERS)} 件")
 
+    # Census2010 (2010年国勢調査人口と2008年推計の比較。1ページ完結)
+    census2010_rows = json.loads((DATA_RANKINGS / "census2010.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/census2010.html").render(dict(
+        ctx_common, rows=census2010_rows, page_title="2010年国勢調査人口と将来推計人口の比較"))
+    write_text("Population/Census2010/index.html", html)
+
 
 def copy_assets(source: Path) -> None:
     shutil.copytree(ROOT / "assets" / "css", PUBLIC / "css", dirs_exist_ok=True)
@@ -401,6 +407,7 @@ def main() -> None:
     n_pref = len(list(PUBLIC.glob("Population/Prefecture/*/index.html")))
     n_pref_pyramid = len(list(PUBLIC.glob("Population/PrefPyramid/*/index.html")))
     n_country = len(list(PUBLIC.glob("Population/Country/*/index.html")))
+    assert (PUBLIC / "Population" / "Census2010" / "index.html").exists()
     n_files = sum(1 for p in PUBLIC.rglob("*") if p.is_file())
     assert n_html == len(codes), f"HTML {n_html} != {len(codes)}"
     assert n_json == len(codes), f"JSON {n_json} != {len(codes)}"

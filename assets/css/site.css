@@ -225,6 +225,27 @@ tr.b9 { background-color: #afafff; }
 .wleft { text-align: left; }
 .wcenter { text-align: center; }
 
+/* ---- Census2010 (セル単位の増減色分け。tr.rX/bX と同じ配色をセルに適用) ---- */
+table.census2010 th, table.census2010 td { font-size: 12px; white-space: nowrap; }
+table.census2010 td.r0 { background-color: #fff7f7; }
+table.census2010 td.r1 { background-color: #ffefef; }
+table.census2010 td.r2 { background-color: #ffe7e7; }
+table.census2010 td.r3 { background-color: #ffdfdf; }
+table.census2010 td.r4 { background-color: #ffd7d7; }
+table.census2010 td.r5 { background-color: #ffcfcf; }
+table.census2010 td.b0 { background-color: #f7f7ff; }
+table.census2010 td.b1 { background-color: #efefff; }
+table.census2010 td.b2 { background-color: #e7e7ff; }
+table.census2010 td.b3 { background-color: #dfdfff; }
+table.census2010 td.b4 { background-color: #d7d7ff; }
+table.census2010 td.b5 { background-color: #cfcfff; }
+table.census2010 td.b6 { background-color: #c7c7ff; }
+table.census2010 td.b7 { background-color: #bfbfff; }
+table.census2010 td.b8 { background-color: #b7b7ff; }
+table.census2010 td.b9 { background-color: #afafff; }
+.jump-links a { margin-right: 8px; }
+.totop { font-size: 12px; font-weight: normal; margin-left: 20px; }
+
 /* ---- モバイル ---- */
 @media (max-width: 767px) {
     .nav-toggle { display: block; }

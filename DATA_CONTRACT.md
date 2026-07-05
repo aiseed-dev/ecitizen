@@ -246,6 +246,49 @@ JP は `years` 14件(census 8 + projection 6、旧データ)、非JP は15件
   `Population/Population2015/{pref}/{order}/index.html`(都道府県別)。
   4種 × 48地域(全国+47県) = 192ページ
 
+### 2.8 `census2010.json` — 2010年国勢調査 実績・推計比較
+
+旧 `Population2010Controller.Census2010()` の移植。新規の外部データ取得は
+不要 (旧 `App_Data/Population2010/2010/census2010List.json` + `App_Data/
+NAreaCode/StandardAreaCodeList.json` をそのまま一次ソースとして使う。
+`citizenlib.census2010.build_census2010_rows()`)。
+
+フラットな配列。都道府県ヘッダー行 (`is_pref: true`、傘下市区町村の合計) と
+市区町村・行政区行がコード順に交互に並ぶ (旧実装の描画順そのまま)。
+行政区 (政令指定都市の区。`StandardAreaCodeList.json` の `種別==8`) は
+都道府県合計に含めない (親の市の行が既に計上済みのため)。
+
+市区町村・行政区の名称は `StandardAreaCodeList.json` から**2010-10-01時点で
+有効な名称**を引く (`施行年月日 <= 2010-10-01 < 廃止年月日`)。現行の
+`data/masters/citydic20161010.json` は使わない — 2010年時点の団体コード
+(1,878件、行政区含む) は現行の市町村マスタ (1,741件) と直接対応しないため。
+
+```jsonc
+{"code": 1100, "name": "札幌市", "is_pref": false, "is_ward": false,
+ "popu2010": 1913545, "popu2005": 1880863, "popu2000": 1822368,
+ "est2010": 1910791, "closed2010": 1876350,
+ "inc": 32682, "est_diff": 2754, "net_inc": 37195,
+ "inc_rate": 1.74, "est_diff_rate": 0.14, "net_inc_rate": 1.98}
+```
+
+- `est2010`: 国立社会保障・人口問題研究所「日本の市区町村別将来推計人口
+  (2008年12月推計)」の2010年推計値
+- `closed2010`: 同推計の2010年封鎖人口 (転入出がないと仮定した場合の推計人口)
+- `inc`/`inc_rate`: 人口増減 = 2010年人口−2005年人口 (収束前の実際の人口増減)
+- `est_diff`/`est_diff_rate`: 推計差 = 2010年人口−2010年推計人口
+- `net_inc`/`net_inc_rate`: 純増減 = 2010年人口−2010年封鎖人口
+  (プラスなら転入超過、マイナスなら転出超過の目安)
+- 分母が0の場合の `*_rate` は `null` (`f1` フィルタで「-」表示。§4)
+
+旧実装は増減6項目それぞれを独自の連続グラデーション色 (`差色`/`率色`) で
+着色していたが、静的版では他ページと統一された `rate_class` フィルタ
+(5%刻み・赤=増加/青=減少) で代替する。**意図的な逸脱**: 人口増減・推計差・
+純増減 (人数) のセルも、対応する増減率 (`inc_rate`/`est_diff_rate`/
+`net_inc_rate`) と同じ `rate_class` で着色する (符号は常に一致するため)。
+
+出力: `Population/Census2010/index.html` (1ページ、都道府県ごとに表と
+アンカーを分けて1画面に収録。旧実装と同じ構成)。
+
 ## 3. 公開 JSON (public/ 配下、旧エンドポイント互換)
 
 ### 3.1 `Population/CityData/{code}.json`

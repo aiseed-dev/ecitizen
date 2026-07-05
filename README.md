@@ -69,7 +69,7 @@ wrangler pages deploy public/
 
 - [x] Phase 0: 基盤 (レイアウト・自前 CSS・マスター抽出・アセット)
 - [x] Phase 1: `/Population/City/{code}` 1,741 市町村 + `CityData/{code}.json` + `CityList/{pref}.json`
-- [x] Phase 2 (一部): Prefecture (47) / Country (33) / CityPyramid (1,741) /
+- [x] Phase 2: Prefecture (47) / Country (33) / CityPyramid (1,741) /
       Ranking2045 (全国+都道府県別) / ListOfCitiesByArea / ListOfCitiesByTfr /
       CityAging2045 / CityOldOld2045
 - [x] Population2020統合(K11): City/Pref の census に2020年実績値を追加、
@@ -79,7 +79,9 @@ wrangler pages deploy public/
 - [x] PrefPyramid (47件、都道府県版人口ピラミッド)
 - [x] CountryPyramid (33件、JP含む。Eurostat/ONSから男女別データを追加取得。DESIGN.md §15.2)
 - [x] Population2015 ランキング (人口順/増減数順/増減率順/コード順 × 全国+47都道府県 = 192ページ)
-- [ ] Phase 2 (残り): Population2010 系
+- [x] Census2010 (2010年国勢調査人口と2008年推計の比較。DESIGN.md §16。
+      旧Population2010Controllerの他ルートはPhase2既存機能の重複ルート、
+      またはe-Stat直叩き系のためPhase3へ整理・移動)
       (City3d/Country3d/Prefecture3d は廃止・移植しない。K10)
 - [ ] Phase 3: e-Stat 由来 (CPI / Ssds / Sac / Lg / Aging2015 / Young2015 / Migration 系)
 - [ ] Phase 4: 静的コンテンツ・Statdb (Flutter)

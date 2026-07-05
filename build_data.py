@@ -10,7 +10,7 @@ import argparse
 import json
 from pathlib import Path
 
-from citizenlib import masters, rankings
+from citizenlib import census2010, masters, rankings
 from citizenlib.ipss import IpssData
 from citizenlib.population import (
     SourceData, build_city_model, build_city_pyramid_model, build_country_model,
@@ -134,6 +134,13 @@ def main() -> None:
     write_json(rank_dir / "city_aging_2045.json", rankings.rank_generation(aging_oldold, "old"))
     write_json(rank_dir / "city_oldold_2045.json", rankings.rank_generation(aging_oldold, "old_old"))
     print("ランキングデータ (ranking2045 全国+47県 / cityarea / citytfr / aging・oldold 2050) を生成しました")
+
+    # --- Census2010 (2010年国勢調査人口と2008年推計の比較。ローカル完結、K5準拠) ---
+    census2010_rows = census2010.build_census2010_rows(
+        source.load_census2010(), source.load_area_code_list())
+    assert len(census2010_rows) == 1878 + 47, len(census2010_rows)
+    write_json(rank_dir / "census2010.json", census2010_rows)
+    print(f"Census2010 {len(census2010_rows)} 行")
 
 
 if __name__ == "__main__":

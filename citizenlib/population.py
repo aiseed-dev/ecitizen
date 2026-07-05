@@ -36,6 +36,9 @@ class SourceData:
         self.ranking2045 = base / "Ranking" / "CityRanking2045.json"
         self.area = base / "Area" / "CityAreaData2015.json"
         self.tfr = base / "Tfr" / "CityTfr.xml"
+        root = Path(source_root) / "App_Data"
+        self.area_code_list = root / "NAreaCode" / "StandardAreaCodeList.json"
+        self.census2010 = root / "Population2010" / "2010" / "census2010List.json"
 
     @staticmethod
     def _read_rows(path: Path) -> list:
@@ -102,6 +105,12 @@ class SourceData:
         root = ET.fromstring(self.tfr.read_text(encoding="utf-8-sig"))
         return [{"code": el.find("Code").text, "name": el.find("Name").text,
                  "tfr": el.find("Tfr").text} for el in root.findall("CityTfr")]
+
+    def load_area_code_list(self) -> list:
+        return json.loads(self.area_code_list.read_text(encoding="utf-8-sig"))
+
+    def load_census2010(self) -> list:
+        return json.loads(self.census2010.read_text(encoding="utf-8-sig"))
 
 
 def _index_of(rows: list, column: int, year: int, kind: str, include90_in_old: bool) -> dict:

@@ -1,0 +1,66 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population2010/Census2010.cshtml の移植。rows は都道府県ヘッダー行
+   (is_pref=True、傘下市区町村の合計) と市区町村・行政区の行がコード順に交互に
+   並ぶフラットなリスト (citizenlib.census2010.build_census2010_rows)。 #}
+
+{% block content %}
+<h2 id="top">{{ page_title }}</h2>
+<p>
+    2010年国勢調査の調査結果と、国立社会保障・人口問題研究所が作成している
+    <a href="https://www.ipss.go.jp/pp-shicyoson/j/shicyoson08/t-page.asp" target="_blank" rel="noopener">市区町村別将来推計人口(2008年12月推計)</a>
+    の2010年推計値との比較を行いました。増減率にはカラースケールを表示しているので、
+    赤色が人口の増加している市区町村を、青色が人口の減少している市区町村を表示しています。
+</p>
+<p>
+    人口増減:2010年国勢調査人口 − 2005年国勢調査人口<br/>
+    推計差:2010年国勢調査人口 − 2010年将来推計人口<br/>
+    純増減:2010年国勢調査人口 − 2010年将来推計の封鎖人口
+    (転入出がないと仮定した場合の2010年推計人口。出生率・死亡率が推計どおりなら、
+    純増減は実質的な人口移動を示し、プラスなら転入超過、マイナスなら転出超過を示す)
+</p>
+<p class="jump-links">
+{% for k, v in prefs.items() %}<a href="#a{{ k }}000">{{ v }}</a>{% endfor %}
+</p>
+
+<div class="table-responsive">
+{% for r in rows %}
+{% if r.is_pref %}
+{% if not loop.first %}    </tbody></table>
+{% endif %}
+    <a id="a{{ '%05d'|format(r.code) }}"></a><h6>{{ r.name }} <a class="totop" href="#top">ページのトップ</a></h6>
+    <table class="census2010"><tbody>
+    <tr>
+        <th rowspan="2">コード</th><th rowspan="2">市区町村</th>
+        <th colspan="3">国勢調査人口(人)</th>
+        <th colspan="2">将来推計人口(人)</th>
+        <th colspan="3">増減(人)</th>
+        <th colspan="3">増減率(%)</th>
+    </tr>
+    <tr>
+        <th>2010</th><th>2005</th><th>2000</th>
+        <th>2010</th><th>2010封鎖</th>
+        <th>人口増減</th><th>推計差</th><th>純増減</th>
+        <th>増減率</th><th>推計差率</th><th>純増減率</th>
+    </tr>
+{% endif %}
+    <tr>
+        <td>{{ '%05d'|format(r.code) }}</td>
+        <td class="left">{{ r.name }}</td>
+        <td>{{ r.popu2010 | num }}</td>
+        <td>{{ r.popu2005 | num }}</td>
+        <td>{{ r.popu2000 | num }}</td>
+        <td>{{ r.est2010 | num }}</td>
+        <td>{{ r.closed2010 | num }}</td>
+        <td class="{{ r.inc_rate | rate_class }}">{{ r.inc | num }}</td>
+        <td class="{{ r.est_diff_rate | rate_class }}">{{ r.est_diff | num }}</td>
+        <td class="{{ r.net_inc_rate | rate_class }}">{{ r.net_inc | num }}</td>
+        <td class="{{ r.inc_rate | rate_class }}">{{ r.inc_rate | f1 }}</td>
+        <td class="{{ r.est_diff_rate | rate_class }}">{{ r.est_diff_rate | f1 }}</td>
+        <td class="{{ r.net_inc_rate | rate_class }}">{{ r.net_inc_rate | f1 }}</td>
+    </tr>
+{% endfor %}
+    </tbody></table>
+</div>
+<p>出典:政府統計の総合窓口(e-Stat)(<a href="https://www.e-stat.go.jp/">https://www.e-stat.go.jp/</a>)、
+国立社会保障・人口問題研究所「日本の市区町村別将来推計人口(2008年12月推計)」</p>
+{% endblock %}
