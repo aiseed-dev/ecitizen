@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{{ page_title }}</title>
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link href="/css/site.css" rel="stylesheet"/>
+{% if config.ga4_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.ga4_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ config.ga4_id }}');
+    </script>
+{% endif %}
+{% if config.adsense_client %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config.adsense_client }}" crossorigin="anonymous"></script>
+{% endif %}
+{% block head_extra %}{% endblock %}
+</head>
+<body>
+<header class="site-header">
+    <div class="header-inner">
+        <a class="brand" href="/"><img src="/images/icon36x36.png" alt="統計メモ帳" width="36" height="36"/><span class="brand-title">統計メモ帳</span></a>
+        <button type="button" class="nav-toggle" aria-label="メニュー" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-area">
+            {% include "partials/_mainnav.html" %}
+            <form class="search-form" action="https://www.google.co.jp/cse" id="cse-search-box">
+                <input type="hidden" name="cx" value="partner-pub-1546885182692889:4131539261"/>
+                <input type="hidden" name="ie" value="UTF-8"/>
+                <input type="text" name="q" size="15" aria-label="サイト内検索"/>
+                <input type="submit" name="sa" value="検索"/>
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <main class="main-section">
+{% block content %}{% endblock %}
+{% if config.adsense_client %}
+        <div class="ad ad-banner">
+            <ins class="adsbygoogle" style="display:block"
+                 data-full-width-responsive="true"
+                 data-ad-client="{{ config.adsense_client }}"
+                 data-ad-slot="{{ config.adsense_slot_banner }}"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+{% endif %}
+    </main>
+    <aside class="sidebar">
+{% block rightside_upper %}{% endblock %}
+{% if config.adsense_client %}
+        <div class="ad ad-rect">
+            <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px"
+                 data-ad-client="{{ config.adsense_client }}"
+                 data-ad-slot="{{ config.adsense_slot_rect }}"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+{% endif %}
+{% block rightside_under %}{% endblock %}
+        <div class="pc-only">
+            <h4>Data.gov</h4>
+            <p class="linkcol">
+                <a href="https://www.data.gov/">アメリカ</a>
+                <a href="https://www.data.gov.uk/">イギリス</a>
+                <a href="https://data.gov.in/">インド</a>
+                <a href="https://data.gov.au/" target="_blank" rel="noopener">オーストラリア</a>
+                <a href="https://www.data.gv.at/" target="_blank" rel="noopener">オーストリア</a>
+                <a href="https://open.canada.ca/en/open-data" target="_blank" rel="noopener">カナダ</a>
+                <a href="https://www.data.go.kr/" target="_blank" rel="noopener">韓国</a>
+                <a href="https://www.govdata.de/" target="_blank" rel="noopener">ドイツ</a>
+                <a href="https://dados.gov.br/" target="_blank" rel="noopener">ブラジル</a>
+                <a href="https://www.data.gouv.fr/" target="_blank" rel="noopener">フランス</a>
+                <a href="https://data.europa.eu/" target="_blank" rel="noopener">ヨーロッパ連合</a>
+                <a href="https://stats.oecd.org/" target="_blank" rel="noopener">OECD</a>
+                <a href="https://data.un.org/" target="_blank" rel="noopener">国際連合</a>
+                <a href="https://data.worldbank.org/" target="_blank" rel="noopener">世界銀行</a>
+            </p>
+        </div>
+        <div class="pc-only">
+            <h4>世界各国の統計データ</h4>
+            <p class="linkcol">
+                <a href="https://www.census.gov/">アメリカ(人口)</a>
+                <a href="https://www.bea.gov/">アメリカ(GDP)</a>
+                <a href="http://www.stats.gov.cn/english/">中国</a>
+                <a href="https://censusindia.gov.in/">インド</a>
+                <a href="https://ec.europa.eu/eurostat">EU</a>
+                <a href="https://eng.rosstat.gov.ru/">ロシア</a>
+                <a href="https://www.ibge.gov.br/en/">ブラジル</a>
+                <a href="https://www.statcan.gc.ca/">カナダ</a>
+            </p>
+        </div>
+    </aside>
+</div>
+
+<footer id="footer">
+    <div class="footer-cols">
+        <div>
+            <h6>提供サービス</h6>
+            <ul><li><a href="/">統計メモ帳</a></li></ul>
+        </div>
+        <div>
+            <h6>サイトメニュー</h6>
+            <ul>
+                <li><a href="/Population/">世界と日本の人口</a></li>
+                <li><a href="/gdp/">世界の国のGDP</a></li>
+                <li><a href="/x-12-arima/">X-12-ARIMAについて</a></li>
+            </ul>
+        </div>
+        <div>
+            <h6>eCitizen.jpについて</h6>
+            <ul>
+                <li><a href="/about/">eCitizen.jpについて</a></li>
+                <li><a href="/privacy/">プライバシーポリシー</a></li>
+            </ul>
+        </div>
+        <div>
+            <h6>リンク</h6>
+            <ul>
+                <li><a href="https://twitter.com/#!/eCitizenJp">Twitter</a></li>
+            </ul>
+        </div>
+    </div>
+    <p class="copyright">Copyright &copy; 2011 - {{ build_year }} ecitizen.jp All Rights Reserved.</p>
+</footer>
+<script src="/js/site.js" defer></script>
+{% block add_script %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,185 @@
+/* eCitizenStatic 共通スタイル (K1: Bootstrap 廃止後の自前 CSS)
+   ブレークポイントは旧サイト踏襲: 767px 以下 = モバイル */
+
+:root {
+    --nav-bg: #222222;
+    --nav-fg: #9d9d9d;
+    --nav-fg-active: #ffffff;
+    --link: #337ab7;
+    --border: #aaaaaa;
+    --index-bg: #ddeeff;
+    --max-width: 1170px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", Meiryo, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #333333;
+    background: #ffffff;
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h2 { font-size: 24px; margin: 12px 0; }
+h3 { font-size: 20px; margin: 24px 0 10px; }
+h4 { font-size: 16px; margin: 18px 0 8px; }
+h5 { font-size: 14px; margin: 16px 0 6px; }
+
+/* ---- ヘッダー / ナビ ---- */
+.site-header { background: var(--nav-bg); }
+.header-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 50px;
+}
+.brand { display: flex; align-items: center; gap: 8px; padding: 7px 0; }
+.brand img { display: block; }
+.brand-title { color: var(--nav-fg-active); font-size: 18px; }
+.nav-toggle {
+    display: none;
+    margin-left: auto;
+    background: none;
+    border: 1px solid #444444;
+    border-radius: 4px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #cccccc;
+    margin: 4px 0;
+}
+.nav-area { display: flex; align-items: center; flex: 1; }
+.mainnav > ul { list-style: none; margin: 0; padding: 0; display: flex; }
+.mainnav .dropdown-menu { list-style: none; margin: 0; padding: 0; }
+.mainnav > ul > li > a {
+    display: block;
+    color: var(--nav-fg);
+    padding: 15px 12px;
+}
+.mainnav > ul > li.active > a,
+.mainnav > ul > li > a:hover { color: var(--nav-fg-active); text-decoration: none; }
+.caret {
+    display: inline-block;
+    margin-left: 4px;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    vertical-align: middle;
+}
+.dropdown { position: relative; }
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    min-width: 240px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,.15);
+    flex-direction: column;
+}
+.dropdown:hover .dropdown-menu,
+.dropdown:focus-within .dropdown-menu,
+.dropdown.open .dropdown-menu { display: flex; }
+.dropdown-menu li a { display: block; padding: 6px 14px; color: #333333; }
+.dropdown-menu li a:hover { background: #f5f5f5; text-decoration: none; }
+.search-form { margin-left: auto; display: flex; gap: 4px; padding: 8px 0; }
+.search-form input[type="text"] { padding: 4px 6px; border: 1px solid #cccccc; border-radius: 3px; }
+.search-form input[type="submit"] { padding: 4px 10px; }
+
+/* ---- レイアウト (メイン + サイドバー) ---- */
+.layout {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+}
+.main-section { min-width: 0; padding: 8px 0 24px; }
+.sidebar { padding: 8px 0 24px; }
+
+/* ---- フッター ---- */
+#footer { background: #f5f5f5; border-top: 1px solid #dddddd; margin-top: 24px; }
+.footer-cols {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 18px 10px 6px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+.footer-cols h6 { margin: 0 0 6px; font-size: 13px; }
+.footer-cols ul { list-style: none; margin: 0; padding: 0; }
+.copyright { max-width: var(--max-width); margin: 0 auto; padding: 6px 10px 18px; color: #777777; }
+
+/* ---- 共通部品 ---- */
+.ad { text-align: center; margin: 12px 0; }
+.linkcol a { display: block; }
+.linklist { list-style: none; margin: 0 0 8px; padding: 0; overflow: hidden; }
+.linklist .chartlink { float: left; margin: 2px 2px 2px 11px; }
+.table-responsive { overflow-x: auto; }
+table { border-collapse: collapse; }
+table td { text-align: right; border: 1px solid var(--border); padding: 2px 6px; }
+td.center { text-align: center; }
+td.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+
+/* ---- グラフ ---- */
+.chart { margin: 0; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart-switch .btn {
+    display: inline-block;
+    padding: 5px 12px;
+    border: 1px solid #adadad;
+    border-radius: 4px;
+    background: #eeeeee;
+    color: #333333;
+    margin-right: 4px;
+}
+.chart-switch .btn:hover { background: #e0e0e0; text-decoration: none; }
+.chart-switch .btn.disabled { opacity: .55; pointer-events: none; }
+
+/* ---- city ページ ---- */
+#popuindex {
+    border-radius: 6px;
+    background-color: var(--index-bg);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0 5px;
+}
+#popuindex .parts { padding: 15px; }
+.explain { padding: 10px; }
+
+/* ---- モバイル ---- */
+@media (max-width: 767px) {
+    .nav-toggle { display: block; }
+    .nav-area { display: none; width: 100%; flex-direction: column; align-items: stretch; }
+    .nav-area.open { display: flex; }
+    .mainnav > ul { flex-direction: column; }
+    .mainnav > ul > li > a { padding: 10px 12px; }
+    .dropdown-menu { position: static; border: none; box-shadow: none; background: #333333; }
+    .dropdown-menu li a { color: #dddddd; padding-left: 28px; }
+    .dropdown-menu li a:hover { background: #444444; }
+    .search-form { margin: 0 12px 10px; }
+    .layout { grid-template-columns: 1fr; }
+    .footer-cols { grid-template-columns: repeat(2, 1fr); }
+    .pc-only { display: none; }
+    #popuindex { grid-template-columns: 1fr; }
+    .linklist .chartlink { margin: 10px 5px 10px 15px; }
+}

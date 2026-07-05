@@ -1,0 +1,13 @@
+{# 旧 CityInfo2015ViewComponent (Views/Population/Components/CityInfo2015/Default.cshtml) #}
+{% if info %}
+<h4>{{ info.name }} の基本情報</h4>
+<p>
+    <a href="/Population/Population2015Pre/?order=popu">人口(2015年10月)</a> {{ info.popu2015 | num }} 人<br/>
+    全国順位 {{ info.order2015 }} 位 (1741市区町村中)<br/>
+    <a href="/Population/Population2015Pre/?order=inc">増加数(2010～2015)</a> {{ (info.popu2015 - info.popu2010) | num }} 人<br/>
+    <a href="/Population/Population2015Pre/?order=rate">増加率(2010～2015)</a> {{ ((info.popu2015 - info.popu2010) / info.popu2010 * 100.0) | f1 }} %<br/>
+    <a href="/population/ListOfCitiesByArea">面積</a> {{ info.area | dstr }} K㎡<br/>
+    人口密度 {{ (info.popu2015 / info.area) | numf1 }} 人/K㎡<br/>
+    出典: 人口 平成27年国勢調査(総務省)<br/>面積 国土地理院 平成27年全国都道府県市区町村別面積調
+</p>
+{% endif %}

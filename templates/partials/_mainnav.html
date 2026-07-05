@@ -1,0 +1,50 @@
+<nav class="mainnav" aria-label="メイン">
+    <ul>
+        <li class="dropdown{{ ' active' if nav_active == 'population' }}">
+            <a href="/Population/">世界と日本の人口<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li><a href="/Population/">人口を可視化してみました</a></li>
+                <li><a href="/Population/Ranking">2045年市町村推計人口ランキング</a></li>
+                <li><a href="/Population/Population2015">2015年市町村人口ランキング</a></li>
+                <li><a href="/Population/YoungMigration">若年女性の人口移動状況</a></li>
+            </ul>
+        </li>
+        <li class="dropdown{{ ' active' if nav_active in ('statdb', 'ssds', 'sac') }}">
+            <a href="/Statdb/">統計APIエクスプローラ<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li><a href="/Statdb/">統計APIエクスプローラ</a></li>
+                <li><a href="/Ssds">都道府県ランキング</a></li>
+                <li><a href="/sac">市区町村コード表</a></li>
+            </ul>
+        </li>
+        <li class="{{ 'active' if nav_active == 'living' }}"><a href="/Living/Cpi/">物価</a></li>
+        <li class="dropdown{{ ' active' if nav_active in ('lg', 'lc') }}">
+            <a href="/lg/">市町村の統計<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li><a href="/lg/">市町村の統計</a></li>
+                <li><a href="/Lc/Mame">市町村の豆知識</a></li>
+                <li><a href="/Lg/Map">市町村マップ検索</a></li>
+                <li><a href="/population/Aging2015">2015年高齢化率ランキング</a></li>
+                <li><a href="/population/Young2015">2015年年少人口割合ランキング</a></li>
+                <li><a href="/population/CityAging2045">2045年老年人口増加ランキング</a></li>
+                <li><a href="/population/CityOldOld2045">2045年後期高齢者増加ランキング</a></li>
+                <li><a href="/population/ListOfCitiesByArea">市町村の面積ランキング</a></li>
+                <li><a href="/population/ListOfCitiesByTfr">市町村特殊合計出生率ランキング</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#">その他<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li><a href="/gdp/">世界の国のGDP</a></li>
+                <li><a href="/gdp/fertility-rate-and-gdp/">出生率とGDP</a></li>
+                <li><a href="/x-12-arima/">X-12-ARIMA</a></li>
+                <li><a href="/x-12-arima/win-x-12/">インストール</a></li>
+                <li><a href="/x-12-arima/gdp/">四半期別GDP速報編</a></li>
+                <li><a href="/x-12-arima/x-12-arima-examples/">鉱工業指数編</a></li>
+                <li><a href="/x-12-arima/x-12-arima/">X-12-ARIMA 使用手順</a></li>
+                <li><a href="/io/">産業連関表リンク</a></li>
+                <li><a href="/excel-vba/">Excel VBA メモ</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
