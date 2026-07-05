@@ -1,6 +1,32 @@
 /* eCitizenStatic 共通スタイル (K1: Bootstrap 廃止後の自前 CSS)
    ブレークポイントは旧サイト踏襲: 767px 以下 = モバイル */
 
+/* モリサワ BIZ UD ゴシック (SIL OFL, セルフホスト。ライセンスは /fonts/OFL.txt) */
+@font-face {
+    font-family: "BIZ UDPGothic";
+    font-weight: 400;
+    font-display: swap;
+    src: url("/fonts/BIZUDPGothic-Regular.woff2") format("woff2");
+}
+@font-face {
+    font-family: "BIZ UDPGothic";
+    font-weight: 700;
+    font-display: swap;
+    src: url("/fonts/BIZUDPGothic-Bold.woff2") format("woff2");
+}
+@font-face {
+    font-family: "BIZ UDGothic";
+    font-weight: 400;
+    font-display: swap;
+    src: url("/fonts/BIZUDGothic-Regular.woff2") format("woff2");
+}
+@font-face {
+    font-family: "BIZ UDPMincho";
+    font-weight: 400;
+    font-display: swap;
+    src: url("/fonts/BIZUDPMincho-Regular.woff2") format("woff2");
+}
+
 :root {
     --nav-bg: #222222;
     --nav-fg: #9d9d9d;
@@ -15,7 +41,7 @@
 
 body {
     margin: 0;
-    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", Meiryo, sans-serif;
+    font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", Meiryo, sans-serif;
     font-size: 14px;
     line-height: 1.55;
     color: #333333;
@@ -25,6 +51,10 @@ body {
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+h2, h3, h4, h5, h6 {
+    font-family: "BIZ UDPMincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", serif;
+    font-weight: 400;
+}
 h2 { font-size: 24px; margin: 12px 0; }
 h3 { font-size: 20px; margin: 24px 0 10px; }
 h4 { font-size: 16px; margin: 18px 0 8px; }
@@ -133,6 +163,8 @@ h5 { font-size: 14px; margin: 16px 0 6px; }
 .linklist { list-style: none; margin: 0 0 8px; padding: 0; overflow: hidden; }
 .linklist .chartlink { float: left; margin: 2px 2px 2px 11px; }
 .table-responsive { overflow-x: auto; }
+/* 表とグラフは等幅数字の BIZ UDGothic (桁揃えのため) */
+table, .chart svg text { font-family: "BIZ UDGothic", "BIZ UDPGothic", "Noto Sans CJK JP", sans-serif; }
 table { border-collapse: collapse; }
 table td { text-align: right; border: 1px solid var(--border); padding: 2px 6px; }
 td.center { text-align: center; }

@@ -309,8 +309,9 @@ Jinja2 の `{% block %}` に 1:1 で対応させる。
 - 実装: `citizenlib/charts.py`。matplotlib (Agg/SVG バックエンド) で描画し、
   SVG 文字列をテンプレートに渡して **HTML にインライン埋め込み**する
   (別ファイルにしないので Pages のファイル数上限に影響しない)。
-- 日本語フォント: ローカルの Noto Sans CJK を使用。`svg.fonttype='none'` で
-  テキストはテキストのまま出力し、CSS の `font-family` (サイト本文と同系) に委ねる。
+- 日本語フォント: モリサワ BIZ UDGothic (K9)。`svg.fonttype='none'` で
+  テキストはテキストのまま出力し、CSS の `@font-face` (セルフホスト woff2) で解決。
+  matplotlib には `assets/fonts/*.ttf` を登録してレイアウト計算に使う。
 - **決定性**: `svg.hashsalt` をコード固定し、matplotlib のバージョンを
   `requirements.txt` でピン止めする (同じ data/ → 同じ public/ の原則を維持)。
 - レスポンシブ: 旧サイトの `screen.width` による PC/モバイル 2 種の
@@ -389,6 +390,7 @@ Git 連携ビルド。定期更新(Phase 3 の e-Stat 系)は cron で
 | K7 | ホスティング先 | **Cloudflare Pages** (制約と構成は §9.1) |
 
 | K8 | グラフ描画 | **Python によるビルド時 SVG 生成**(描画層の一部としてローカル処理)。クライアント側チャートライブラリ (Highcharts/ECharts/D3 等) は使わない。詳細は §8.6 |
+| K9 | フォント | **モリサワ BIZ UD ゴシック / BIZ UD 明朝** (SIL OFL 版) をセルフホスト。本文 = BIZ UDPGothic (400/700)、見出し (h2〜h6) = BIZ UDPMincho (400)、表・グラフ SVG = BIZ UDGothic (等幅数字で桁揃え)。woff2 + OFL.txt を `/fonts/` で配信、TTF はリポジトリ同梱で matplotlib のレイアウト計算にも使用。外部フォント配信 (Google Fonts CDN / TypeSquare) は使わない。商用版 UD 新ゴへの差し替えは Morisawa Fonts 契約が必要なため不採用 |
 
 (初版の未決事項 D1〜D5 はすべて K2〜K8 として決定済み。残る個別判断は City3d ページの扱いのみ — §8.6 参照。)
 

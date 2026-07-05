@@ -13,7 +13,8 @@ pip install -r requirements.txt
 ```
 
 前提: 旧リポジトリ `../eCitizen/eCitizen` (App_Data がデータの一次ソース)。
-日本語フォント Noto Sans CJK (グラフ SVG 用)。
+フォントはモリサワ BIZ UD ゴシック / BIZ UD 明朝 (SIL OFL) を `assets/fonts/` に同梱
+(サイト配信用 woff2 + matplotlib 用 TTF。ライセンスは同ディレクトリの OFL.txt)。
 
 ## ビルド
 

@@ -59,6 +59,8 @@ HEADERS = """\
   Cache-Control: public, max-age=86400
 /images/*
   Cache-Control: public, max-age=604800
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
 """
 
 # ワーカープロセス内で初期化されるグローバル
@@ -130,6 +132,11 @@ def _build_city(code: str) -> str:
 def copy_assets(source: Path) -> None:
     shutil.copytree(ROOT / "assets" / "css", PUBLIC / "css", dirs_exist_ok=True)
     shutil.copytree(ROOT / "assets" / "js", PUBLIC / "js", dirs_exist_ok=True)
+    # フォントは woff2 と OFL ライセンスのみ配信 (ttf はビルド用)
+    (PUBLIC / "fonts").mkdir(parents=True, exist_ok=True)
+    for f in (ROOT / "assets" / "fonts").iterdir():
+        if f.suffix == ".woff2" or f.name == "OFL.txt":
+            shutil.copy2(f, PUBLIC / "fonts" / f.name)
     (PUBLIC / "images").mkdir(parents=True, exist_ok=True)
     wwwroot = source / "wwwroot"
     for name in ("icon36x36.png", "excel.svg"):
