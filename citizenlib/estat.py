@@ -71,6 +71,14 @@ class EstatClient:
             raise EstatError(f"getStatsList エラー: {result}")
         return body["GET_STATS_LIST"]
 
+    def get_stats_list_body(self, **params) -> dict:
+        """getStatsList の GET_STATS_LIST をステータス検査なしで返す。
+
+        「該当データなし」(STATUS=1) を正常系として扱いたい呼び出し側
+        (tools/fetch_statdb.py) 用。
+        """
+        return self._get("getStatsList", params)["GET_STATS_LIST"]
+
     def get_stats_data(self, statsDataId: str, **params) -> dict:
         """統計データ取得 (getStatsData)。100,000件超は NEXT_KEY でページング。"""
         params = {"statsDataId": statsDataId, **params}
