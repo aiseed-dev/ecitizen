@@ -40,17 +40,17 @@
         </p>
     </div>
     <div class="parts">
-        <p>{{ m.index[14].year }} 年推計</p>
+        <p>{{ m.index[-1].year }} 年推計</p>
         <p>
-            人口 {{ m.projection[0].population[6] | num }} 人<br/>
-            年少人口割合 {{ m.index[14].young_pct | f1 }} %<br/>
-            生産年齢人口割合 {{ m.index[14].working_pct | f1 }} %<br/>
-            老年人口割合 {{ m.index[14].old_pct | f1 }} %<br/>
-            後期老年人口割合 {{ m.index[14].old_old_pct | f1 }} %<br/>
-            年少人口指数 {{ m.index[14].young_index | f1 }}<br/>
-            老年人口指数 {{ m.index[14].old_index | f1 }}<br/>
-            従属人口指数 {{ m.index[14].dependency_index | f1 }}<br/>
-            老年化指数 {{ m.index[14].aging_index | f1 }}<br/>
+            人口 {{ m.projection[0].population[-1] | num }} 人<br/>
+            年少人口割合 {{ m.index[-1].young_pct | f1 }} %<br/>
+            生産年齢人口割合 {{ m.index[-1].working_pct | f1 }} %<br/>
+            老年人口割合 {{ m.index[-1].old_pct | f1 }} %<br/>
+            後期老年人口割合 {{ m.index[-1].old_old_pct | f1 }} %<br/>
+            年少人口指数 {{ m.index[-1].young_index | f1 }}<br/>
+            老年人口指数 {{ m.index[-1].old_index | f1 }}<br/>
+            従属人口指数 {{ m.index[-1].dependency_index | f1 }}<br/>
+            老年化指数 {{ m.index[-1].aging_index | f1 }}<br/>
         </p>
     </div>
 </div>
@@ -63,12 +63,12 @@
     </p>
 </div>
 
-<h3>{{ m.name }} の人口(1980年～2015年)の推移</h3>
+<h3>{{ m.name }} の人口(1980年～2020年)の推移</h3>
 <div class="table-responsive">
     <table>
         <tr>
             <td class="center">年</td>
-{% for year in range(1980, 2020, 5) %}
+{% for year in range(1980, 2025, 5) %}
             <td class="center">{{ year }}年</td>
 {% endfor %}
         </tr>
@@ -83,21 +83,21 @@
 {% for row in index_rows %}
         <tr class="ti">
             <td class="left">{{ row.label }}</td>
-{% for n in range(0, 8) %}
+{% for n in range(0, 9) %}
             <td>{{ m.index[n][row.key] | f1 if row.pct else m.index[n][row.key] | num }}</td>
 {% endfor %}
         </tr>
 {% endfor %}
     </table>
 </div>
-<p>年齢階級別等の人口の数字は、国勢調査(総務省)のデータを市町村合併を考慮して独自に集計したものです。境界変更については考慮していません。</p>
+<p>年齢階級別等の人口の数字は、国勢調査(総務省)のデータを市町村合併を考慮して独自に集計したものです。境界変更については考慮していません。2020年は国勢調査による実績値です。</p>
 
-<h3>{{ m.name }} の将来推計人口(2015年～2045年)</h3>
+<h3>{{ m.name }} の将来推計人口(2020年～2050年)</h3>
 <div class="table-responsive">
     <table>
         <tr>
             <td class="center">年</td>
-{% for year in range(2015, 2050, 5) %}
+{% for year in range(2020, 2055, 5) %}
             <td class="center">{{ year }}年</td>
 {% endfor %}
         </tr>
@@ -112,14 +112,14 @@
 {% for row in index_rows %}
         <tr class="ti">
             <td class="left">{{ row.label }}</td>
-{% for n in range(8, 15) %}
+{% for n in range(9, 16) %}
             <td>{{ m.index[n][row.key] | f1 if row.pct else m.index[n][row.key] | num }}</td>
 {% endfor %}
         </tr>
 {% endfor %}
     </table>
 </div>
-<p>国立社会保障・人口問題研究所の<a href="http://www.ipss.go.jp/pp-shicyoson/j/shicyoson18/t-page.asp">『日本の地域別将来推計人口(平成30(2018)年3月推計)』</a>を使用しています。</p>
+<p>国立社会保障・人口問題研究所の<a href="https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp">『日本の地域別将来推計人口(令和5(2023)年推計)』</a>を使用しています。</p>
 {% endblock %}
 
 {% block rightside_under %}

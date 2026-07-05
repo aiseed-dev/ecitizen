@@ -2,3 +2,4 @@ Jinja2==3.1.6
 matplotlib==3.11.0
 fonttools==4.63.0
 brotli==1.2.0
+openpyxl==3.1.5

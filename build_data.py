@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 from citizenlib import masters, rankings
+from citizenlib.ipss import IpssData
 from citizenlib.population import (
     SourceData, build_city_model, build_city_pyramid_model, build_country_model,
     build_pref_model,
@@ -34,29 +35,32 @@ def main() -> None:
     args = ap.parse_args()
 
     source = SourceData(args.source)
+    ipss = IpssData()
 
-    # --- 市町村 (Phase 1) ---
+    # --- 市町村 (Phase 1、census 2020列・projection全体は IPSS 令和5年推計) ---
     city_dir = ROOT / "data" / "population" / "city"
     city_models = {}
     for code in masters.CITY_DIC:
-        model = build_city_model(source, code)
+        model = build_city_model(source, code, ipss)
         # 契約の構造チェック (DATA_CONTRACT §2.1)
-        assert len(model["census"]) == 21 and all(len(r["population"]) == 8 for r in model["census"]), code
+        n_census_cols = 8 if model["fukushima"] else 9
+        assert len(model["census"]) == 21 and all(
+            len(r["population"]) == n_census_cols for r in model["census"]), code
         assert model["projection"] == [] or (
-            len(model["projection"]) == 20 and all(len(r["population"]) == 7 for r in model["projection"])), code
-        assert len(model["index"]) == (8 if model["fukushima"] else 15), code
+            len(model["projection"]) == 21 and all(len(r["population"]) == 7 for r in model["projection"])), code
+        assert len(model["index"]) == (8 if model["fukushima"] else 16), code
         write_json(city_dir / f"{code}.json", model)
         city_models[code] = model
     print(f"市町村モデル {len(city_models)} 件")
 
     write_json(ROOT / "data" / "cityinfo2015.json", source.load_cityinfo2015())
 
-    # --- 都道府県 (Phase 2) ---
+    # --- 都道府県 (Phase 2、census 2020列・projection全体は IPSS 令和5年推計) ---
     pref_dir = ROOT / "data" / "population" / "pref"
     for pref in masters.PREF_CODE:
-        model = build_pref_model(source, pref)
-        assert len(model["census"]) == 21 and len(model["projection"]) == 20, pref
-        assert len(model["index"]) == 15, pref
+        model = build_pref_model(source, pref, ipss)
+        assert len(model["census"]) == 21 and len(model["projection"]) == 21, pref
+        assert len(model["index"]) == 16, pref
         write_json(pref_dir / f"{pref}.json", model)
     print(f"都道府県モデル {len(masters.PREF_CODE)} 件")
 
@@ -70,15 +74,16 @@ def main() -> None:
         write_json(country_dir / f"{code}.json", model)
     print(f"国モデル {len(masters.COUNTRY_CODE)} 件")
 
-    # --- 人口ピラミッド (Phase 2、市町村のみ) ---
+    # --- 人口ピラミッド (Phase 2、市町村のみ、IPSS 令和5年推計) ---
     pyramid_dir = ROOT / "data" / "population" / "pyramid" / "city"
     for code in masters.CITY_DIC:
-        model = build_city_pyramid_model(source, code)
-        expected_years = 8 if code.startswith("07") else 14
+        model = build_city_pyramid_model(source, code, ipss)
+        expected_years = 8 if model["fukushima"] else 15
         assert len(model["years"]) == expected_years, code
         assert all(len(y["male"]) == 19 and len(y["female"]) == 19 for y in model["years"]), code
         write_json(pyramid_dir / f"{code}.json", model)
     print(f"人口ピラミッドモデル {len(masters.CITY_DIC)} 件")
+    ipss.close()
 
     # --- ランキング系 (Phase 2、既存データからの再計算のみ。新規ソース読込は area/tfr/ranking2045 のみ) ---
     rank_dir = ROOT / "data" / "rankings"
@@ -99,11 +104,12 @@ def main() -> None:
     tfr_ranking = rankings.build_tfr_ranking(source.load_tfr())
     write_json(rank_dir / "citytfr.json", tfr_ranking)
 
+    # IPSS 令和5年推計への切替後も対象外は福島県浜通り13町村のみ (那珂川市はコード変換で救済済み)
     aging_oldold = rankings.build_aging_oldold_2045(city_models)
-    assert len(aging_oldold) == 1682
+    assert len(aging_oldold) == len(masters.CITY_DIC) - 13
     write_json(rank_dir / "city_aging_2045.json", rankings.rank_generation(aging_oldold, "old"))
     write_json(rank_dir / "city_oldold_2045.json", rankings.rank_generation(aging_oldold, "old_old"))
-    print("ランキングデータ (ranking2045 全国+47県 / cityarea / citytfr / aging・oldold 2045) を生成しました")
+    print("ランキングデータ (ranking2045 全国+47県 / cityarea / citytfr / aging・oldold 2050) を生成しました")
 
 
 if __name__ == "__main__":

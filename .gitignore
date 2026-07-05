@@ -6,3 +6,8 @@ __pycache__/
 data/population/
 data/rankings/
 data/cityinfo2015.json
+# 外部一次データのローカルキャッシュ (再ダウンロード可能。数MB〜数十MBあるため管理外)
+data/raw/
+
+# e-Stat appId 等の秘匿設定 (K5: ローカルバッチ専用。リポジトリにコミットしない)
+secrets.json

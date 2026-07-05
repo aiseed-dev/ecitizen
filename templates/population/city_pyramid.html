@@ -11,7 +11,7 @@
 </p>
 <div class="pyramid-viewer">
 {% for year, kind, svg in svgs %}
-    <figure class="pyramid-year chart"{{ '' if year == 2015 else ' hidden' }} data-year="{{ year }}">{{ svg | safe }}</figure>
+    <figure class="pyramid-year chart"{{ '' if year == 2020 else ' hidden' }} data-year="{{ year }}">{{ svg | safe }}</figure>
 {% endfor %}
 </div>
 <div id="selects">
@@ -19,7 +19,7 @@
     <input id="pervyear" value="&lt;" type="button"/>
     <select id="year">
 {% for year, kind, svg in svgs %}
-        <option value="{{ year }}"{{ ' selected' if year == 2015 }}>{{ year }}</option>
+        <option value="{{ year }}"{{ ' selected' if year == 2020 }}>{{ year }}</option>
 {% endfor %}
     </select>
     <input id="nextyear" value="&gt;" type="button"/>
@@ -27,11 +27,11 @@
 </div>
 
 <div class="section">
-    <h3>{{ m.name }} の男性人口(1980年～2015年)</h3>
+    <h3>{{ m.name }} の男性人口(1980年～{{ census_years[-1] }}年)</h3>
     <table>
         <tr>
             <td class="center">年</td>
-{% for year in range(1980, 2020, 5) %}
+{% for year in census_years %}
             <td class="center">{{ year }}年</td>
 {% endfor %}
         </tr>
@@ -44,11 +44,11 @@
         </tr>
 {% endfor %}
     </table>
-    <h3>{{ m.name }} の女性人口(1980年～2015年)</h3>
+    <h3>{{ m.name }} の女性人口(1980年～{{ census_years[-1] }}年)</h3>
     <table>
         <tr>
             <td class="center">年</td>
-{% for year in range(1980, 2020, 5) %}
+{% for year in census_years %}
             <td class="center">{{ year }}年</td>
 {% endfor %}
         </tr>
@@ -61,16 +61,16 @@
         </tr>
 {% endfor %}
     </table>
-    <p>男女別年齢階級別等の人口の数字は、国勢調査(総務省)のデータを市町村合併を考慮して独自に集計したものです。境界変更については考慮していません。</p>
+    <p>男女別年齢階級別等の人口の数字は、国勢調査(総務省)のデータを市町村合併を考慮して独自に集計したものです。境界変更については考慮していません。2020年は国勢調査による実績値です。</p>
 </div>
 
 <div class="section">
-    <h3>{{ m.name }} の将来推計人口男性(2015年～2045年)</h3>
+    <h3>{{ m.name }} の将来推計人口男性(2020年～2050年)</h3>
 {% if pyramid.projection_m %}
     <table>
         <tr>
             <td class="center">年</td>
-{% for year in range(2015, 2050, 5) %}
+{% for year in range(2020, 2055, 5) %}
             <td class="center">{{ year }}年</td>
 {% endfor %}
         </tr>
@@ -89,12 +89,12 @@
 </div>
 
 <div class="section">
-    <h3>{{ m.name }} の将来推計人口女性(2015年～2045年)</h3>
+    <h3>{{ m.name }} の将来推計人口女性(2020年～2050年)</h3>
 {% if pyramid.projection_f %}
     <table>
         <tr>
             <td class="center">年</td>
-{% for year in range(2015, 2050, 5) %}
+{% for year in range(2020, 2055, 5) %}
             <td class="center">{{ year }}年</td>
 {% endfor %}
         </tr>
@@ -107,7 +107,7 @@
         </tr>
 {% endfor %}
     </table>
-    <p>国立社会保障・人口問題研究所の<a href="http://www.ipss.go.jp/pp-shicyoson/j/shicyoson18/t-page.asp">『日本の地域別将来推計人口(平成30(2018)年3月推計)』</a>を使用しています。</p>
+    <p>国立社会保障・人口問題研究所の<a href="https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp">『日本の地域別将来推計人口(令和5(2023)年推計)』</a>を使用しています。</p>
 {% else %}
     <p>福島県内の市町村の将来推計人口は公表されていません。</p>
 {% endif %}

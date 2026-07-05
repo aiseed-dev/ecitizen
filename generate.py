@@ -16,9 +16,11 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from citizenlib import masters, rankings
-from citizenlib.charts import city_pyramid_svg, city_stack_svg
+from citizenlib.charts import SOURCE_NOTE_OLD, city_pyramid_svg, city_stack_svg
 from citizenlib.filters import FILTERS
-from citizenlib.population import countrydata_series, stacked_series
+from citizenlib.population import (
+    CENSUS_YEARS, COUNTRY_CENSUS_YEARS, PROJECTION_YEARS, countrydata_series, stacked_series,
+)
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_SOURCE = ROOT.parent / "eCitizen" / "eCitizen"
@@ -127,11 +129,17 @@ def _build_city(code: str) -> str:
     series = stacked_series(model)
     write_text(f"Population/CityData/{code}.json", compact_json(series))
 
+    census_years = CENSUS_YEARS[:-1] if model["fukushima"] else CENSUS_YEARS
+    # グラフは fukushima でも常に15点 (CENSUS_YEARS+PROJECTION_YEARS[1:]) に揃える。
+    # stacked_series 側もゼロ埋め数を合わせている (citizenlib/population.py 参照)
+    chart_years = CENSUS_YEARS + PROJECTION_YEARS[1:]
+
     ctx = dict(_ctx_common)
     ctx.update({
         "m": model,
+        "census_years": census_years,
         "page_title": f"{model['pref_name']}{model['name']} - 市町村別の5歳年齢階級別人口の推移",
-        "chart_svg": city_stack_svg(model["name"], series),
+        "chart_svg": city_stack_svg(model["name"], series, chart_years),
         "pref_cities": masters.cities_of_pref(model["pref"]),
         "info": ctx["_cityinfo"].get(code),
     })
@@ -147,6 +155,7 @@ def _build_city(code: str) -> str:
         "m": model,
         "pyramid": pyramid,
         "svgs": svgs,
+        "census_years": census_years,
         "page_title": f"{model['pref_name']}{model['name']} - 市町村別の男女別5歳年齢階級別人口 人口ピラミッド",
         "pref_cities": masters.cities_of_pref(model["pref"]),
     })
@@ -159,12 +168,13 @@ def _build_pref(pref: str) -> str:
     model = json.loads((DATA_PREF / f"{pref}.json").read_text(encoding="utf-8"))
     series = stacked_series(model)
     write_text(f"Population/PrefData/{pref}.json", compact_json(series))
+    chart_years = CENSUS_YEARS + PROJECTION_YEARS[1:]
 
     ctx = dict(_ctx_common)
     ctx.update({
         "m": model,
         "page_title": f"{model['name']} - 都道府県別の5歳年齢階級別人口の推移",
-        "chart_svg": city_stack_svg(model["name"], series),
+        "chart_svg": city_stack_svg(model["name"], series, chart_years),
     })
     html = _env.get_template("population/prefecture.html").render(ctx)
     write_text(f"Population/Prefecture/{pref}/index.html", html)
@@ -176,11 +186,16 @@ def _build_country(code: str) -> str:
     series = countrydata_series(model)
     write_text(f"Population/CountryData/{code}.json", compact_json(series))
 
+    # Country は IPSS 対象外。旧平成30年推計のまま (2015..proj_cols で可変、CH/ISのみ6列)
+    proj_cols = len(model["projection"][0]["population"])
+    proj_years = [2015 + 5 * c for c in range(proj_cols)]
+    chart_years = COUNTRY_CENSUS_YEARS + proj_years[1:]
+
     ctx = dict(_ctx_common)
     ctx.update({
         "m": model,
         "page_title": f"{model['name']} - 各国の5歳年齢階級別人口の推移",
-        "chart_svg": city_stack_svg(model["name"], series),
+        "chart_svg": city_stack_svg(model["name"], series, chart_years, source_note=SOURCE_NOTE_OLD),
     })
     html = _env.get_template("population/country.html").render(ctx)
     write_text(f"Population/Country/{code}/index.html", html)
@@ -214,16 +229,17 @@ def build_rankings(ctx_common: dict) -> None:
         dict(ctx_common, rows=tfr, page_title="市区町村の特殊合計出生率ランキング"))
     write_text("Population/ListOfCitiesByTfr/index.html", html)
 
+    # IPSS 令和5年推計 (2020→2050) を使って再計算 (data/rankings/*.json 参照。旧ファイル名の
+    # "2045" は据え置きだが、中身は2050年までの推計値)
     aging = json.loads((DATA_RANKINGS / "city_aging_2045.json").read_text(encoding="utf-8"))
     html = env.get_template("population/city_generation_ranking.html").render(dict(
         ctx_common, rows=aging, field="old", page_title="今後高齢者が増加する市町村ランキング",
         page_h2="今後高齢者が増加する市町村のランキング",
-        page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(平成30年3月推計)』を使って、"
-                  "2015年から2045年の30年間で65歳以上の人口が増加する市区町村のランキングを作成してみました。"
+        page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(令和5(2023)年推計)』を使って、"
+                  "2020年から2050年の30年間で65歳以上の人口が増加する市区町村のランキングを作成してみました。"
                   "首都圏では高齢者がまだ急増すると推計される市区町村が多い一方、地方では高齢者の人口が減少すると"
-                  "推計されている市町村が約1000もあって、数からいえば減少する市町村が多くなっています。"
-                  "2015年には、1947年から1949年に生まれたベビーブーム世代が65歳以上の高齢者になったためと"
-                  "思われます。今後は、75歳以上の後期高齢者の人口が急増します"
+                  "推計されている市町村も多く、数からいえば減少する市町村が多くなっています。"
+                  "今後は、75歳以上の後期高齢者の人口が急増します"
                   "(参照 <a href=\"/Population/CityOldOld2045/\">今後高齢者が増加する市町村のランキング</a>)。"))
     write_text("Population/CityAging2045/index.html", html)
 
@@ -231,8 +247,8 @@ def build_rankings(ctx_common: dict) -> None:
     html = env.get_template("population/city_generation_ranking.html").render(dict(
         ctx_common, rows=oldold, field="old_old", page_title="今後後期高齢者が増加する市町村ランキング",
         page_h2="今後後期高齢者(75歳以上)が増加する市町村のランキング",
-        page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(平成30年3月推計)』を使って、"
-                  "2015年から2045年の30年間で75歳以上の人口が増加する市区町村のランキングを作成してみました。"))
+        page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(令和5(2023)年推計)』を使って、"
+                  "2020年から2050年の30年間で75歳以上の人口が増加する市区町村のランキングを作成してみました。"))
     write_text("Population/CityOldOld2045/index.html", html)
 
 

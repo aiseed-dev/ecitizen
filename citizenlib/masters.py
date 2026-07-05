@@ -17,7 +17,6 @@ CITY_DIC: dict = _load("citydic20161010.json")      # {"01100": "札幌市", ...
 AGES2: list = _load("ages2.json")                   # 総数〜年齢不詳 20件 (日本以外の国用)
 AGES3: list = _load("ages3.json")                   # 総数〜年齢不詳 21件
 CODETRANS_PD: dict = _load("codetrans20151001.json")  # pd(国勢調査)用コード変換
-CODETRANS_PP: dict = _load("codetrans20180401.json", default={})  # pp用(現行C#では空)
 COUNTRY_CODE: dict = _load("countrycode.json")        # 33カ国 (JP含む)
 
 # 旧サイトの RedirectToActionPermanent (PopulationController.City)
@@ -25,6 +24,13 @@ CITY_REDIRECTS = {
     "03305": "03216",  # 滝沢村 → 滝沢市
     "04423": "04216",  # 富谷町 → 富谷市
     "09367": "09203",  # 岩舟町 → 栃木市
+}
+
+# IPSS「日本の地域別将来推計人口(令和5年推計)」(2023年12月時点の市町村)との
+# コード差異。CITY_DIC は2016-10-10時点のため、それ以降の市制施行等で
+# コードが変わった市町村のみ対象 (citizenlib/ipss.py で参照)。
+IPSS_CODE_TRANS = {
+    "40305": "40231",  # 那珂川町 → 那珂川市 (2018-10-01 市制施行)
 }
 
 # 旧 Utils.ChangeCodeAfter2010 (Models/Utils.cs)。ListOfCitiesByTfr のリンク先解決用

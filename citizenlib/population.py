@@ -1,16 +1,21 @@
 """旧 PopulationChart / PopulationController の移植 (Phase 1: 市町村)。
 
-入力: 旧リポジトリ App_Data/Population2015/City/pd{code}.json (国勢調査 21行×8列)
-                                             pp{code}.json (将来推計 20行×7列)
+入力: 旧リポジトリ App_Data/Population2015/City/pd{code}.json (国勢調査、1980-2015)
 出力: DATA_CONTRACT.md §2.1 の市町村モデル / §3.1 の CityData 系列
+
+2026-07-05: 2020年国勢調査(census最終列)と将来推計(projection全体)は、
+IPSS「日本の地域別将来推計人口(令和5(2023)年推計)」に切替 (citizenlib/ipss.py)。
+City/Pref が対象。Country (海外) は対象外で旧データ (2015年国勢調査 + 平成30年推計)
+のまま (DATA_CONTRACT §2.4)。
 """
 import json
 from pathlib import Path
 
 from . import masters
 
-CENSUS_YEARS = list(range(1980, 2020, 5))      # 8列
-PROJECTION_YEARS = list(range(2015, 2050, 5))  # 7列
+CENSUS_YEARS = list(range(1980, 2025, 5))      # 9列 (1980..2020)。2020列は IPSS 実績値。City/Pref 用
+PROJECTION_YEARS = list(range(2020, 2055, 5))  # 7列 (2020..2050、IPSS 令和5年推計)。City/Pref 用
+COUNTRY_CENSUS_YEARS = list(range(1980, 2020, 5))  # 8列 (1980..2015)。Country は IPSS 対象外のため旧仕様のまま
 
 
 class SourceData:
@@ -53,16 +58,8 @@ class SourceData:
     def load_pd(self, code: str) -> list:
         return self._load_merged(self.city_dir, "pd", code, masters.CODETRANS_PD)
 
-    def load_pp(self, code: str) -> list:
-        if code.startswith("07"):  # 福島県: 将来推計は非公表
-            return []
-        return self._load_merged(self.city_dir, "pp", code, masters.CODETRANS_PP)
-
     def load_pref_pd(self, pref: str) -> list:
         return self._load_rows(self.pref_dir, "pd", pref)
-
-    def load_pref_pp(self, pref: str) -> list:
-        return self._load_rows(self.pref_dir, "pp", pref)
 
     def load_country_ed(self, code: str) -> list:
         return self._load_rows(self.country_dir, "ed", code)
@@ -73,12 +70,6 @@ class SourceData:
     def load_city_gender_pd(self, sex: str, code: str) -> list:
         d = self.city_m_dir if sex == "M" else self.city_f_dir
         return self._load_merged(d, "pd", code, masters.CODETRANS_PD)
-
-    def load_city_gender_pp(self, sex: str, code: str) -> list:
-        if code.startswith("07"):
-            return []
-        d = self.city_m_dir if sex == "M" else self.city_f_dir
-        return self._load_merged(d, "pp", code, masters.CODETRANS_PP)
 
     def load_cityinfo2015(self) -> list:
         return json.loads(self.info2015.read_text(encoding="utf-8-sig"))
@@ -132,16 +123,33 @@ def _index_of(rows: list, column: int, year: int, kind: str, include90_in_old: b
     }
 
 
-def build_city_model(source: SourceData, code: str) -> dict:
-    """DATA_CONTRACT §2.1 の市町村モデルを構築する。"""
-    census = source.load_pd(code)
-    projection = source.load_pp(code)
-    fukushima = code.startswith("07")
+def _append_ipss_census(census: list, ipss_total: list) -> list:
+    """census (21行×8列, 1980-2015) に IPSS の2020年列 (実績値) を1列追加する。
 
-    index = [_index_of(census, c, y, "census", True)
-             for c, y in enumerate(CENSUS_YEARS)]
+    census と ipss_total は共に Ages3 準拠の21行構成 (行の並びが一致)。
+    """
+    for row, ipss_row in zip(census, ipss_total):
+        row["population"] = list(row["population"]) + [ipss_row["population"][0]]
+    return census
+
+
+def build_city_model(source: SourceData, code: str, ipss) -> dict:
+    """DATA_CONTRACT §2.1 の市町村モデルを構築する。
+
+    ipss: citizenlib.ipss.IpssData。2020年census列と将来推計全体の一次ソース。
+    """
+    ipss_city = ipss.city(code)
+    fukushima = ipss_city is None  # IPSS未推計 = 福島県浜通り13町村 (2020年実績値も非公表)
+    census = source.load_pd(code)
+    projection = []
+    years = CENSUS_YEARS[:-1]  # 8列 (1980-2015)。fukushima 以外は末尾に2020を追加
     if not fukushima:
-        # 将来推計行は 90歳以上が老年に必ず含まれる (旧 SetIndexProjectionAll)
+        census = _append_ipss_census(census, ipss_city["total"])
+        projection = ipss_city["total"]
+        years = CENSUS_YEARS
+
+    index = [_index_of(census, c, y, "census", True) for c, y in enumerate(years)]
+    if projection:
         index += [_index_of(projection, c, y, "projection", True)
                   for c, y in enumerate(PROJECTION_YEARS)]
 
@@ -162,32 +170,41 @@ def stacked_series(model: dict) -> list:
     """公開 JSON `Population/CityData` / `PrefData` / (JP の) `CountryData` (DATA_CONTRACT §3.1/3.3)。
 
     系列順は 年齢不詳 → 90歳以上 → … → 0～4歳 (旧 CityData / PrefData / HukushimaCityData)。
-    census/projection とも 21行/20行の Ages3 構成であること (Pref・City・国JP用)。
+    census は常に Ages3 構成 (21行)。projection は City/Pref(新IPSS方式、
+    年齢不詳行ありの21行)と Country-JP(旧方式、年齢不詳行なしの20行)の
+    どちらもありうるため、行数を見て自動判定する。
     """
     pds = model["census"][1:][::-1]   # [年齢不詳, 90歳以上, ..., 0～4歳] 20行
-    out = [{"name": "年齢不詳", "data": pds[0]["population"][:8]}]
+    n_cols = len(pds[0]["population"])
+    out = [{"name": "年齢不詳", "data": pds[0]["population"][:n_cols]}]
 
     if not model["projection"]:
-        # 旧 HukushimaCityData (福島県の市町村専用の分岐。将来推計なし)。
+        # 旧 HukushimaCityData (福島県浜通り13町村専用の分岐。将来推計なし)。
         # 注意: 旧実装は name=pds[r] / data=pds[r+1] という1行ずれのバグがあった
         # (年齢不詳が2系列出る)。ここでは修正済み。
+        # ゼロ埋め数は「非fukushimaと同じ15点(CENSUS_YEARS+PROJECTION_YEARS[1:])」に
+        # 揃うように、census の不足分(9-n_cols)も含める (2020年国勢調査も非公表のため)。
+        pad = (len(CENSUS_YEARS) - n_cols) + (len(PROJECTION_YEARS) - 1)
         for r in range(19):
             out.append({"name": pds[r + 1]["series"],
-                        "data": pds[r + 1]["population"][:8] + [0] * 5})
+                        "data": pds[r + 1]["population"][:n_cols] + [0] * pad})
         return out
 
-    pps = model["projection"][1:][::-1]  # [90歳以上, ..., 0～4歳] 19行
+    pps = model["projection"][1:][::-1]  # 20行(新IPSS、年齢不詳含む) or 19行(旧Country-JP)
+    if len(pps) == 20:
+        pps = pps[1:]  # 年齢不詳行(常にゼロ)を落として90歳以上以降に揃える
     for r in range(19):
-        out.append({"name": pps[r]["series"],
-                    "data": pds[r + 1]["population"][:8] + pps[r]["population"][1:7]})
+        out.append({"name": pds[r + 1]["series"],
+                    "data": pds[r + 1]["population"][:n_cols] + pps[r]["population"][1:]})
     return out
 
 
-def build_pref_model(source: SourceData, pref: str) -> dict:
-    """DATA_CONTRACT §2.3 の都道府県モデルを構築する。"""
-    census = source.load_pref_pd(pref)
-    projection = source.load_pref_pp(pref)
-    assert len(census) == 21 and len(projection) == 20, pref
+def build_pref_model(source: SourceData, pref: str, ipss) -> dict:
+    """DATA_CONTRACT §2.3 の都道府県モデルを構築する。都道府県は必ず IPSS 推計がある。"""
+    ipss_pref = ipss.prefecture(pref)
+    census = _append_ipss_census(source.load_pref_pd(pref), ipss_pref["total"])
+    projection = ipss_pref["total"]
+    assert len(census) == 21 and len(projection) == 21, pref
 
     index = [_index_of(census, c, y, "census", True) for c, y in enumerate(CENSUS_YEARS)]
     index += [_index_of(projection, c, y, "projection", True) for c, y in enumerate(PROJECTION_YEARS)]
@@ -222,7 +239,7 @@ def build_country_model(source: SourceData, code: str) -> dict:
     proj_cols = len(projection[1]["population"])
     proj_years = [2015 + 5 * c for c in range(proj_cols)]
 
-    index = [_index_of(census, c, y, "census", is_jp) for c, y in enumerate(CENSUS_YEARS)]
+    index = [_index_of(census, c, y, "census", is_jp) for c, y in enumerate(COUNTRY_CENSUS_YEARS)]
     index += [_index_of(projection, c, y, "projection", True) for c, y in enumerate(proj_years)]
 
     return {
@@ -258,35 +275,47 @@ def countrydata_series(model: dict) -> list:
     return out
 
 
-PYRAMID_YEARS = [(y, "census", c) for c, y in enumerate(CENSUS_YEARS)] + \
-                [(y, "projection", c) for c, y in enumerate(PROJECTION_YEARS) if y >= 2020]
+PYRAMID_CENSUS_YEARS = [(y, c) for c, y in enumerate(CENSUS_YEARS)]  # 9件 (1980..2020)
+PYRAMID_PROJECTION_YEARS = [(y, c) for c, y in enumerate(PROJECTION_YEARS) if y > 2020]  # 6件 (2025..2050)
 
 
-def build_city_pyramid_model(source: SourceData, code: str) -> dict:
+def build_city_pyramid_model(source: SourceData, code: str, ipss) -> dict:
     """DATA_CONTRACT §2.5 の人口ピラミッドモデル (男女別) を構築する。"""
+    ipss_city = ipss.city(code)
+    fukushima = ipss_city is None
+
     census_m = source.load_city_gender_pd("M", code)
     census_f = source.load_city_gender_pd("F", code)
-    projection_m = source.load_city_gender_pp("M", code)
-    projection_f = source.load_city_gender_pp("F", code)
-    fukushima = code.startswith("07")
+    if not fukushima:
+        census_m = _append_ipss_census(census_m, ipss_city["male"])
+        census_f = _append_ipss_census(census_f, ipss_city["female"])
+    projection_m = ipss_city["male"] if ipss_city else []
+    projection_f = ipss_city["female"] if ipss_city else []
+
+    census_years = PYRAMID_CENSUS_YEARS[:-1] if fukushima else PYRAMID_CENSUS_YEARS
 
     years = []
     max_value = 0
-    for year, kind, col in PYRAMID_YEARS:
-        if kind == "projection" and fukushima:
-            continue
-        cm, cf = (census_m, census_f) if kind == "census" else (projection_m, projection_f)
-        male = [r["population"][col] for r in cm[1:20]]
-        female = [r["population"][col] for r in cf[1:20]]
-        years.append({"year": year, "kind": kind, "male": male, "female": female})
+    for year, col in census_years:
+        male = [r["population"][col] for r in census_m[1:20]]
+        female = [r["population"][col] for r in census_f[1:20]]
+        years.append({"year": year, "kind": "census", "male": male, "female": female})
         max_value = max(max_value, max(male), max(female))
+    if not fukushima:
+        for year, col in PYRAMID_PROJECTION_YEARS:
+            male = [r["population"][col] for r in projection_m[1:20]]
+            female = [r["population"][col] for r in projection_f[1:20]]
+            years.append({"year": year, "kind": "projection", "male": male, "female": female})
+            max_value = max(max_value, max(male), max(female))
 
     return {
         "code": code,
+        "fukushima": fukushima,
         "max_value": max_value,
         "years": years,
         # 生表示用の全列データ (テーブルは "years" の年別スライスではなく
-        # こちらをそのまま描画する。census 21行×8列、projection 20行×7列 or [])
+        # こちらをそのまま描画する。census 21行×9列(fukushimaは8列)、
+        # projection 21行×7列 or (fukushima 時) [])
         "census_m": census_m,
         "census_f": census_f,
         "projection_m": projection_m,

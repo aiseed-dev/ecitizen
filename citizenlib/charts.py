@@ -29,7 +29,8 @@ PALETTE = [
     "#55BF3B", "#DF5353", "#666666", "#00DDDD", "#ff9326", "#0DB88F", "#3625DF",
     "#DDDD33",
 ]
-YEARS = [str(y) for y in range(1980, 2050, 5)]  # 14 カテゴリ (1980..2045)
+# City/Pref (IPSS令和5年推計): 1980..2050 の15カテゴリ。Country(旧データのまま)は
+# 呼び出し側 (generate.py) が 1980..2045 の14カテゴリを別途渡す。
 
 matplotlib.rcParams.update({
     "svg.fonttype": "none",
@@ -72,13 +73,22 @@ def _inline_svg(fig, tooltips: dict, id_prefix: str = "") -> str:
     return svg
 
 
-def city_stack_svg(name: str, series: list) -> str:
-    """市町村ページの積み上げ縦棒 (旧 Highcharts stacking:normal 相当)。
+SOURCE_NOTE_IPSS = ("出典: 国勢調査を独自集計、"
+                    "「日本の地域別将来推計人口(令和5(2023)年推計)」(国立社会保障・人口問題研究所)")
+SOURCE_NOTE_OLD = ("出典: 国勢調査を独自集計、"
+                   "「日本の地域別将来推計人口(平成30(2018)年3月推計)」(国立社会保障・人口問題研究所)")
 
-    series は DATA_CONTRACT §3.1 の配列 (先頭=年齢不詳=スタック最上段)。
+
+def city_stack_svg(name: str, series: list, years: list, source_note: str = SOURCE_NOTE_IPSS) -> str:
+    """市町村/都道府県/国ページの積み上げ縦棒 (旧 Highcharts stacking:normal 相当)。
+
+    series は DATA_CONTRACT §3.1/3.3/3.4 の配列 (先頭=年齢不詳=スタック最上段)。
     旧チャートの reversedStacks 相当: 末尾の系列 (0～4歳) を最下段に積む。
+    years はカテゴリ (x軸) ラベル。City/Pref は15個(1980-2050、IPSS令和5年推計)、
+    Country は14個(1980-2045、旧平成30年推計のまま。source_note=SOURCE_NOTE_OLD を渡す)。
     """
-    n = len(YEARS)
+    years = [str(y) for y in years]
+    n = len(years)
     fig, ax = plt.subplots(figsize=(9.2, 7.0), dpi=100)
     x = list(range(n))
     bottoms = [0.0] * n
@@ -93,7 +103,7 @@ def city_stack_svg(name: str, series: list) -> str:
             if data[xi]:
                 gid = f"b{si}x{xi}"
                 rect.set_gid(gid)
-                tooltips[gid] = f"{YEARS[xi]}年 {s['name']}: {data[xi]:,}人"
+                tooltips[gid] = f"{years[xi]}年 {s['name']}: {data[xi]:,}人"
         bottoms = [b + d for b, d in zip(bottoms, data)]
 
     # 合計ラベル (旧 stackLabels 相当)
@@ -105,7 +115,7 @@ def city_stack_svg(name: str, series: list) -> str:
 
     ax.set_title(f"{name} の年齢別人口の推移", fontsize=13)
     ax.set_ylabel("人口(人)")
-    ax.set_xticks(x, YEARS, fontsize=9)
+    ax.set_xticks(x, years, fontsize=9)
     ax.set_ylim(0, ymax * 1.08)
     ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{int(v):,}"))
     ax.tick_params(axis="y", labelsize=9)
@@ -117,10 +127,7 @@ def city_stack_svg(name: str, series: list) -> str:
     # 凡例は下部・描画順 (0～4歳が先頭。旧 legend.reversed 相当)
     fig.legend(loc="lower center", ncol=5, fontsize=8, frameon=False,
                bbox_to_anchor=(0.5, 0.0))
-    fig.text(0.5, 0.155,
-             "出典: 国勢調査を独自集計、「日本の地域別将来推計人口(平成30(2018)年3月推計)」"
-             "(国立社会保障・人口問題研究所)",
-             ha="center", fontsize=7, color="#888888")
+    fig.text(0.5, 0.155, source_note, ha="center", fontsize=7, color="#888888")
     fig.subplots_adjust(left=0.09, right=0.98, top=0.94, bottom=0.24)
     return _inline_svg(fig, tooltips)
 
@@ -167,10 +174,7 @@ def city_pyramid_svg(name: str, year: int, male: list, female: list, max_value: 
     for side in ("top", "right", "left"):
         ax.spines[side].set_visible(False)
     ax.legend(loc="lower center", ncol=2, fontsize=9, frameon=False, bbox_to_anchor=(0.5, -0.14))
-    fig.text(0.5, 0.02,
-             "出典: 国勢調査を独自集計、「日本の地域別将来推計人口(平成30(2018)年3月推計)」"
-             "(国立社会保障・人口問題研究所)",
-             ha="center", fontsize=7, color="#888888")
+    fig.text(0.5, 0.02, SOURCE_NOTE_IPSS, ha="center", fontsize=7, color="#888888")
     fig.subplots_adjust(left=0.12, right=0.96, top=0.93, bottom=0.14)
-    # 1ページに14年分を埋め込むため、id_prefix で id 衝突を回避する (_inline_svg 参照)
+    # 1ページに15年分を埋め込むため、id_prefix で id 衝突を回避する (_inline_svg 参照)
     return _inline_svg(fig, tooltips, id_prefix=f"y{year}_")

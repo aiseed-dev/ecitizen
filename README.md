@@ -15,11 +15,14 @@ pip install -r requirements.txt
 前提: 旧リポジトリ `../eCitizen/eCitizen` (App_Data がデータの一次ソース)。
 フォントはモリサワ BIZ UD ゴシック / BIZ UD 明朝 (SIL OFL) を `assets/fonts/` に同梱
 (サイト配信用 woff2 + matplotlib 用 TTF。ライセンスは同ディレクトリの OFL.txt)。
+2020年国勢調査・将来推計は IPSS「日本の地域別将来推計人口(令和5年推計)」
+(`data/raw/ipss/`、`tools/fetch_ipss.py` で1回限り取得。DESIGN.md §13)。
 
 ## ビルド
 
 ```bash
 python tools/extract_masters.py   # マスター抽出 (国勢調査データ改定時のみ)
+python tools/fetch_ipss.py        # IPSS 令和5年推計を data/raw/ipss/ に取得 (初回のみ)
 python build_data.py              # 取得層: data/ に中間 JSON を生成
 python generate.py --clean        # 描画層: public/ に HTML/JSON/SVG を生成
 ```
@@ -64,6 +67,8 @@ wrangler pages deploy public/
 - [x] Phase 2 (一部): Prefecture (47) / Country (33) / CityPyramid (1,741) /
       Ranking2045 (全国+都道府県別) / ListOfCitiesByArea / ListOfCitiesByTfr /
       CityAging2045 / CityOldOld2045
+- [x] Population2020統合(K11): City/Pref の census に2020年実績値を追加、
+      projection を IPSS令和5年推計(2020-2050)に全面更新 (DESIGN.md §13)
 - [ ] Phase 2 (残り): Population2015 ランキング (ソート順の静的化方針が未定)、
       Population2010 系、PrefPyramid/CountryPyramid
       (City3d/Country3d/Prefecture3d は廃止・移植しない。K10)
