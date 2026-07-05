@@ -1,0 +1,38 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/CityAging2045.cshtml と CityOldOld2045.cshtml の共通移植。
+   rows = data/rankings/city_aging_2045.json または city_oldold_2045.json (rank_generation 適用済み)
+   field = "old" (65歳以上) または "old_old" (75歳以上) #}
+
+{% block content %}
+<h2>{{ page_h2 }}</h2>
+<p>{{ page_lead | safe }}</p>
+<div class="table-responsive">
+<table class="atable">
+    <thead>
+        <tr>
+            <th>順位</th><th>コード</th><th>市区町村名</th>
+{% for year in range(2015, 2050, 5) %}
+            <th>{{ year }}年</th>
+{% endfor %}
+            <th>増加人数</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for c in rows %}
+        <tr>
+            <td>{{ c.order }}</td>
+            <td>{{ c.code }}</td>
+            <td class="left"><a href="/Population/City/{{ c.code }}">{{ prefs[c.code[:2]] }}{{ c.name }}</a></td>
+{% for v in c[field] %}
+            <td class="wright">{{ v | num }}</td>
+{% endfor %}
+            <td class="wright">{{ (c[field][6] - c[field][0]) | num }}</td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+</div>
+<p>出典は、国立社会保障・人口問題研究所の<a href="http://www.ipss.go.jp/pp-shicyoson/j/shicyoson18/t-page.asp">『日本の地域別将来推計人口(平成30(2018)年3月推計)』</a><br/>
+平成25年3月推計では、福島県内の市町村は推計されていないため、ランキングから除外されています。
+</p>
+{% endblock %}

@@ -42,4 +42,22 @@ def dstr(v) -> str:
     return s[:-2] if s.endswith(".0") else s
 
 
-FILTERS = {"num": num, "f1": f1, "numf1": numf1, "dstr": dstr}
+def numz(v) -> str:
+    """旧 Country.cshtml の ZinkoHyoji() — 0 (データなし扱い) は「-」。"""
+    if not v:
+        return "-"
+    return num(v)
+
+
+def rate_class(rate) -> str:
+    """旧 Ranking.cshtml の増減率による行の色分け (5%刻み、赤=増加・青=減少)。"""
+    if rate is None:
+        return ""
+    if rate > 0:
+        return f"r{min(int(rate // 5), 5)}"
+    if rate < 0:
+        return f"b{min(int(-rate // 5), 9)}"
+    return ""
+
+
+FILTERS = {"num": num, "f1": f1, "numf1": numf1, "dstr": dstr, "numz": numz, "rate_class": rate_class}

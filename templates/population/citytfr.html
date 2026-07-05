@@ -1,0 +1,29 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/ListOfCitiesByTfr.cshtml の移植。rows = data/rankings/citytfr.json #}
+
+{% block content %}
+<h2>市区町村の特殊合計出生率ランキング</h2>
+<p>
+    厚生労働省の「平成19年～平成24年人口動態保健所・市区町村別統計」の合計特殊出生率(女性が生涯に産む子ども数の推計値)のデータを使って、市区町村を特殊合計出生率の高い順に並べてみました。
+</p>
+<div class="table-responsive">
+    <table class="ectable">
+        <thead>
+        <tr><th>順位</th><th>コード</th><th>市区町村名</th><th>特殊合計出生率</th></tr>
+        </thead>
+        <tbody>
+{% for c in rows %}
+        <tr>
+            <td>{{ c.order }}</td>
+            <td>{{ c.code }}</td>
+            <td><a href="/Population/City/{{ c.url_code }}">{{ prefs[c.code[:2]] }}{{ c.name }}</a></td>
+            <td class="wright">{{ c.tfr | f1 }}</td>
+        </tr>
+{% endfor %}
+        </tbody>
+    </table>
+</div>
+<p>
+    出典 厚生労働省 <a href="http://www.mhlw.go.jp/toukei/saikin/hw/jinkou/other/hoken14/index.html">平成20年～平成24年人口動態保健所・市区町村別統計</a>
+</p>
+{% endblock %}

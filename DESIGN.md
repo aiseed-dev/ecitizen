@@ -177,12 +177,28 @@ eCitizenStatic/
 
 ### Phase 2: 人口系の残り
 
-- `/Population/Prefecture/{id}`、`/Population/Country/{id}` と各 Data JSON
-- `/Population/City3d`・`CityPyramid`・`CityPyramidData/{id}/{year}`
-- ランキング系 (`Ranking`, `Aging2015`, `Young2015`, `CityAging2045`,
-  `CityOldOld2045`, `ListOfCitiesByArea`, `ListOfCitiesByTfr`, `Population2015`)
-- `/Population/YoungMigration`, `/Population/Migration` (+ Data JSON)
-- Population2010 系 (`Census2010`, `Ranking`, `City` ほか)
+- ★実装済み `/Population/Prefecture/{id}` (47件) + `PrefData/{id}.json`
+- ★実装済み `/Population/Country/{id}` (33件) + `CountryData/{id}.json`
+  (日本以外は census が Ages2/kaikyu=85、CH・IS のみ将来推計が6列(2045年分なし)
+  という実データの差異を確認・対応済み。§8 追記参照)
+- ★実装済み `/Population/CityPyramid/{id}` (1,741件、男女別人口ピラミッド)。
+  年ごとのエンドポイント分割はせず 1 市町村 1 ファイルに 14 年分を SVG として
+  事前描画・埋め込み、表示切替はブラウザ側で表示/非表示を切り替えるのみ
+  (§9.1 のファイル数対策と K8 のクライアント側チャートライブラリ不使用を両立)
+- ★実装済み ローカルデータのみで完結するランキング系:
+  `Ranking` (全国+都道府県別)、`CityAging2045`、`CityOldOld2045`、
+  `ListOfCitiesByArea`、`ListOfCitiesByTfr`
+  (`CityAging2045`/`CityOldOld2045` は新規データ取得不要。Phase 1/2 で
+  構築済みの市町村モデルの将来推計指数から再集計するだけで再現できることが
+  判明した)
+- 未着手: `/Population/City3d` (§8.6 の品質プロトタイプ判断待ち)、
+  `Population2015` (ソート順ごとの静的ページ化方針が未定)、
+  Population2010 系 (`Census2010`, `Ranking`, `City` ほか)
+- **スコープ変更**: `Aging2015`・`Young2015`・`Population2015` ランキングの一部・
+  `YoungMigration`・`Migration` は、調査の結果**旧実装がリクエスト時に e-Stat API を
+  直接呼んでいる**ことが判明した (appId が C# ソースにハードコードされていた)。
+  K5(データ処理はローカル完結)の方針に従い、これらは Phase 3 の e-Stat 系
+  ページとまとめて実装する (下記 Phase 3 に統合)
 
 ### Phase 3: e-Stat 由来ページ(定期更新が必要)
 
@@ -193,6 +209,12 @@ eCitizenStatic/
   47 都道府県 × カテゴリで全組み合わせを事前生成。
 - Sac (市区町村コード表): `Index`, `Code` — NAreaCode サービスのデータを静的化。
 - Lg / Lc (市町村の統計・豆知識): `GetCity`/`GetLgInfo` は市町村ごとの JSON に静的化。
+- (Phase 2 から移管) `Aging2015`・`Young2015`(高齢化率・年少人口割合ランキング)、
+  `YoungMigration`・`Migration`(人口移動)。取得層バッチが e-Stat から
+  スナップショットを取得し、事前生成 JSON のみを配信する (K5)。
+  旧ソースにハードコードされていた appId (`22977f64c46f47314804ef3f49822e88964bdb89`)
+  は Git 履歴に残るためこのまま使わず、本プロジェクト用に appId を再登録する
+  ことを推奨 (要ユーザー判断)。
 
 ### Phase 4: 静的コンテンツ・その他
 
@@ -329,6 +351,40 @@ Jinja2 の `{% block %}` に 1:1 で対応させる。
   **データ API 互換として生成を継続**する (§3.1 のデータ契約は不変。
   外部からの直接利用と将来の用途変更に備える)。
 
+### 8.7 Phase 2 実装で判明した実データの差異
+
+- **都道府県**: 市町村と同じ 21行×8列(census)/20行×7列(projection) 構成。
+  コード変換(市町村合併)の対象外なので `build_pref_model` は単純。
+- **国**: 日本は市町村と同じ Ages3/kaikyu=90 構成(21行)。日本以外は
+  Ages2/kaikyu=85 (20行、85歳以上を1行に合算)。**将来推計(ep)は国によらず
+  常に90歳以上まで分離済みの20行**だが、**列数(何年まで推計があるか)は
+  国ごとに異なり**、スイス(CH)・アイスランド(IS)のみ2045年分がなく6列
+  (他は7列)。旧 C# の `SetIndexProjectionAll` も列数固定ではなく実データ依存
+  だったため、`build_country_model` も列数を動的に検出する (固定の
+  `PROJECTION_YEARS` を使わない)。
+  また非日本国の `CountryData` 系列生成は、census(粒度が粗い)と
+  projection(粒度が細かい)の年齢階級がずれるため専用の分岐が必要
+  (`countrydata_series`。DATA_CONTRACT §3.4)。
+- **人口ピラミッド**: 旧サイトはクライアントが年ごとに JSON を取得して
+  Highcharts で再描画していたが、K8(クライアント側チャートライブラリ不使用)
+  に従い **14年分の SVG をビルド時に全て生成して1ページに埋め込み**、
+  年の切替は表示/非表示の切り替えのみで実現する(fetch なし)。
+  実装時に、matplotlib は `svg.hashsalt` を固定しているため**同一レイアウトの
+  図を複数回描画すると内部 id (clip-path 等) が完全一致し、1ページに
+  複数 SVG を埋め込むと id 衝突でブラウザの `url(#id)` 解決が壊れる**ことが
+  判明した。`citizenlib/charts.py` の `_inline_svg` に `id_prefix` 引数を追加し、
+  id とその参照(`url(#..)`・`xlink:href="#.."`)を呼び出しごとに一意化して解決した。
+  1ページに14枚の SVG を埋め込むため `CityPyramid` の HTML は 1 ページ平均
+  約500KB(全体では旧 City ページの約2倍のサイズ)になる。許容範囲だが、
+  将来的に SVG の軽量化(パス簡略化・精度削減)の余地はある。
+- **CityAging2045/CityOldOld2045**: 旧実装は `App_Data/.../City/Project.json`
+  という専用ファイルを読んでいたが、その中身は Phase 1 で構築済みの
+  市町村モデルの将来推計 index と同一データだったため、**新規のソース読込は
+  不要**で `data/population/city/*.json` から再集計するだけで再現できた。
+- **Ranking2045**: 全国ランキングは元データ (`CityRanking2045.json`) に
+  順位が既に計算済みで、そのまま配信するだけで良い。都道府県別ランキングのみ
+  リクエスト時計算(`PrefRanking`)だったため、47都道府県分を事前生成する。
+
 ## 9. ビルドと運用
 
 ```bash
@@ -386,9 +442,8 @@ Git 連携ビルド。定期更新(Phase 3 の e-Stat 系)は cron で
 | K3 | 対話的機能 | 事前生成 JSON で足りないものは **Flutter Web アプリ**として実装可 (第一候補: Statdb。必要に応じて Lg マップ) |
 | K4 | Weather ページ | **本移行のスコープ外(別途対応)**。移植もリダイレクトも本プロジェクトでは行わず、ナビ・フッターからのリンクは現状維持。扱いは別途決める |
 | K5 | データ供給 | **データ処理はすべてローカルの取得層バッチで行う**。Statdb を含む全ページ・全アプリは、ローカルで事前生成した静的スナップショット JSON のみを参照する。Cloudflare 側での処理(Pages Functions プロキシ等)や、クライアントからの e-Stat API 直接呼び出しは**行わない**。appId を使うのはローカルバッチのみ(クライアント露出なし) |
-| K6 | Analytics / AdSense | **変更する**。UA タグ → GA4 (gtag.js) に差し替え。AdSense は現行推奨タグへ更新。測定 ID・クライアント ID・スロットはビルド設定 (`config.json`) で注入し、テンプレートに直書きしない |
+| K6 | Analytics / AdSense | **変更する**。UA タグ → GA4 (gtag.js) に差し替え。AdSense は現行推奨タグへ更新。測定 ID・クライアント ID・スロットはビルド設定 (`config.json`) で注入し、テンプレートに直書きしない。**自動広告 (Auto ads) は使わない** — ページ遷移毎の全画面インタースティシャル (vignette) が過剰広告・不快なUXの原因になっていたため。手動配置のバナー1枠+レクタングル1枠のみ (`templates/_layout.html` 実装済み)。本番で旧 AdSense アカウントを引き継ぐ際は、アカウント側の自動広告設定を明示的にオフにする |
 | K7 | ホスティング先 | **Cloudflare Pages** (制約と構成は §9.1) |
-
 | K8 | グラフ描画 | **Python によるビルド時 SVG 生成**(描画層の一部としてローカル処理)。クライアント側チャートライブラリ (Highcharts/ECharts/D3 等) は使わない。詳細は §8.6 |
 | K9 | フォント | **モリサワ BIZ UD ゴシック / BIZ UD 明朝** (SIL OFL 版) をセルフホスト。本文 = BIZ UDPGothic (400/700)、見出し (h2〜h6) = BIZ UDPMincho (400)、表・グラフ SVG = BIZ UDGothic (等幅数字で桁揃え)。woff2 + OFL.txt を `/fonts/` で配信、TTF はリポジトリ同梱で matplotlib のレイアウト計算にも使用。外部フォント配信 (Google Fonts CDN / TypeSquare) は使わない。商用版 UD 新ゴへの差し替えは Morisawa Fonts 契約が必要なため不採用 |
 

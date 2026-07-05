@@ -1,0 +1,140 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/Prefecture.cshtml の移植。m = DATA_CONTRACT §2.3 の都道府県モデル #}
+
+{% block content %}
+<h2>{{ m.name }}の5歳年齢階級別人口の推移</h2>
+<p class="chart-switch">
+    <a class="btn disabled" aria-disabled="true">積み上げグラフ</a>
+    <a class="btn" href="/Population/Prefecture3d/{{ m.code }}">3Dグラフ</a>
+    <a class="btn" href="/Population/PrefPyramid/{{ m.code }}">人口ピラミッド</a>
+</p>
+<figure class="chart">{{ chart_svg | safe }}</figure>
+
+<h3>{{ m.name }} の人口に関する主な指数</h3>
+<div id="popuindex">
+    <div class="parts">
+        <p>{{ m.index[0].year }} 年</p>
+        <p>
+            人口 {{ m.census[0].population[0] | num }} 人<br/>
+            年少人口割合 {{ m.index[0].young_pct | f1 }} %<br/>
+            生産年齢人口割合 {{ m.index[0].working_pct | f1 }} %<br/>
+            老年人口割合 {{ m.index[0].old_pct | f1 }} %<br/>
+            後期老年人口割合 {{ m.index[0].old_old_pct | f1 }} %<br/>
+            年少人口指数 {{ m.index[0].young_index | f1 }}<br/>
+            老年人口指数 {{ m.index[0].old_index | f1 }}<br/>
+            従属人口指数 {{ m.index[0].dependency_index | f1 }}<br/>
+            老年化指数 {{ m.index[0].aging_index | f1 }}<br/>
+        </p>
+    </div>
+    <div class="parts">
+        <p>{{ m.index[7].year }} 年</p>
+        <p>
+            人口 {{ m.census[0].population[7] | num }} 人<br/>
+            年少人口割合 {{ m.index[7].young_pct | f1 }} %<br/>
+            生産年齢人口割合 {{ m.index[7].working_pct | f1 }} %<br/>
+            老年人口割合 {{ m.index[7].old_pct | f1 }} %<br/>
+            後期老年人口割合 {{ m.index[7].old_old_pct | f1 }} %<br/>
+            年少人口指数 {{ m.index[7].young_index | f1 }}<br/>
+            老年人口指数 {{ m.index[7].old_index | f1 }}<br/>
+            従属人口指数 {{ m.index[7].dependency_index | f1 }}<br/>
+            老年化指数 {{ m.index[7].aging_index | f1 }}<br/>
+        </p>
+    </div>
+    <div class="parts">
+        <p>{{ m.index[14].year }} 年推計</p>
+        <p>
+            人口 {{ m.projection[0].population[6] | num }} 人<br/>
+            年少人口割合 {{ m.index[14].young_pct | f1 }} %<br/>
+            生産年齢人口割合 {{ m.index[14].working_pct | f1 }} %<br/>
+            老年人口割合 {{ m.index[14].old_pct | f1 }} %<br/>
+            後期老年人口割合 {{ m.index[14].old_old_pct | f1 }} %<br/>
+            年少人口指数 {{ m.index[14].young_index | f1 }}<br/>
+            老年人口指数 {{ m.index[14].old_index | f1 }}<br/>
+            従属人口指数 {{ m.index[14].dependency_index | f1 }}<br/>
+            老年化指数 {{ m.index[14].aging_index | f1 }}<br/>
+        </p>
+    </div>
+</div>
+<div class="explain">
+    <p>
+        ※年少人口(0～14歳)、生産年齢人口(15～64歳)、老年人口(65歳以上)、後期老年人口(75歳以上)<br/>
+        年少人口指数=年少人口÷生産年齢人口×100、老年人口指数=老年人口÷生産年齢人口×100、<br/>
+        従属人口指数=(年少人口＋老年人口)÷生産年齢人口×100、老年化指数=老年人口÷年少人口×100<br/>
+        高齢化率 = 老年人口割合
+    </p>
+</div>
+
+<h3>{{ m.name }} の人口(1980年～2015年)の推移</h3>
+<div class="table-responsive">
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in range(1980, 2020, 5) %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in m.census %}
+        <tr>
+            <td class="left nowrap">{{ ages3[loop.index0] }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+{% for row in index_rows %}
+        <tr class="ti">
+            <td class="left">{{ row.label }}</td>
+{% for n in range(0, 8) %}
+            <td>{{ m.index[n][row.key] | f1 if row.pct else m.index[n][row.key] | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+</div>
+<p>年齢階級別等の人口の数字は、国勢調査(総務省)のデータを市町村合併を考慮して独自に集計したものです。境界変更については考慮していません。</p>
+
+<h3>{{ m.name }} の将来推計人口(2015年～2045年)</h3>
+<div class="table-responsive">
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in range(2015, 2050, 5) %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in m.projection %}
+        <tr>
+            <td class="left nowrap">{{ pd.series }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+{% for row in index_rows %}
+        <tr class="ti">
+            <td class="left">{{ row.label }}</td>
+{% for n in range(8, 15) %}
+            <td>{{ m.index[n][row.key] | f1 if row.pct else m.index[n][row.key] | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+</div>
+<p>国立社会保障・人口問題研究所の<a href="http://www.ipss.go.jp/pp-shicyoson/j/shicyoson18/t-page.asp">『日本の地域別将来推計人口(平成30(2018)年3月推計)』</a>を使用しています。</p>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>他の都道府県の5歳年齢階級別人口の推移のグラフへ移動</h5>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/Prefecture/{{ k }}"{{ ' class="current"' | safe if k == m.code }}>{{ v }}</a></li>
+{% endfor %}
+    </ul>
+    <h5>世界の国の5歳年齢階級別人口の推移のグラフ</h5>
+    <ul class="linklist">
+        <li class="chartlink"><a href="/Population/Country/JP">日本</a></li>
+        <li class="chartlink"><a href="/Population/Country/UK">イギリス</a></li>
+        <li class="chartlink"><a href="/Population/Country/FR">フランス</a></li>
+        <li class="chartlink"><a href="/Population/Country/DE">ドイツ</a></li>
+    </ul>
+{% endblock %}

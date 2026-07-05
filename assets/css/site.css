@@ -198,6 +198,33 @@ td.left { text-align: left; }
 #popuindex .parts { padding: 15px; }
 .explain { padding: 10px; }
 
+/* ---- 人口ピラミッド ---- */
+#selects { margin: 8px 0 16px; }
+.section { clear: both; }
+.pyramid-year[hidden] { display: none; }
+
+/* ---- ランキング表 (増減率で行を色分け。旧 Ranking.cshtml 踏襲) ---- */
+table.ranking th, table.atable th, table.ectable th { white-space: nowrap; }
+tr.r0 { background-color: #fff7f7; }
+tr.r1 { background-color: #ffefef; }
+tr.r2 { background-color: #ffe7e7; }
+tr.r3 { background-color: #ffdfdf; }
+tr.r4 { background-color: #ffd7d7; }
+tr.r5 { background-color: #ffcfcf; }
+tr.b0 { background-color: #f7f7ff; }
+tr.b1 { background-color: #efefff; }
+tr.b2 { background-color: #e7e7ff; }
+tr.b3 { background-color: #dfdfff; }
+tr.b4 { background-color: #d7d7ff; }
+tr.b5 { background-color: #cfcfff; }
+tr.b6 { background-color: #c7c7ff; }
+tr.b7 { background-color: #bfbfff; }
+tr.b8 { background-color: #b7b7ff; }
+tr.b9 { background-color: #afafff; }
+.wright { text-align: right; }
+.wleft { text-align: left; }
+.wcenter { text-align: center; }
+
 /* ---- モバイル ---- */
 @media (max-width: 767px) {
     .nav-toggle { display: block; }

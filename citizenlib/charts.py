@@ -41,19 +41,34 @@ matplotlib.rcParams.update({
 _SVG_TAG_RE = re.compile(r'<svg([^>]*?) width="[^"]*" height="[^"]*"')
 
 
-def _inline_svg(fig, tooltips: dict) -> str:
+def _inline_svg(fig, tooltips: dict, id_prefix: str = "") -> str:
+    """matplotlib Figure を静的サイト埋め込み用 SVG 文字列に変換する。
+
+    id_prefix: 同一 HTML ページに複数の SVG を埋め込むときは必須。
+    matplotlib は svg.hashsalt を固定しているため、同じレイアウトの図を
+    複数回描画すると clip-path 等の内部 id (例 "p2cb465e343") が完全に
+    一致してしまい、ブラウザ側で先勝ちの id 解決により意図しない図が
+    参照される。呼び出しごとに一意な prefix を渡し、id とその参照
+    (url(#..)・xlink:href="#..") をまとめてリネームして衝突を防ぐ。
+    """
     buf = io.StringIO()
     fig.savefig(buf, format="svg", metadata={"Date": None})
     plt.close(fig)
     svg = buf.getvalue()
     svg = svg[svg.index("<svg"):]  # XML 宣言・DOCTYPE を除去
     svg = _SVG_TAG_RE.sub(r'<svg\1', svg, count=1)  # 固定サイズを外し viewBox に任せる
-    # gid を振った <g id="..."> の直後に <title> を注入
+
+    if id_prefix:
+        svg = re.sub(r'\bid="([^"]+)"', lambda m: f'id="{id_prefix}{m.group(1)}"', svg)
+        svg = re.sub(r'url\(#([^)]+)\)', lambda m: f'url(#{id_prefix}{m.group(1)})', svg)
+        svg = re.sub(r'xlink:href="#([^"]+)"', lambda m: f'xlink:href="#{id_prefix}{m.group(1)}"', svg)
+        tooltips = {f"{id_prefix}{k}": v for k, v in tooltips.items()}
+
+    # gid を振った <g id="..."> の直後に <title> を注入 (tooltips になければ何もしない)
     def add_title(m):
-        gid = m.group(1)
-        tip = tooltips.get(gid)
+        tip = tooltips.get(m.group(1))
         return m.group(0) + (f"<title>{tip}</title>" if tip else "")
-    svg = re.sub(r'<g id="(b\d+x\d+)">', add_title, svg)
+    svg = re.sub(r'<g id="([^"]+)">', add_title, svg)
     return svg
 
 
@@ -108,3 +123,54 @@ def city_stack_svg(name: str, series: list) -> str:
              ha="center", fontsize=7, color="#888888")
     fig.subplots_adjust(left=0.09, right=0.98, top=0.94, bottom=0.24)
     return _inline_svg(fig, tooltips)
+
+
+# 旧 CityPyramid.cshtml の Highcharts categories (総数・年齢不詳を除く19階級)
+PYRAMID_CATEGORIES = [
+    "0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44",
+    "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+",
+]
+
+
+def city_pyramid_svg(name: str, year: int, male: list, female: list, max_value: int) -> str:
+    """人口ピラミッド (1年分)。男性=左(負)・女性=右(正)の水平積み上げ棒。
+
+    DESIGN.md §8.6/K8 の通りクライアント側チャートライブラリを使わないため、
+    年ごとに1枚ずつ事前生成し、テンプレート側で表示/非表示を切り替える
+    (DATA_CONTRACT §2.5)。軸スケールは全年共通 (max_value) にして
+    アニメーション的な年送り時にガクつかないようにする。
+    """
+    n = len(PYRAMID_CATEGORIES)
+    fig, ax = plt.subplots(figsize=(7.6, 6.4), dpi=100)
+    y = list(range(n))
+    tooltips = {}
+
+    male_bars = ax.barh(y, [-v for v in male], 0.82, color="#997fff", label="男性", linewidth=0)
+    female_bars = ax.barh(y, female, 0.82, color="#ff99ff", label="女性", linewidth=0)
+    for i, rect in enumerate(male_bars):
+        gid = f"m{i}"
+        rect.set_gid(gid)
+        tooltips[gid] = f"男性 {PYRAMID_CATEGORIES[i]}歳: {male[i]:,}人"
+    for i, rect in enumerate(female_bars):
+        gid = f"f{i}"
+        rect.set_gid(gid)
+        tooltips[gid] = f"女性 {PYRAMID_CATEGORIES[i]}歳: {female[i]:,}人"
+
+    ax.set_title(f"{name} の人口ピラミッド {year}年", fontsize=13)
+    ax.set_yticks(y, PYRAMID_CATEGORIES, fontsize=9)
+    ax.set_xlim(-max_value * 1.05, max_value * 1.05)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{abs(int(v)):,}"))
+    ax.tick_params(axis="x", labelsize=8)
+    ax.axvline(0, color="#999999", linewidth=0.8)
+    ax.grid(axis="x", color="#DDDDDD", linewidth=0.7)
+    ax.set_axisbelow(True)
+    for side in ("top", "right", "left"):
+        ax.spines[side].set_visible(False)
+    ax.legend(loc="lower center", ncol=2, fontsize=9, frameon=False, bbox_to_anchor=(0.5, -0.14))
+    fig.text(0.5, 0.02,
+             "出典: 国勢調査を独自集計、「日本の地域別将来推計人口(平成30(2018)年3月推計)」"
+             "(国立社会保障・人口問題研究所)",
+             ha="center", fontsize=7, color="#888888")
+    fig.subplots_adjust(left=0.12, right=0.96, top=0.93, bottom=0.14)
+    # 1ページに14年分を埋め込むため、id_prefix で id 衝突を回避する (_inline_svg 参照)
+    return _inline_svg(fig, tooltips, id_prefix=f"y{year}_")

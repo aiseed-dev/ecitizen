@@ -15,14 +15,19 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
-from citizenlib import masters
+from citizenlib import masters, rankings
+from citizenlib.charts import city_pyramid_svg, city_stack_svg
 from citizenlib.filters import FILTERS
-from citizenlib.population import citydata_series
+from citizenlib.population import countrydata_series, stacked_series
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_SOURCE = ROOT.parent / "eCitizen" / "eCitizen"
 PUBLIC = ROOT / "public"
 DATA_CITY = ROOT / "data" / "population" / "city"
+DATA_PREF = ROOT / "data" / "population" / "pref"
+DATA_COUNTRY = ROOT / "data" / "population" / "country"
+DATA_PYRAMID = ROOT / "data" / "population" / "pyramid" / "city"
+DATA_RANKINGS = ROOT / "data" / "rankings"
 
 # city ページ指数表の行定義 (pct=True は f1 書式)
 INDEX_ROWS = [
@@ -45,6 +50,9 @@ REDIRECTS = """\
 /Population/City/03305 /Population/City/03216 301
 /Population/City/04423 /Population/City/04216 301
 /Population/City/09367 /Population/City/09203 301
+/Population/CityPyramid/03305 /Population/CityPyramid/03216 301
+/Population/CityPyramid/04423 /Population/CityPyramid/04216 301
+/Population/CityPyramid/09367 /Population/CityPyramid/09203 301
 """
 
 HEADERS = """\
@@ -52,6 +60,10 @@ HEADERS = """\
 /Population/CityData/*
   Cache-Control: public, max-age=86400
 /Population/CityList/*
+  Cache-Control: public, max-age=86400
+/Population/PrefData/*
+  Cache-Control: public, max-age=86400
+/Population/CountryData/*
   Cache-Control: public, max-age=86400
 /css/*
   Cache-Control: public, max-age=86400
@@ -101,6 +113,8 @@ def _init_worker(config: dict, build_year: int, cityinfo: dict) -> None:
         "build_year": build_year,
         "nav_active": "population",
         "prefs": masters.PREF_CODE,
+        "countries": masters.COUNTRY_CODE,
+        "ages2": masters.AGES2,
         "ages3": masters.AGES3,
         "index_rows": INDEX_ROWS,
         "_cityinfo": cityinfo,
@@ -108,12 +122,9 @@ def _init_worker(config: dict, build_year: int, cityinfo: dict) -> None:
 
 
 def _build_city(code: str) -> str:
-    """1 市町村分: HTML + CityData JSON を生成 (ワーカープロセスで実行)。"""
-    from citizenlib.charts import city_stack_svg  # matplotlib はワーカー側で import
-
+    """1 市町村分: City + CityPyramid の HTML と CityData JSON を生成 (ワーカープロセスで実行)。"""
     model = json.loads((DATA_CITY / f"{code}.json").read_text(encoding="utf-8"))
-    series = citydata_series(model)
-
+    series = stacked_series(model)
     write_text(f"Population/CityData/{code}.json", compact_json(series))
 
     ctx = dict(_ctx_common)
@@ -126,7 +137,103 @@ def _build_city(code: str) -> str:
     })
     html = _env.get_template("population/city.html").render(ctx)
     write_text(f"Population/City/{code}/index.html", html)
+
+    pyramid = json.loads((DATA_PYRAMID / f"{code}.json").read_text(encoding="utf-8"))
+    svgs = [(y["year"], y["kind"],
+             city_pyramid_svg(model["name"], y["year"], y["male"], y["female"], pyramid["max_value"]))
+            for y in pyramid["years"]]
+    ctx = dict(_ctx_common)
+    ctx.update({
+        "m": model,
+        "pyramid": pyramid,
+        "svgs": svgs,
+        "page_title": f"{model['pref_name']}{model['name']} - 市町村別の男女別5歳年齢階級別人口 人口ピラミッド",
+        "pref_cities": masters.cities_of_pref(model["pref"]),
+    })
+    html = _env.get_template("population/city_pyramid.html").render(ctx)
+    write_text(f"Population/CityPyramid/{code}/index.html", html)
     return code
+
+
+def _build_pref(pref: str) -> str:
+    model = json.loads((DATA_PREF / f"{pref}.json").read_text(encoding="utf-8"))
+    series = stacked_series(model)
+    write_text(f"Population/PrefData/{pref}.json", compact_json(series))
+
+    ctx = dict(_ctx_common)
+    ctx.update({
+        "m": model,
+        "page_title": f"{model['name']} - 都道府県別の5歳年齢階級別人口の推移",
+        "chart_svg": city_stack_svg(model["name"], series),
+    })
+    html = _env.get_template("population/prefecture.html").render(ctx)
+    write_text(f"Population/Prefecture/{pref}/index.html", html)
+    return pref
+
+
+def _build_country(code: str) -> str:
+    model = json.loads((DATA_COUNTRY / f"{code}.json").read_text(encoding="utf-8"))
+    series = countrydata_series(model)
+    write_text(f"Population/CountryData/{code}.json", compact_json(series))
+
+    ctx = dict(_ctx_common)
+    ctx.update({
+        "m": model,
+        "page_title": f"{model['name']} - 各国の5歳年齢階級別人口の推移",
+        "chart_svg": city_stack_svg(model["name"], series),
+    })
+    html = _env.get_template("population/country.html").render(ctx)
+    write_text(f"Population/Country/{code}/index.html", html)
+    return code
+
+
+def build_rankings(ctx_common: dict) -> None:
+    """ランキング系ページ (地域別データなし、非並列で十分高速)。"""
+    env = make_env()
+
+    national = json.loads((DATA_RANKINGS / "ranking2045_national.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/ranking2045.html").render(
+        dict(ctx_common, ranking=national, page_title="2045年市町村将来推計人口ランキング"))
+    write_text("Population/Ranking/index.html", html)
+
+    for pref in masters.PREF_CODE:
+        if pref == "07":
+            continue
+        r = json.loads((DATA_RANKINGS / "ranking2045_pref" / f"{pref}.json").read_text(encoding="utf-8"))
+        html = env.get_template("population/ranking2045_pref.html").render(
+            dict(ctx_common, r=r, page_title=f"2045年{r['pref_name']}の市町村将来推計人口ランキング"))
+        write_text(f"Population/Ranking/{pref}/index.html", html)
+
+    area = json.loads((DATA_RANKINGS / "cityarea.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/cityarea.html").render(
+        dict(ctx_common, rows=area, page_title="市区町村の面積ランキング"))
+    write_text("Population/ListOfCitiesByArea/index.html", html)
+
+    tfr = json.loads((DATA_RANKINGS / "citytfr.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/citytfr.html").render(
+        dict(ctx_common, rows=tfr, page_title="市区町村の特殊合計出生率ランキング"))
+    write_text("Population/ListOfCitiesByTfr/index.html", html)
+
+    aging = json.loads((DATA_RANKINGS / "city_aging_2045.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/city_generation_ranking.html").render(dict(
+        ctx_common, rows=aging, field="old", page_title="今後高齢者が増加する市町村ランキング",
+        page_h2="今後高齢者が増加する市町村のランキング",
+        page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(平成30年3月推計)』を使って、"
+                  "2015年から2045年の30年間で65歳以上の人口が増加する市区町村のランキングを作成してみました。"
+                  "首都圏では高齢者がまだ急増すると推計される市区町村が多い一方、地方では高齢者の人口が減少すると"
+                  "推計されている市町村が約1000もあって、数からいえば減少する市町村が多くなっています。"
+                  "2015年には、1947年から1949年に生まれたベビーブーム世代が65歳以上の高齢者になったためと"
+                  "思われます。今後は、75歳以上の後期高齢者の人口が急増します"
+                  "(参照 <a href=\"/Population/CityOldOld2045/\">今後高齢者が増加する市町村のランキング</a>)。"))
+    write_text("Population/CityAging2045/index.html", html)
+
+    oldold = json.loads((DATA_RANKINGS / "city_oldold_2045.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/city_generation_ranking.html").render(dict(
+        ctx_common, rows=oldold, field="old_old", page_title="今後後期高齢者が増加する市町村ランキング",
+        page_h2="今後後期高齢者(75歳以上)が増加する市町村のランキング",
+        page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(平成30年3月推計)』を使って、"
+                  "2015年から2045年の30年間で75歳以上の人口が増加する市区町村のランキングを作成してみました。"))
+    write_text("Population/CityOldOld2045/index.html", html)
 
 
 def copy_assets(source: Path) -> None:
@@ -173,7 +280,7 @@ def main() -> None:
         cities = [{"code": k, "name": v} for k, v in masters.cities_of_pref(pref).items()]
         write_text(f"Population/CityList/{pref}.json", compact_json(cities))
 
-    # 市町村ページ + CityData JSON (チャート描画が重いので並列)
+    # 市町村ページ (City + CityPyramid) + CityData JSON (チャート描画が重いので並列)
     with ProcessPoolExecutor(max_workers=args.jobs,
                              initializer=_init_worker,
                              initargs=(config, args.build_year, cityinfo)) as ex:
@@ -181,7 +288,21 @@ def main() -> None:
         for _ in ex.map(_build_city, codes, chunksize=16):
             done += 1
             if done % 200 == 0:
-                print(f"  {done}/{len(codes)}")
+                print(f"  市町村 {done}/{len(codes)}")
+
+    # 都道府県 + 国 (件数が少ないため同じプールを使い回す)
+    with ProcessPoolExecutor(max_workers=args.jobs,
+                             initializer=_init_worker,
+                             initargs=(config, args.build_year, cityinfo)) as ex:
+        list(ex.map(_build_pref, masters.PREF_CODE))
+        list(ex.map(_build_country, masters.COUNTRY_CODE))
+    print(f"都道府県 {len(masters.PREF_CODE)} 件 / 国 {len(masters.COUNTRY_CODE)} 件")
+
+    # ランキング系 (地図・チャートなし、非並列で十分高速)
+    build_rankings({
+        "config": config, "build_year": args.build_year, "nav_active": "population",
+        "prefs": masters.PREF_CODE,
+    })
 
     copy_assets(args.source)
     write_text("_redirects", REDIRECTS)
@@ -191,11 +312,19 @@ def main() -> None:
     n_html = len(list(PUBLIC.glob("Population/City/*/index.html")))
     n_json = len(list(PUBLIC.glob("Population/CityData/*.json")))
     n_list = len(list(PUBLIC.glob("Population/CityList/*.json")))
+    n_pyramid = len(list(PUBLIC.glob("Population/CityPyramid/*/index.html")))
+    n_pref = len(list(PUBLIC.glob("Population/Prefecture/*/index.html")))
+    n_country = len(list(PUBLIC.glob("Population/Country/*/index.html")))
     n_files = sum(1 for p in PUBLIC.rglob("*") if p.is_file())
     assert n_html == len(codes), f"HTML {n_html} != {len(codes)}"
     assert n_json == len(codes), f"JSON {n_json} != {len(codes)}"
     assert n_list == 47
-    print(f"HTML {n_html} / CityData {n_json} / CityList {n_list} / 総ファイル数 {n_files}")
+    assert n_pyramid == len(codes), f"CityPyramid {n_pyramid} != {len(codes)}"
+    if codes == list(masters.CITY_DIC):
+        assert n_pref == 47 and n_country == 33
+    print(f"HTML {n_html} / CityData {n_json} / CityList {n_list} / "
+          f"CityPyramid {n_pyramid} / Prefecture {n_pref} / Country {n_country} / "
+          f"総ファイル数 {n_files}")
     if n_files > 15000:
         print(f"警告: ファイル数 {n_files} — Cloudflare Pages の上限 20,000 に接近 (DESIGN.md §9.1)")
 

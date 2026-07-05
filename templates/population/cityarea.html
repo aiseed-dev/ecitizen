@@ -1,0 +1,31 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/ListOfCitiesByArea.cshtml の移植。rows = data/rankings/cityarea.json #}
+
+{% block content %}
+<h2>市区町村の面積ランキング</h2>
+<p>
+    市区町村を面積の大きい順に並べてみました。平成の合併で高山市のように大阪府より面積の広い市町村も誕生しています。データは、国土地理院の「全国都道府県市区町村別面積調」の平成27年(2015年)10月1日時点のものを使用しています。
+</p>
+<div class="table-responsive">
+    <table class="ectable">
+        <thead>
+        <tr><th>順位</th><th>コード</th><th>市区町村名</th><th>面積(k㎡)</th><th>備考</th></tr>
+        </thead>
+        <tbody>
+{% for c in rows %}
+        <tr>
+            <td>{{ c.order }}</td>
+            <td>{{ c.code }}</td>
+            <td><a href="/Population/City/{{ c.code }}">{{ prefs[c.code[:2]] }}{{ c.name }}</a></td>
+            <td class="wright">{{ c.area | numf1 }}</td>
+            <td>{{ c.note }}</td>
+        </tr>
+{% endfor %}
+        </tbody>
+    </table>
+</div>
+<p>
+    ※備考の*は、境界未定がある市区町村で、面積は便宜上の概算数値です。<br/>
+    出典:国土地理院 <a href="http://www.gsi.go.jp/KOKUJYOHO/MENCHO-title.htm" target="_blank" rel="noopener">全国都道府県市区町村別面積調</a>
+</p>
+{% endblock %}

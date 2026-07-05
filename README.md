@@ -61,7 +61,11 @@ wrangler pages deploy public/
 
 - [x] Phase 0: 基盤 (レイアウト・自前 CSS・マスター抽出・アセット)
 - [x] Phase 1: `/Population/City/{code}` 1,741 市町村 + `CityData/{code}.json` + `CityList/{pref}.json`
-- [ ] Phase 2: 人口系の残り (Prefecture / Country / ピラミッド / ランキング / Population2010)
-- [ ] Phase 3: e-Stat 由来 (CPI / Ssds / Sac / Lg)
+- [x] Phase 2 (一部): Prefecture (47) / Country (33) / CityPyramid (1,741) /
+      Ranking2045 (全国+都道府県別) / ListOfCitiesByArea / ListOfCitiesByTfr /
+      CityAging2045 / CityOldOld2045
+- [ ] Phase 2 (残り): City3d (品質プロトタイプ判断待ち)、Population2015 ランキング
+      (ソート順の静的化方針が未定)、Population2010 系
+- [ ] Phase 3: e-Stat 由来 (CPI / Ssds / Sac / Lg / Aging2015 / Young2015 / Migration 系)
 - [ ] Phase 4: 静的コンテンツ・Statdb (Flutter)
 - [ ] Phase 5: 仕上げ (sitemap / 404 / 本番切替)

@@ -35,4 +35,61 @@
                 });
         });
     }
+
+    // 人口ピラミッド: 14年分の SVG を事前埋め込みしておき、表示/非表示を切り替えるだけ
+    // (K8: クライアント側チャートライブラリ・fetch は使わない。旧 CityPyramid.cshtml の
+    // changeYear/auto の置き換え)
+    var figures = document.querySelectorAll(".pyramid-year");
+    var yearSelect = document.getElementById("year");
+    if (figures.length && yearSelect) {
+        var prevBtn = document.getElementById("pervyear");
+        var nextBtn = document.getElementById("nextyear");
+        var autoBtn = document.getElementById("auto");
+        var autoTimer = null;
+
+        function showYear(year) {
+            figures.forEach(function (f) {
+                f.hidden = f.dataset.year !== String(year);
+            });
+        }
+        function stopAuto() {
+            if (autoTimer) {
+                clearInterval(autoTimer);
+                autoTimer = null;
+                autoBtn.value = "自動動画";
+            }
+        }
+        yearSelect.addEventListener("change", function () {
+            stopAuto();
+            showYear(this.value);
+        });
+        if (prevBtn) {
+            prevBtn.addEventListener("click", function () {
+                stopAuto();
+                var i = yearSelect.selectedIndex - 1;
+                if (i >= 0) { yearSelect.selectedIndex = i; showYear(yearSelect.value); }
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener("click", function () {
+                stopAuto();
+                var i = yearSelect.selectedIndex + 1;
+                if (i < yearSelect.options.length) { yearSelect.selectedIndex = i; showYear(yearSelect.value); }
+            });
+        }
+        if (autoBtn) {
+            autoBtn.addEventListener("click", function () {
+                if (autoTimer) { stopAuto(); return; }
+                autoBtn.value = "停止";
+                yearSelect.selectedIndex = 0;
+                showYear(yearSelect.value);
+                autoTimer = setInterval(function () {
+                    var i = yearSelect.selectedIndex + 1;
+                    if (i >= yearSelect.options.length) { stopAuto(); return; }
+                    yearSelect.selectedIndex = i;
+                    showYear(yearSelect.value);
+                }, 1500);
+            });
+        }
+    }
 })();

@@ -4,4 +4,5 @@ __pycache__/
 *.pyc
 # 取得層の生成物 (build_data.py で再生成可能。管理するのは data/masters/ のみ)
 data/population/
+data/rankings/
 data/cityinfo2015.json
