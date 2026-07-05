@@ -16,7 +16,8 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from citizenlib import masters, rankings
-from citizenlib.charts import SOURCE_NOTE_OLD, city_pyramid_svg, city_stack_svg
+from citizenlib.charts import SOURCE_NOTE_EUROSTAT, SOURCE_NOTE_OLD, city_pyramid_svg, city_stack_svg
+from citizenlib.eurostat import COUNTRY_PROJECTION_YEARS as EUROSTAT_PROJECTION_YEARS
 from citizenlib.filters import FILTERS
 from citizenlib.population import (
     CENSUS_YEARS, COUNTRY_CENSUS_YEARS, PROJECTION_YEARS, countrydata_series, stacked_series,
@@ -186,16 +187,28 @@ def _build_country(code: str) -> str:
     series = countrydata_series(model)
     write_text(f"Population/CountryData/{code}.json", compact_json(series))
 
-    # Country は IPSS 対象外。旧平成30年推計のまま (2015..proj_cols で可変、CH/ISのみ6列)
-    proj_cols = len(model["projection"][0]["population"])
-    proj_years = [2015 + 5 * c for c in range(proj_cols)]
-    chart_years = COUNTRY_CENSUS_YEARS + proj_years[1:]
+    if model["is_jp"]:
+        # JP のみ IPSS 対象外。旧平成30年推計のまま (2015-2045、7列)。
+        # census 最終年(2015)と projection 開始年(2015)が重複するため [1:] で1点飛ばす。
+        census_years = COUNTRY_CENSUS_YEARS
+        proj_years = list(range(2015, 2050, 5))
+        source_note = SOURCE_NOTE_OLD
+        chart_years = census_years + proj_years[1:]
+    else:
+        # Eurostat(EUROPOP2023)/ONS(UKのみ) へ切替。census は City/Pref と同じ1980-2020だが、
+        # census 最終年(2020)と projection 開始年(2025)は重複しないため丸ごと連結する。
+        census_years = CENSUS_YEARS
+        proj_years = EUROSTAT_PROJECTION_YEARS
+        source_note = SOURCE_NOTE_EUROSTAT
+        chart_years = census_years + proj_years
 
     ctx = dict(_ctx_common)
     ctx.update({
         "m": model,
+        "census_years": census_years,
+        "proj_years": proj_years,
         "page_title": f"{model['name']} - 各国の5歳年齢階級別人口の推移",
-        "chart_svg": city_stack_svg(model["name"], series, chart_years, source_note=SOURCE_NOTE_OLD),
+        "chart_svg": city_stack_svg(model["name"], series, chart_years, source_note=source_note),
     })
     html = _env.get_template("population/country.html").render(ctx)
     write_text(f"Population/Country/{code}/index.html", html)

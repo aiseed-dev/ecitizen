@@ -77,6 +77,7 @@ SOURCE_NOTE_IPSS = ("出典: 国勢調査を独自集計、"
                     "「日本の地域別将来推計人口(令和5(2023)年推計)」(国立社会保障・人口問題研究所)")
 SOURCE_NOTE_OLD = ("出典: 国勢調査を独自集計、"
                    "「日本の地域別将来推計人口(平成30(2018)年3月推計)」(国立社会保障・人口問題研究所)")
+SOURCE_NOTE_EUROSTAT = "出典: Eurostat「Population on 1 January」・EUROPOP2023(基準シナリオ)、UKのみONS推計"
 
 
 def city_stack_svg(name: str, series: list, years: list, source_note: str = SOURCE_NOTE_IPSS) -> str:

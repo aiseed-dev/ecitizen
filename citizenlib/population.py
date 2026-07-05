@@ -221,25 +221,32 @@ def build_pref_model(source: SourceData, pref: str, ipss) -> dict:
 def build_country_model(source: SourceData, code: str) -> dict:
     """DATA_CONTRACT §2.4 の国モデルを構築する。
 
-    日本 (kaikyu=90): census 21行 (Ages3, 90歳以上を分離)。
-    日本以外 (kaikyu=85): census 20行 (Ages2, 85歳以上で合算)。
-    projection はどの国も20行 (90歳以上まで分離済み) だが、列数(何年まで推計が
-    あるか)は国ごとに異なる (CH・IS のみ2045年分が無く6列、他は7列。旧 C# の
-    SetIndexProjectionAll も列数固定ではなく実データ依存だったため踏襲する)。
+    日本 (kaikyu=90): census 21行×8列(1980-2015、Ages3) + projection 20行×7列
+    (2015-2045、平成30年推計)。旧データのまま変更なし。
+    日本以外 (kaikyu=85、2026-07-05 Eurostat/ONS へ切替): census 20行×9列
+    (1980-2020、Ages2、Eurostat demo_pjangroup) + projection 20行×6列
+    (2025-2050、90歳以上まで分離。EU/EFTA は EUROPOP2023、UK のみ
+    Eurostat対象外のため ONS 2024年基準 Principal projection)。
     """
+    from . import eurostat
+
     is_jp = code == "JP"
-    census = source.load_country_ed(code)
-    projection = source.load_country_ep(code)
-    assert len(projection) == 20, code
     if is_jp:
-        assert len(census) == 21, code
+        census = source.load_country_ed(code)
+        projection = source.load_country_ep(code)
+        assert len(census) == 21 and len(projection) == 20, code
+        census_years = COUNTRY_CENSUS_YEARS
+        proj_years = list(range(2015, 2050, 5))
     else:
-        assert len(census) == 20, code
+        census = eurostat.load_census(eurostat.GEO_CODES.get(code, code))
+        projection = (eurostat.load_projection_uk() if code == "UK"
+                     else eurostat.load_projection_eurostat(eurostat.GEO_CODES.get(code, code)))
+        assert len(census) == 20 and len(census[0]["population"]) == 9, code
+        assert len(projection) == 20 and len(projection[0]["population"]) == 6, code
+        census_years = CENSUS_YEARS  # City/Pref と同じ 1980-2020 (9点)
+        proj_years = eurostat.COUNTRY_PROJECTION_YEARS
 
-    proj_cols = len(projection[1]["population"])
-    proj_years = [2015 + 5 * c for c in range(proj_cols)]
-
-    index = [_index_of(census, c, y, "census", is_jp) for c, y in enumerate(COUNTRY_CENSUS_YEARS)]
+    index = [_index_of(census, c, y, "census", is_jp) for c, y in enumerate(census_years)]
     index += [_index_of(projection, c, y, "projection", True) for c, y in enumerate(proj_years)]
 
     return {
@@ -258,20 +265,24 @@ def countrydata_series(model: dict) -> list:
     JP は stacked_series と同一。JP 以外は census(Ages2,85歳以上で合算)と
     projection(常に90歳以上まで分離)の粒度がずれるため、旧 CountryData の
     分岐をそのまま再現する。
+
+    2026-07-05 の Eurostat/ONS 切替後、非JPの census 最終年(2020)と
+    projection 開始年(2025)は重複しない(旧データは両方 2015 年で重複していた)
+    ため、projection 側の列は先頭を捨てずに全列使う。
     """
     if model["is_jp"]:
         return stacked_series(model)
 
     pds = model["census"][1:][::-1]      # [年齢不詳, 85歳以上, ..., 0～4歳] 19行
     pps = model["projection"][1:][::-1]  # [90歳以上, 85～89歳, ..., 0～4歳] 19行
+    n_cols = len(pds[0]["population"])
 
-    out = [{"name": "年齢不詳", "data": pds[0]["population"][:8]}]
-    # "90歳以上" は census 側に対応データがないため 0 を8個 (旧実装のまま)。
-    # projection の列数は国により異なる (CH・IS は2045年分なし、6列) ため [1:] で可変長のまま渡す。
-    out.append({"name": pps[0]["series"], "data": [0] * 8 + pps[0]["population"][1:]})
+    out = [{"name": "年齢不詳", "data": pds[0]["population"][:n_cols]}]
+    # "90歳以上" は census 側に対応データがないため 0 を n_cols 個 (旧実装のまま)。
+    out.append({"name": pps[0]["series"], "data": [0] * n_cols + pps[0]["population"]})
     for r in range(1, 19):
         out.append({"name": pps[r]["series"],
-                    "data": pds[r]["population"][:8] + pps[r]["population"][1:]})
+                    "data": pds[r]["population"][:n_cols] + pps[r]["population"]})
     return out
 
 

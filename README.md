@@ -17,12 +17,17 @@ pip install -r requirements.txt
 (サイト配信用 woff2 + matplotlib 用 TTF。ライセンスは同ディレクトリの OFL.txt)。
 2020年国勢調査・将来推計は IPSS「日本の地域別将来推計人口(令和5年推計)」
 (`data/raw/ipss/`、`tools/fetch_ipss.py` で1回限り取得。DESIGN.md §13)。
+Country(海外)ページは Eurostat(census/EUROPOP2023) + ONS(UKのみ将来推計)
+(`data/raw/eurostat/`, `data/raw/ons/`、`tools/fetch_eurostat.py`/
+`tools/fetch_ons.py` で1回限り取得。DESIGN.md §14)。
 
 ## ビルド
 
 ```bash
 python tools/extract_masters.py   # マスター抽出 (国勢調査データ改定時のみ)
 python tools/fetch_ipss.py        # IPSS 令和5年推計を data/raw/ipss/ に取得 (初回のみ)
+python tools/fetch_eurostat.py    # Eurostat census/projection を取得 (初回のみ)
+python tools/fetch_ons.py         # ONS UK将来推計を取得 (初回のみ)
 python build_data.py              # 取得層: data/ に中間 JSON を生成
 python generate.py --clean        # 描画層: public/ に HTML/JSON/SVG を生成
 ```
@@ -69,6 +74,8 @@ wrangler pages deploy public/
       CityAging2045 / CityOldOld2045
 - [x] Population2020統合(K11): City/Pref の census に2020年実績値を追加、
       projection を IPSS令和5年推計(2020-2050)に全面更新 (DESIGN.md §13)
+- [x] Country(海外)データ更新(K12): census を Eurostat、projection を
+      EUROPOP2023(UKのみONS 2024年基準)に全面更新 (DESIGN.md §14)
 - [ ] Phase 2 (残り): Population2015 ランキング (ソート順の静的化方針が未定)、
       Population2010 系、PrefPyramid/CountryPyramid
       (City3d/Country3d/Prefecture3d は廃止・移植しない。K10)

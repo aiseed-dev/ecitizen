@@ -64,13 +64,19 @@ def main() -> None:
         write_json(pref_dir / f"{pref}.json", model)
     print(f"都道府県モデル {len(masters.PREF_CODE)} 件")
 
-    # --- 国 (Phase 2) ---
+    # --- 国 (Phase 2、日本以外は Eurostat(census/EUROPOP2023)・UKのみ ONS へ切替) ---
     country_dir = ROOT / "data" / "population" / "country"
     for code in masters.COUNTRY_CODE:
         model = build_country_model(source, code)
         assert len(model["projection"]) == 20, code
-        assert len(model["census"]) == (21 if model["is_jp"] else 20), code
-        assert len(model["index"]) in (14, 15), code  # CH/IS は将来推計が6列(2045年分なし)
+        if model["is_jp"]:
+            assert len(model["census"]) == 21 and len(model["census"][0]["population"]) == 8, code
+            assert len(model["projection"][0]["population"]) == 7, code
+            assert len(model["index"]) == 15, code
+        else:
+            assert len(model["census"]) == 20 and len(model["census"][0]["population"]) == 9, code
+            assert len(model["projection"][0]["population"]) == 6, code
+            assert len(model["index"]) == 15, code
         write_json(country_dir / f"{code}.json", model)
     print(f"国モデル {len(masters.COUNTRY_CODE)} 件")
 
