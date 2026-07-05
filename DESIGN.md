@@ -191,9 +191,10 @@ eCitizenStatic/
   (`CityAging2045`/`CityOldOld2045` は新規データ取得不要。Phase 1/2 で
   構築済みの市町村モデルの将来推計指数から再集計するだけで再現できることが
   判明した)
-- 未着手: `/Population/City3d` (§8.6 の品質プロトタイプ判断待ち)、
-  `Population2015` (ソート順ごとの静的ページ化方針が未定)、
-  Population2010 系 (`Census2010`, `Ranking`, `City` ほか)
+- **廃止(決定事項)**: `City3d`/`Country3d`/`Prefecture3d`。移植しない (§8.6)。
+- 未着手: `Population2015` (ソート順ごとの静的ページ化方針が未定)、
+  Population2010 系 (`Census2010`, `Ranking`, `City` ほか)、
+  PrefPyramid/CountryPyramid (CityPyramid と同じ方式で追加予定)
 - **スコープ変更**: `Aging2015`・`Young2015`・`Population2015` ランキングの一部・
   `YoungMigration`・`Migration` は、調査の結果**旧実装がリクエスト時に e-Stat API を
   直接呼んでいる**ことが判明した (appId が C# ソースにハードコードされていた)。
@@ -342,11 +343,14 @@ Jinja2 の `{% block %}` に 1:1 で対応させる。
   付け、ブラウザ標準のツールチップで代替。凡例クリックでの系列表示切替は
   提供しない (正確な数値は直下の表が担う)。
 - 色: 旧 Highcharts 設定の 15 色パレットを踏襲。
-- 対象グラフ 5 種: 積み上げ縦棒 (人口推移) / 人口ピラミッド (横棒) /
-  折れ線 (CPI) / 散布図 (出生率×GDP) / 3D 積み上げ棒。
-  **3D (City3d) は mplot3d で静的画像化できるが見栄えは要確認** —
-  Phase 2 でプロトタイプを作り、品質が不十分なら City3d ページは廃止する
-  (トップからのリンクを外し、URL は City へ 301)。
+- 対象グラフ: 積み上げ縦棒 (人口推移) / 人口ピラミッド (横棒) /
+  折れ線 (CPI) / 散布図 (出生率×GDP)。
+  **3D (City3d/Country3d/Prefecture3d) は廃止(決定事項)**。積み上げ縦棒・
+  人口ピラミッドで同じ情報を確認できるため移植の必要性が薄く、静的サイトの
+  見た目・保守コストの観点からも見送る。旧サイトへの 3D グラフ用リンクは
+  各ページから削除済み (`City.html`/`CityPyramid.html`/`Prefecture.html`/
+  `Country.html`)。旧 URL (`/Population/City3d/{id}` 等) を踏む訪問者は
+  Phase 5 で `City`/`Prefecture`/`Country` へ 301 リダイレクトする。
 - `Population/CityData/{code}.json` 等の公開 JSON は、グラフが SVG 化された後も
   **データ API 互換として生成を継続**する (§3.1 のデータ契約は不変。
   外部からの直接利用と将来の用途変更に備える)。
@@ -446,8 +450,9 @@ Git 連携ビルド。定期更新(Phase 3 の e-Stat 系)は cron で
 | K7 | ホスティング先 | **Cloudflare Pages** (制約と構成は §9.1) |
 | K8 | グラフ描画 | **Python によるビルド時 SVG 生成**(描画層の一部としてローカル処理)。クライアント側チャートライブラリ (Highcharts/ECharts/D3 等) は使わない。詳細は §8.6 |
 | K9 | フォント | **モリサワ BIZ UD ゴシック / BIZ UD 明朝** (SIL OFL 版) をセルフホスト。本文 = BIZ UDPGothic (400/700)、見出し (h2〜h6) = BIZ UDPMincho (400)、表・グラフ SVG = BIZ UDGothic (等幅数字で桁揃え)。woff2 + OFL.txt を `/fonts/` で配信、TTF はリポジトリ同梱で matplotlib のレイアウト計算にも使用。外部フォント配信 (Google Fonts CDN / TypeSquare) は使わない。商用版 UD 新ゴへの差し替えは Morisawa Fonts 契約が必要なため不採用 |
+| K10 | 3D グラフ | **廃止**。`City3d`/`Country3d`/`Prefecture3d` は移植しない。積み上げ縦棒・人口ピラミッドで代替できるため必要性が薄く、保守コストも避ける (§8.6) |
 
-(初版の未決事項 D1〜D5 はすべて K2〜K8 として決定済み。残る個別判断は City3d ページの扱いのみ — §8.6 参照。)
+(初版の未決事項 D1〜D5 はすべて K2〜K10 として決定済み。現時点で残る未決事項なし。)
 
 ## 12. e-Stat API 調査メモ (2026-07-05 時点)
 
