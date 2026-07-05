@@ -30,6 +30,8 @@ class SourceData:
         self.pref_m_dir = base / "PrefM"
         self.pref_f_dir = base / "PrefF"
         self.country_dir = base / "Country"
+        self.country_m_dir = base / "CountryM"
+        self.country_f_dir = base / "CountryF"
         self.info2015 = base / "2015" / "population2015.json"
         self.ranking2045 = base / "Ranking" / "CityRanking2045.json"
         self.area = base / "Area" / "CityAreaData2015.json"
@@ -68,6 +70,15 @@ class SourceData:
 
     def load_country_ep(self, code: str) -> list:
         return self._load_rows(self.country_dir, "ep", code)
+
+    def load_country_gender_ed(self, sex: str, code: str) -> list:
+        """JP(Country)専用の男女別 census。非JP は Eurostat 側で取得するため未使用。"""
+        d = self.country_m_dir if sex == "M" else self.country_f_dir
+        return self._load_rows(d, "ed", code)
+
+    def load_country_gender_ep(self, sex: str, code: str) -> list:
+        d = self.country_m_dir if sex == "M" else self.country_f_dir
+        return self._load_rows(d, "ep", code)
 
     def load_city_gender_pd(self, sex: str, code: str) -> list:
         d = self.city_m_dir if sex == "M" else self.city_f_dir
@@ -366,6 +377,70 @@ def build_pref_pyramid_model(source: SourceData, pref: str, ipss) -> dict:
 
     return {
         "code": pref,
+        "max_value": max_value,
+        "years": years,
+        "census_m": census_m,
+        "census_f": census_f,
+        "projection_m": projection_m,
+        "projection_f": projection_f,
+    }
+
+
+def build_country_pyramid_model(source: SourceData, code: str) -> dict:
+    """DATA_CONTRACT §2.5 相当の国版人口ピラミッドモデル。
+
+    JP: census 21行(Ages3、90歳以上を含む19区分)×8列(1980-2015、旧データ)、
+    projection 20行×7列(2015-2045、旧データ)。census最終年とprojection先頭年
+    が重複(2015年)するため1点スキップ(旧 stacked_series と同じ扱い)。
+    非JP: census 20行(Ages2、90歳以上を含まない18区分)×9列(1980-2020、
+    Eurostat)、projection 20行×6列(2025-2050、Eurostat/ONS)。census年は
+    90歳以上に対応するデータがないため0で埋めて19区分に揃える
+    (countrydata_series と同じ扱い)。census最終年(2020)とprojection先頭年
+    (2025)は重複しないため全列使う。
+    """
+    from . import eurostat
+
+    is_jp = code == "JP"
+    if is_jp:
+        census_m = source.load_country_gender_ed("M", code)
+        census_f = source.load_country_gender_ed("F", code)
+        projection_m = source.load_country_gender_ep("M", code)
+        projection_f = source.load_country_gender_ep("F", code)
+        census_years = list(enumerate(COUNTRY_CENSUS_YEARS))
+        proj_years = list(range(2015, 2050, 5))
+        proj_year_cols = [(c, y) for c, y in enumerate(proj_years) if y > 2015]
+    else:
+        geo = eurostat.GEO_CODES.get(code, code)
+        census_m = eurostat.load_census(geo, "M")
+        census_f = eurostat.load_census(geo, "F")
+        projection_m = (eurostat.load_projection_uk("M") if code == "UK"
+                        else eurostat.load_projection_eurostat(geo, "M"))
+        projection_f = (eurostat.load_projection_uk("F") if code == "UK"
+                        else eurostat.load_projection_eurostat(geo, "F"))
+        census_years = list(enumerate(CENSUS_YEARS))
+        proj_year_cols = list(enumerate(eurostat.COUNTRY_PROJECTION_YEARS))
+
+    n_age_rows = len(census_m) - 2  # 総数・年齢不詳を除く実年齢区分数 (JP=19, 非JP=18)
+
+    years = []
+    max_value = 0
+    for c, year in census_years:
+        male = [r["population"][c] for r in census_m[1:1 + n_age_rows]]
+        female = [r["population"][c] for r in census_f[1:1 + n_age_rows]]
+        if n_age_rows == 18:  # 非JP: 90歳以上のデータが無いため0を足して19区分に揃える
+            male.append(0)
+            female.append(0)
+        years.append({"year": year, "kind": "census", "male": male, "female": female})
+        max_value = max(max_value, max(male), max(female))
+    for c, year in proj_year_cols:
+        male = [r["population"][c] for r in projection_m[1:20]]
+        female = [r["population"][c] for r in projection_f[1:20]]
+        years.append({"year": year, "kind": "projection", "male": male, "female": female})
+        max_value = max(max_value, max(male), max(female))
+
+    return {
+        "code": code,
+        "is_jp": is_jp,
         "max_value": max_value,
         "years": years,
         "census_m": census_m,

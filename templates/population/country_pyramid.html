@@ -1,0 +1,127 @@
+{% extends "_layout.html" %}
+{# 旧 Views/Population/CountryPyramid.cshtml の移植。
+   m = 国モデル (DATA_CONTRACT §2.4)、pyramid = ピラミッドモデル、
+   svgs = [(year, kind, svg_str), ...]。
+   JP: census は Ages3(21行、90歳以上を含む)。非JP: census は Ages2(20行、
+   90歳以上のデータなし)。 #}
+{% set census_age_labels = ages3 if m.is_jp else ages2 %}
+
+{% block content %}
+<h2>{{ m.name }}の男女別5歳年齢階級別人口 人口ピラミッド</h2>
+<p class="chart-switch">
+    <a class="btn" href="/Population/Country/{{ m.code }}">積み上げグラフ</a>
+    <a class="btn disabled" aria-disabled="true">人口ピラミッド</a>
+</p>
+<div class="pyramid-viewer">
+{% for year, kind, svg in svgs %}
+    <figure class="pyramid-year chart"{{ '' if year == 2020 else ' hidden' }} data-year="{{ year }}">{{ svg | safe }}</figure>
+{% endfor %}
+</div>
+<div id="selects">
+    表示年
+    <input id="pervyear" value="&lt;" type="button"/>
+    <select id="year">
+{% for year, kind, svg in svgs %}
+        <option value="{{ year }}"{{ ' selected' if year == 2020 }}>{{ year }}</option>
+{% endfor %}
+    </select>
+    <input id="nextyear" value="&gt;" type="button"/>
+    <input id="auto" value="自動動画" type="button"/>
+</div>
+
+<div class="section">
+    <h3>{{ m.name }} の男性人口(1980年～{{ census_years[-1] }}年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in census_years %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.census_m %}
+        <tr>
+            <td class="left nowrap">{{ census_age_labels[loop.index0] }}</td>
+{% for d in pd.population %}
+            <td>{{ d | numz }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+    <h3>{{ m.name }} の女性人口(1980年～{{ census_years[-1] }}年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in census_years %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.census_f %}
+        <tr>
+            <td class="left nowrap">{{ census_age_labels[loop.index0] }}</td>
+{% for d in pd.population %}
+            <td>{{ d | numz }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h3>{{ m.name }} の将来推計人口男性({{ proj_years[0] }}年～{{ proj_years[-1] }}年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in proj_years %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.projection_m %}
+        <tr>
+            <td class="left nowrap">{{ pd.series }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+    <h3>{{ m.name }} の将来推計人口女性({{ proj_years[0] }}年～{{ proj_years[-1] }}年)</h3>
+    <table>
+        <tr>
+            <td class="center">年</td>
+{% for year in proj_years %}
+            <td class="center">{{ year }}年</td>
+{% endfor %}
+        </tr>
+{% for pd in pyramid.projection_f %}
+        <tr>
+            <td class="left nowrap">{{ pd.series }}</td>
+{% for d in pd.population %}
+            <td>{{ d | num }}</td>
+{% endfor %}
+        </tr>
+{% endfor %}
+    </table>
+{% if m.is_jp %}
+    <p>データについては、国立社会保障・人口問題研究所の<a href="http://www.ipss.go.jp/pp-zenkoku/j/zenkoku2017/db_zenkoku2017/db_s_suikeikekka_1.html">『日本の将来推計人口(平成29年推計)』</a>の出生(中位)死亡(中位)推計結果を使用しています。</p>
+{% elif m.code == "UK" %}
+    <p>データについては、英国統計局(ONS)の<a href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationprojections/datasets/z1zippedpopulationprojectionsdatafilesuk">『National population projections: 2024-based』(Principal projection)</a>を使用しています。</p>
+{% else %}
+    <p>データについては、Eurostat(ヨーロッパ統計局)の人口推計(EUROPOP2023 - Population projections at national level, Baseline scenario)のデータを使用しています。</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>各国の男女別5歳年齢階級別人口 人口ピラミッドグラフ</h5>
+    <ul class="linklist">
+{% for k, v in countries.items() %}
+        <li class="chartlink"><a href="/Population/CountryPyramid/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+    <h5>都道府県の男女別5歳年齢階級別人口 人口ピラミッドグラフ</h5>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/PrefPyramid/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+{% endblock %}

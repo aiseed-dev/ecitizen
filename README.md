@@ -77,8 +77,9 @@ wrangler pages deploy public/
 - [x] Country(海外)データ更新(K12): census を Eurostat、projection を
       EUROPOP2023(UKのみONS 2024年基準)に全面更新 (DESIGN.md §14)
 - [x] PrefPyramid (47件、都道府県版人口ピラミッド)
+- [x] CountryPyramid (33件、JP含む。Eurostat/ONSから男女別データを追加取得。DESIGN.md §15.2)
 - [x] Population2015 ランキング (人口順/増減数順/増減率順/コード順 × 全国+47都道府県 = 192ページ)
-- [ ] Phase 2 (残り): Population2010 系、CountryPyramid(男女別データの追加取得が必要)
+- [ ] Phase 2 (残り): Population2010 系
       (City3d/Country3d/Prefecture3d は廃止・移植しない。K10)
 - [ ] Phase 3: e-Stat 由来 (CPI / Ssds / Sac / Lg / Aging2015 / Young2015 / Migration 系)
 - [ ] Phase 4: 静的コンテンツ・Statdb (Flutter)

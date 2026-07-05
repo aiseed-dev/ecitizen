@@ -14,7 +14,7 @@ from citizenlib import masters, rankings
 from citizenlib.ipss import IpssData
 from citizenlib.population import (
     SourceData, build_city_model, build_city_pyramid_model, build_country_model,
-    build_pref_model, build_pref_pyramid_model,
+    build_country_pyramid_model, build_pref_model, build_pref_pyramid_model,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -88,6 +88,15 @@ def main() -> None:
             assert len(model["index"]) == 15, code
         write_json(country_dir / f"{code}.json", model)
     print(f"国モデル {len(masters.COUNTRY_CODE)} 件")
+
+    # --- 国 人口ピラミッド ---
+    country_pyramid_dir = ROOT / "data" / "population" / "pyramid" / "country"
+    for code in masters.COUNTRY_CODE:
+        model = build_country_pyramid_model(source, code)
+        assert len(model["years"]) == (14 if model["is_jp"] else 15), code
+        assert all(len(y["male"]) == 19 and len(y["female"]) == 19 for y in model["years"]), code
+        write_json(country_pyramid_dir / f"{code}.json", model)
+    print(f"国ピラミッドモデル {len(masters.COUNTRY_CODE)} 件")
 
     # --- 人口ピラミッド (Phase 2、市町村のみ、IPSS 令和5年推計) ---
     pyramid_dir = ROOT / "data" / "population" / "pyramid" / "city"

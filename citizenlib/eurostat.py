@@ -58,14 +58,17 @@ def _flat_index(body: dict, **selectors) -> int:
     return idx
 
 
-def load_census(geo: str) -> list:
-    """DATA_CONTRACT §2.4 の census (Ages2, 20行×9列, 1980-2020)。"""
+def load_census(geo: str, sex: str = "T") -> list:
+    """DATA_CONTRACT §2.4 の census (Ages2, 20行×9列, 1980-2020)。
+
+    sex: "T"(総数、既定) / "M"(男) / "F"(女)。人口ピラミッド用に "M"/"F" も使う。
+    """
     by_year = json.loads((RAW_DIR / "eurostat" / "census.json").read_text(encoding="utf-8"))
     rows = [{"series": label, "population": []} for label in CENSUS_AGE_LABELS]
     for year in sorted(by_year, key=int):
         body = by_year[year]
         for i, code in enumerate(CENSUS_AGE_CODES):
-            idx = _flat_index(body, freq="A", unit="NR", sex="T", age=code, geo=geo, time=year)
+            idx = _flat_index(body, freq="A", unit="NR", sex=sex, age=code, geo=geo, time=year)
             v = body["value"].get(str(idx))
             rows[i]["population"].append(int(v) if v is not None else 0)
     return rows
@@ -81,10 +84,11 @@ def _one_year_age_index(code: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def load_projection_eurostat(geo: str) -> list:
+def load_projection_eurostat(geo: str, sex: str = "T") -> list:
     """DATA_CONTRACT §2.4 の projection (20行×6列, 2025-2050)。
 
     proj_23np は1歳刻みのため5歳階級に合算する (0～4歳, ..., 85～89歳, 90歳以上)。
+    sex: "T"(総数、既定) / "M"(男) / "F"(女)。
     """
     by_year = json.loads((RAW_DIR / "eurostat" / "projection.json").read_text(encoding="utf-8"))
     years = sorted(by_year, key=int)
@@ -93,7 +97,7 @@ def load_projection_eurostat(geo: str) -> list:
     for yi, year in enumerate(years):
         body = by_year[year]
         age_index = body["dimension"]["age"]["category"]["index"]
-        total_idx = _flat_index(body, freq="A", projection="BSL", sex="T", age="TOTAL",
+        total_idx = _flat_index(body, freq="A", projection="BSL", sex=sex, age="TOTAL",
                                 unit="PER", geo=geo, time=year)
         rows[0]["population"][yi] = int(body["value"].get(str(total_idx), 0))
         for code in age_index:
@@ -101,7 +105,7 @@ def load_projection_eurostat(geo: str) -> list:
             if age is None:
                 continue
             bucket = 19 if age >= 90 else (age // 5 + 1)  # 90+ は行19、他は0-4→行1 ...
-            idx = _flat_index(body, freq="A", projection="BSL", sex="T", age=code,
+            idx = _flat_index(body, freq="A", projection="BSL", sex=sex, age=code,
                               unit="PER", geo=geo, time=year)
             v = body["value"].get(str(idx))
             if v is not None:
@@ -112,10 +116,14 @@ def load_projection_eurostat(geo: str) -> list:
 _ONS_AGE_RE = re.compile(r"(\d+)\s*-\s*(\d+)|(\d+)\s*and over")
 
 
-def load_projection_uk() -> list:
+_ONS_SEX = {"T": "Persons", "M": "Males", "F": "Females"}
+
+
+def load_projection_uk(sex: str = "T") -> list:
     """UK は Eurostat(EUROPOP2023) 対象外のため ONS 2024-based Principal projection
     (5歳階級・年次データ) から 2025・2030・...・2050 を抜き出す。90-94/95-99/
     100-104/105以上 を合算して「90歳以上」に正規化 (DATA_CONTRACT §2.4)。
+    sex: "T"(総数、既定) / "M"(男) / "F"(女)。
     """
     path = RAW_DIR / "ons" / "uk_ppp_machine_readable.xlsx"
     wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
@@ -125,7 +133,7 @@ def load_projection_uk() -> list:
 
     by_age = {}
     for row in ws.iter_rows(min_row=2, values_only=True):
-        if row[0] != "Persons":
+        if row[0] != _ONS_SEX[sex]:
             continue
         age_label = row[1]
         by_age[age_label] = [row[c] for c in col_for]

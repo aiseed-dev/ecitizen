@@ -31,6 +31,7 @@ DATA_PREF = ROOT / "data" / "population" / "pref"
 DATA_COUNTRY = ROOT / "data" / "population" / "country"
 DATA_PYRAMID = ROOT / "data" / "population" / "pyramid" / "city"
 DATA_PREF_PYRAMID = ROOT / "data" / "population" / "pyramid" / "pref"
+DATA_COUNTRY_PYRAMID = ROOT / "data" / "population" / "pyramid" / "country"
 DATA_RANKINGS = ROOT / "data" / "rankings"
 
 # city ページ指数表の行定義 (pct=True は f1 書式)
@@ -227,6 +228,26 @@ def _build_country(code: str) -> str:
     })
     html = _env.get_template("population/country.html").render(ctx)
     write_text(f"Population/Country/{code}/index.html", html)
+
+    # 人口ピラミッド用の推計年 (JP は census 最終年と重複する2015年を除く6点、
+    # 非JP は重複がないため6点そのまま。country.html 用の proj_years とは別物)
+    pyramid_proj_years = proj_years[1:] if model["is_jp"] else proj_years
+
+    pyramid = json.loads((DATA_COUNTRY_PYRAMID / f"{code}.json").read_text(encoding="utf-8"))
+    svgs = [(y["year"], y["kind"],
+             city_pyramid_svg(model["name"], y["year"], y["male"], y["female"], pyramid["max_value"]))
+            for y in pyramid["years"]]
+    ctx = dict(_ctx_common)
+    ctx.update({
+        "m": model,
+        "pyramid": pyramid,
+        "svgs": svgs,
+        "census_years": census_years,
+        "proj_years": pyramid_proj_years,
+        "page_title": f"{model['name']} - 各国の男女別5歳年齢階級別人口 人口ピラミッド",
+    })
+    html = _env.get_template("population/country_pyramid.html").render(ctx)
+    write_text(f"Population/CountryPyramid/{code}/index.html", html)
     return code
 
 
