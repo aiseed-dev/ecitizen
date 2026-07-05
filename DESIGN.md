@@ -464,8 +464,15 @@ Git 連携ビルド。定期更新(Phase 3 の e-Stat 系)は cron で
 | K10 | 3D グラフ | **廃止**。`City3d`/`Country3d`/`Prefecture3d` は移植しない。積み上げ縦棒・人口ピラミッドで代替できるため必要性が薄く、保守コストも避ける (§8.6) |
 | K11 | 2020年国勢調査・将来推計の更新 | City/Pref の census に2020年列(実績値)を追加(8→9列)、projection を IPSS「日本の地域別将来推計人口(令和5(2023)年推計)」(2020-2050) に全面差し替え。取得は e-Stat API ではなく **IPSS公式サイトの都道府県別 Excel を1回限りダウンロード**(§13)。旧C#にハードコードされていた e-Stat appId (`22977f64c46f47314804ef3f49822e88964bdb89`) はユーザー判断で今回のみ他用途(統計表検索)に再利用したが、恒久的な組み込みは行っていない。Country(海外)は対象外、旧データ(2015年国勢調査+平成30年推計)のまま |
 | K12 | Country(海外)のデータ更新 | census を **Eurostat `demo_pjangroup`**(1980-2020、appId不要のオープンAPI)に、projection を **Eurostat `proj_23np`(EUROPOP2023、基準シナリオ)**(2025-2050)に全面差し替え。**UKのみEUROPOP2023対象外(EU離脱国)のため英国統計局(ONS)「National population projections: 2024-based」を使用**、その旨をUKページに脚注表示。表示年はUKも含め全国で5年刻み(2025,2030,...,2050)に統一。JPはCountryとしては対象外(旧データのまま)。詳細は §14 |
+| K13 | Statdb (統計APIエクスプローラ) | **Flutter Web アプリとして再実装** (K3 の適用を確定)。データ供給は K5 準拠のローカルバッチ + 静的スナップショット JSON。仕様書は §17 |
 
-(初版の未決事項 D1〜D5 はすべて K2〜K12 として決定済み。現時点で残る未決事項なし。)
+### 未決事項
+
+| # | 論点 | 状態 |
+|---|------|------|
+| D6 | Statdb の統計表実データ表示の扱い | **未決**。推奨案 = 統計表一覧までを SPA で提供し各表は e-Stat `dbview` へ外部リンク (§17.2)。Phase 4 実装開始時に決定する |
+
+(初版の未決事項 D1〜D5 はすべて K2〜K12 として決定済み。)
 
 ## 12. e-Stat API 調査メモ (2026-07-05 時点)
 
@@ -711,3 +718,122 @@ Phase 2の残り「Population2010系」を調査した結果、旧 `Population20
 
 以上でPhase 2は完了。残るはPhase 3(e-Stat由来)・Phase 4(Statdb)・
 Phase 5(仕上げ)のみ。
+
+## 17. Statdb(統計APIエクスプローラ)仕様書 (K13、2026-07-05 設計・実装は別日)
+
+Phase 4 の中心。K3 の方針どおり **Flutter Web アプリとして再実装する**
+(2026-07-05 ユーザー決定)。データ供給は K5 のとおり完全ローカル
+(取得層バッチ + 静的スナップショット JSON)。
+
+### 17.1 旧実装の構造(調査結果)
+
+旧 Statdb は2つのコンポーネントから成っていた:
+
+1. **statdbcron** (eCitizenToolsCore、cron で毎日実行):
+   - e-Stat `getStatsList?statsNameList=Y&searchKind={1,2,3}` で統計名一覧
+     (`JStatsName.json`) を維持 (kind 1=統計、2=小地域・地域メッシュ、
+     3=社会・人口統計体系)
+   - 統計コードごとに `getStatsList?statsCode={code}&searchKind={kind}` で
+     統計表一覧を取得し `statsList/{code}.json` (kind2は `T{code}.json`、
+     kind3は `C{code}.json`) を更新
+   - 前回スナップショットとの差分検出 (ChangeInfo): 新規/更新の統計表を
+     `latestStats.json` (統計単位、ID=取得時刻+連番) と
+     `latestTables/{id}.json` (統計表単位) に追記
+   - 変更のあった統計表のデータ/メタキャッシュを削除 (CacheUpdate)
+2. **StatdbController** (eCitizen):
+   - カタログ系ページ (Index / StatsIndex / StatsTitleList / LatestInfo 等) は
+     statdbcron が維持する JSON を読んで描画するだけ
+   - 統計表詳細 (StatsData/StatsMeta) は**リクエスト時に e-Stat API を呼び**
+     (ファイルキャッシュ付き)、先頭2000件を表として表示
+
+### 17.2 決定事項と論点
+
+| # | 論点 | 決定/提案 |
+|---|------|----------|
+| K13 | UI 実装方式 | **Flutter Web** (ユーザー決定 2026-07-05)。`/Statdb/` 配下に SPA を配置 |
+| K13-a | カタログのデータ供給 | statdbcron 相当を Python 移植 (`tools/fetch_statdb.py`)。ローカルバッチで取得・差分検出し、静的 JSON を配信 (K5準拠) |
+| **D6** | **統計表の実データ表示** | **未決 (要ユーザー判断)**。全表 (数十万件) の静的化は不可能。**推奨案**: 統計表一覧までを SPA 内で提供し、各表は e-Stat の統計表表示画面 `https://www.e-stat.go.jp/dbview?sid={statsDataId}` へ外部リンク。代替案: 主要統計に限り実データもスナップショット化し SPA 内で表表示 (データ契約は両対応の設計とし、初期リリースは外部リンクのみでも後から追加可能) |
+
+### 17.3 データ設計 (取得層)
+
+`tools/fetch_statdb.py` (statdbcron の Python 移植):
+
+```
+data/raw/statdb/          # e-Stat 生レスポンスのキャッシュ (git管理外)
+data/statdb/              # 整形済みスナップショット (git管理外、再生成可能)
+├── catalog.json          # 統計名一覧 (旧 JStatsName.json 相当)
+├── list/{code}.json      # kind1 統計表一覧 (統計コード別、フラット)
+├── list/T{code}.json     # kind2 小地域・地域メッシュ
+├── list/C00200502.json   # kind3 社会・人口統計体系
+├── latest.json           # 更新情報 (旧 latestStats.json 相当、差分検出で追記)
+└── latest_tables/{id}.json  # 更新ID別の統計表リスト
+```
+
+- 差分検出は旧 ChangeInfo の移植: 前回の `list/*.json` と比較し、
+  新規 (UpdateType=0/2)・公開日変更 (1/3)・属性変更 (2/4) を判定して
+  `latest.json` に追記。初回実行時は差分なし (全件新規扱いにしない)
+- appId は `secrets.json` から読む (citizenlib/estat.py と同じ)
+- e-Stat 呼び出し回数: 統計名一覧3回 + 統計コード数 (数百) 回。
+  1回限り/随時の手動実行 (cron 常駐はしない。更新したいときに再実行)
+- スキーマの詳細は DATA_CONTRACT.md §2.9
+
+### 17.4 画面仕様 (Flutter SPA)
+
+旧 URL をそのまま SPA のルートとして踏襲する (ブックマーク互換):
+
+| ルート | 画面 | データ |
+|--------|------|--------|
+| `/Statdb/` | トップ: 統計名一覧 (統計/小地域/社会・人口統計体系の3節) + 更新情報最新5件 | catalog.json + latest.json |
+| `/Statdb/StatsIndex/{code}` | 統計の階層ツリー (「統計名 (N件)」リンク付き)。旧実装はサーバー側で `Statics` フィールドを空白分割して木を構築していた → Flutter 側で同じロジックを実装 | list/{code}.json |
+| `/Statdb/SaStatsIndex/{code}` | 小地域版の階層ツリー | list/T{code}.json |
+| `/Statdb/StatsTitleList/{code}?statsname={名}` | 統計表一覧 (表番号+タイトル)。各表は D6 の決定に従い e-Stat へ外部リンク (または SPA 内表示) | list/{code}.json をクライアントでフィルタ |
+| `/Statdb/SaStatsTitleList/{code}?statsname={名}` | 同上 (小地域) | list/T{code}.json |
+| `/Statdb/StatsTitleList3/00200502` | 社会・人口統計体系の統計表一覧 | list/C00200502.json |
+| `/Statdb/LatestInfo` | 更新情報一覧 (スナップショット時点) | latest.json |
+| `/Statdb/LatestInfoSets/{id}` | 更新ID別の統計表一覧 | latest_tables/{id}.json |
+| `/Statdb/StatsData/{id}` `/Statdb/StatsMeta/{id}` | (D6) 推奨案では e-Stat `dbview?sid={id}` へリダイレクト | — |
+
+- 統計表一覧は1コード=1JSON をクライアントで読み込み・フィルタする方式。
+  旧実装のようにページを統計名グルーピング単位で分けない
+  (ページ数爆発の回避、K5 のファイル数上限対策)
+- 検索/絞り込み (統計名のインクリメンタル検索等) は Flutter 側で追加
+  実装してよい (旧実装にはない付加価値)
+
+### 17.5 ルーティング・配置・ビルド
+
+- Flutter プロジェクトは同一リポジトリの `statdb_app/` に置く
+- ルーティングは go_router の **path URL 方式** (hash 方式は使わない。
+  旧URL互換のため)。`--base-href /Statdb/`
+- Cloudflare Pages の `_redirects` (generate.py が生成):
+  ```
+  # D6 推奨案採用時: 統計表詳細は e-Stat へ (動的プレースホルダ)
+  /Statdb/StatsData/* https://www.e-stat.go.jp/dbview?sid=:splat 302
+  /Statdb/StatsMeta/* https://www.e-stat.go.jp/dbview?sid=:splat 302
+  # SPA フォールバック (上記以外の /Statdb/* は index.html を返す)
+  /Statdb/* /Statdb/index.html 200
+  ```
+  注: Pages の動的リダイレクト (プレースホルダ付き) は100件まで、
+  静的リダイレクトは2000件まで。スナップショット済みの表を SPA 内表示に
+  切り替える場合は、その表IDの静的 200 ルールを外部リンクルールより
+  前に置く
+- ビルド: `flutter build web --base-href /Statdb/`。生成物 `build/web/` を
+  `public/Statdb/` にコピーし、`data/statdb/` を `public/Statdb/data/` に
+  コピーする (generate.py に組み込む。Flutter ビルド自体は generate.py の
+  外で実行し、成果物ディレクトリを引数/規約で渡す — Python 環境に
+  Flutter SDK を要求しないため)
+- フォント: BIZ UDPGothic TTF を Flutter アセットに同梱 (assets/fonts/ の
+  ものを再利用)。ナビゲーション等の外枠は SPA 内で再現するか、
+  トップページのみ静的 HTML でラップするかは実装時に判断
+- ファイル数見積: catalog 1 + list ~600 + latest_tables 数百 +
+  Flutter 成果物 ~50 = +1,300 程度。現在 5,767 + 1,300 ≪ 20,000 で問題なし
+- SEO: SPA 化により Statdb 配下は検索エンジンに載りにくくなるが、
+  カタログページは元々検索流入がほぼないため許容 (トレードオフとして記録)
+
+### 17.6 実装ステップ (次回作業)
+
+1. D6 (統計表実データの扱い) のユーザー決定
+2. `tools/fetch_statdb.py` 実装 → `data/statdb/` 生成・検証
+3. `statdb_app/` Flutter プロジェクト作成、画面実装 (§17.4 の順)
+4. `generate.py` に public/Statdb/ 組み込み + `_redirects` 追記
+5. ローカル確認 (`flutter run -d chrome` → ビルド成果物での結合確認)
+6. 検証: 旧サイトの主要ページとカタログ内容を突合

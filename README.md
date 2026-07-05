@@ -84,5 +84,6 @@ wrangler pages deploy public/
       またはe-Stat直叩き系のためPhase3へ整理・移動)
       (City3d/Country3d/Prefecture3d は廃止・移植しない。K10)
 - [ ] Phase 3: e-Stat 由来 (CPI / Ssds / Sac / Lg / Aging2015 / Young2015 / Migration 系)
-- [ ] Phase 4: 静的コンテンツ・Statdb (Flutter)
+- [ ] Phase 4: 静的コンテンツ・Statdb (**Flutter Web に決定 K13、仕様書 = DESIGN.md §17**。
+      未決 D6: 統計表実データの扱い。データ契約 = DATA_CONTRACT.md §2.9)
 - [ ] Phase 5: 仕上げ (sitemap / 404 / 本番切替)
