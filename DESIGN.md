@@ -884,12 +884,29 @@ Flutter 版と並行して **Flet 版**を作る。Flet は Flutter の UI を P
   データモデル・画面フローを固めてから Flutter 版に移植する
   (データ契約 §2.9 は共通なので二重実装のコストは UI 層のみ)
 - **ディレクトリ**: `statdb_flet/` (同一リポジトリ)。`main.py` +
-  `requirements.txt` (flet) + 共有ロジックは citizenlib を import 可
+  `statdb_data.py` (データ層) + `test_views.py` (FakePage による全ビュー
+  構築テスト) + `pyproject.toml` (flet build 用。org=dev.aiseed、
+  name=ecitizen → applicationId **dev.aiseed.ecitizen**)
 - **データ取得**: Flutter 版と同じ (ecitizen.jp の静的スナップショット
-  JSON を fetch + ローカルキャッシュ。e-Stat 直叩きはしない。
+  JSON を fetch + `~/.cache/ecitizen-statdb/` にローカルキャッシュ。
+  開発時はリポジトリ内 `data/statdb/` を直接読む。e-Stat 直叩きはしない。
   ただし D6 で「ユーザー自身の appId」案を採用する場合、Flet 版は
   Python なので最も自然に実装できる)
-- 画面仕様は §17.4 と共通 (ルート構造は Flet のビュー遷移に読み替え)
+- 画面仕様は §17.4 と共通 (ルート構造は Flet のビュー遷移に読み替え)。
+  追加機能: 統計ツリー最上位に**統計内全表の横断検索** (表題・統計名の
+  部分一致。本家 e-Stat の階層クリック繰り返しより速い)
+- **ビルド環境** (2026-07-06 構築済み):
+  - Flet 0.85.3 (`statdb_flet/.venv`、`flet[all]`)。flet build は専用の
+    Flutter SDK 3.41.7 を `~/.flet/` に自動インストールする
+    (手動インストールした `~/development/flutter` の 3.44.4 は
+    Flutter 版 statdb_app 用で別物)
+  - Android SDK: `~/Android/sdk` (commandline-tools + platform-tools、
+    ライセンス承諾済み)。JDK は システムの OpenJDK 21
+  - APK ビルド: `ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk
+    --yes` (成果物 `build/apk/`)
+- **既知の注意**: `flet run --web` の開発サーバーはページリロードで
+  セッションが復元されない (初回ロードのみ描画確認可)。動作確認は
+  デスクトップ (`flet run`) または実機で行う
 
 ### 17.9 実装ステップ (次回作業)
 

@@ -70,6 +70,9 @@ HEADERS = """\
   Cache-Control: public, max-age=86400
 /Population/CountryData/*
   Cache-Control: public, max-age=86400
+# Statdb カタログ (スナップショット。再取得までは不変)
+/Statdb/data/*
+  Cache-Control: public, max-age=86400
 /css/*
   Cache-Control: public, max-age=86400
 /js/*
@@ -322,6 +325,23 @@ def build_rankings(ctx_common: dict) -> None:
     write_text("Population/Census2010/index.html", html)
 
 
+def copy_statdb_data() -> None:
+    """Statdb カタログのスナップショットを配信物に含める (DESIGN.md §17.5)。
+
+    Flet/Flutter アプリ (Web・ネイティブとも) は public/Statdb/data/ を
+    データソースとして fetch する。data/statdb/ が無ければスキップ
+    (tools/fetch_statdb.py 未実行の開発環境でもビルド可能にするため)。
+    """
+    src = ROOT / "data" / "statdb"
+    if not (src / "catalog.json").exists():
+        print("Statdb データなし (tools/fetch_statdb.py 未実行) — スキップ")
+        return
+    dst = PUBLIC / "Statdb" / "data"
+    shutil.copytree(src, dst, dirs_exist_ok=True)
+    n = sum(1 for p in dst.rglob("*") if p.is_file())
+    print(f"Statdb データ {n} ファイル")
+
+
 def copy_assets(source: Path) -> None:
     shutil.copytree(ROOT / "assets" / "css", PUBLIC / "css", dirs_exist_ok=True)
     shutil.copytree(ROOT / "assets" / "js", PUBLIC / "js", dirs_exist_ok=True)
@@ -391,6 +411,7 @@ def main() -> None:
     })
 
     copy_assets(args.source)
+    copy_statdb_data()
     population2015_redirects = "".join(
         f"/Population/Population2015/{(p + '/') if p else ''} "
         f"/Population/Population2015/{(p + '/') if p else ''}popu/ 301\n"

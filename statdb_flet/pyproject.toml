@@ -1,0 +1,17 @@
+[project]
+name = "ecitizen"
+version = "0.1.0"
+description = "統計データAPI エクスプローラ - 統計メモ帳"
+authors = [{ name = "ecitizen.jp" }]
+requires-python = ">=3.10"
+dependencies = ["flet==0.85.3"]
+
+[tool.flet]
+# Android applicationId / iOS bundle id = {org}.{project name} = dev.aiseed.ecitizen
+org = "dev.aiseed"
+product = "統計エクスプローラ"
+company = "ecitizen.jp"
+build_number = 1
+
+[tool.flet.app]
+path = "."

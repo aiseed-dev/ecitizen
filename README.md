@@ -28,6 +28,7 @@ python tools/extract_masters.py   # マスター抽出 (国勢調査データ改
 python tools/fetch_ipss.py        # IPSS 令和5年推計を data/raw/ipss/ に取得 (初回のみ)
 python tools/fetch_eurostat.py    # Eurostat census/projection を取得 (初回のみ)
 python tools/fetch_ons.py         # ONS UK将来推計を取得 (初回のみ)
+python tools/fetch_statdb.py      # Statdb カタログ取得 (243,806表。再実行で差分検出)
 python build_data.py              # 取得層: data/ に中間 JSON を生成
 python generate.py --clean        # 描画層: public/ に HTML/JSON/SVG を生成
 ```
@@ -45,6 +46,21 @@ python generate.py --limit 20            # 先頭 20 件のみ
 python -m http.server 5012 --directory public
 # → http://localhost:5012/Population/City/01100/
 ```
+
+## Statdb (統計APIエクスプローラ) アプリ
+
+Flet 版 (`statdb_flet/`、Android/Chromebook向け。DESIGN.md §17.8):
+
+```bash
+cd statdb_flet
+python3 -m venv .venv && .venv/bin/pip install "flet[all]"
+.venv/bin/python test_views.py    # 全ビュー構築テスト
+.venv/bin/flet run                # デスクトップで起動
+ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk --yes   # APK (build/apk/)
+```
+
+データは開発時はリポジトリ内 `data/statdb/`、実機は配信サイトの
+`/Statdb/data/` を参照 (generate.py が public/ にコピーする)。
 
 ## デプロイ (Cloudflare Pages)
 
