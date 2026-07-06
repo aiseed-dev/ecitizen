@@ -895,6 +895,12 @@ Flutter 版と並行して **Flet 版**を作る。Flet は Flutter の UI を P
 - 画面仕様は §17.4 と共通 (ルート構造は Flet のビュー遷移に読み替え)。
   追加機能: 統計ツリー最上位に**統計内全表の横断検索** (表題・統計名の
   部分一致。本家 e-Stat の階層クリック繰り返しより速い)
+- **アプリでのグラフ表示方針 (2026-07-07)**: サイトと同じく matplotlib の
+  ビルド時SVGを使い、Flutter側は **flutter_svg** で表示するだけ (K8の
+  アプリへの拡張。クライアント側チャートライブラリは採用しない)。
+  人口ピラミッド・CPI等の既存SVG資産をそのまま流用できる。
+  注意: flutter_svg は <text> のフォント解決が弱いため、アプリ向けSVGは
+  matplotlib の svg.fonttype='path' (文字のパス化) で出力する
 - **ビルド環境** (2026-07-06 構築済み):
   - Flet 0.85.3 (`statdb_flet/.venv`、`flet[all]`)。flet build は専用の
     Flutter SDK 3.41.7 を `~/.flet/` に自動インストールする
