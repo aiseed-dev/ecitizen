@@ -1,0 +1,892 @@
+<h3>X-12-ARIMA 入門</h3>
+<div class="WordSection1" style="layout-grid: 18.0pt;"><span>とりあえず X-12-ARIMA を使ってみたいという人向けに作成しています。<br /> </span></div>
+<div class="WordSection1" style="layout-grid: 18.0pt;">
+    <p class="MsoNormal"> </p>
+    <h4><strong><span>X-12-ARIMA</span></strong><strong><span>使用についての手順概略</span></strong> <span><br /> </span></h4>
+    <p><span>１．<a href="#a1">時系列データを収集する。</a></span></p>
+    <p class="MsoNormal">・60データ以上を準備。</p>
+    <table border="0" cellspacing="0" cellpadding="0">
+      <tbody>
+        <tr>
+          <td>    </td>
+          <td><img src="/images/x12arima/image001.png" alt="" width="34" height="33" /></td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <p><span>２．<a href="#a2">データファイルの作成</a></span></p>
+    <p class="MsoNormal"><span>・</span><span><span>ARIMA</span>で使用できるようにデータファイルを変換する。</span></p>
+    <p class="MsoNormal"><span>・指定のデータの並びに変換して、<span>text</span>ファイルで保存。</span></p>
+    <table border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                <td>    </td>
+                <td><img src="/images/x12arima/image001.png" alt="" width="34" height="33" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal">３．<a href="#a3">スペックファイルの作成</a><span> </span></p>
+    <p class="MsoNormal">・ARIMAのスペックファイルを作成する。スペックファイルは拡張子が".spc"となっているファイル。テキストファイル作成と同様の手順で、最後に拡張子を変える。</p>
+    <p class="MsoNormal"><span>・<span>ARIMA</span>モデルの決定や外れ値の抽出、回帰変数の採用など演算プログラムを決定する。</span></p>
+    <p class="MsoNormal"><span>・スペックファイルの内容によって、季節調整データが変化する。</span></p>
+    <table border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                <td>    </td>
+                <td><img src="/images/x12arima/image001.png" alt="" width="34" height="33" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>４．<span> </span> "実行"し出力する</span></p>
+    <p class="MsoNormal"><span>・<span>ARIMA</span>の"実行ファイル"で、作成したスペックファイルを指定し演算を実行する。</span></p>
+    <p class="MsoNormal"><span>・季節調整データを出力し、そのデータを使用する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span><a id="a1" name="a1"></a>１．時系列データの収集</span></strong></p>
+    <p class="MsoNormal">・少なくとも60データ（月データ：5年分、期データ：15年分）を準備</p>
+    <p class="MsoNormal"><strong><span><a id="a2" name="a2"></a>２．データファイルの作成</span></strong></p>
+    <p class="MsoNormal">・エクセル等にて、縦1列、または縦＝年・横＝月（または期）の並びでデータを整理する。</p>
+    <p class="MsoNormal">※各データのみを記入。年月は記入しないこと。</p>
+    <p class="MsoNormal">※各データは3桁を越える場合にコンマで区切らないこと。ただし、小数点は可。</p>
+    <p class="MsoNormal">（（例）<span>12,345</span>：不可　→　<span>12345</span>：可）</p>
+    <p class="MsoNormal"><span>・テキストファイルで保存。　※１ファイルに<span>1</span>時系列しか記載できない。</span></p>
+    <p class="MsoNormal"><span>・<span>ARIMA</span>は日本語を認識ぜずエラーが起こる原因となるため、保存先は全て英数字表記のフォルダにしなければならない。</span></p>
+    <p class="MsoNormal"><span>（例）</span></p>
+    <p class="MsoNormal"><span>縦<span>1</span>列 表記の場合</span></p>
+    <p class="MsoNormal"><span><span><img id="図 161" src="/images/x12arima/image002.png" alt="" width="281" height="210" /></span></span></p>
+    <p class="MsoNormal"><span> 縦に年、横に月で表記する場合（横は最大<span>12</span>データ（<span>12</span>ヶ月分）になる）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 162" src="/images/x12arima/image003.png" alt="" width="281" height="210" /></span></span></p>
+    <p class="MsoNormal"><span><span><br /> </span></span></p>
+    <p class="MsoNormal"><a id="a3" name="a3"></a><strong>３．スペックファイルの作成</strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>■スペックファイルとは・・・<span>x-12-ARIMA</span>を実行するプログラムファイル。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>※<span>X11default</span>を実行する場合にも作成は必要。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span>～スペックファイル作成の手順概略～</span></strong></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（１）<a href="#3-1">対象となる時系列データを指定する。</a></span></p>
+    <img src="/images/x12arima/image004.png" alt="" width="28" height="43" /><br />
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（２）<a href="#3-2">対数変換の適用の判断、外れ値の検出作業を行う。</a></span></p>
+    <p class="MsoNormal"><span>              <img src="/images/x12arima/image004.png" alt="" width="28" height="43" /></span> <span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（３）<a href="#3-3">回帰変数の策定。</a></span></p>
+    <p class="MsoNormal"><span>             </span> <span><img src="/images/x12arima/image004.png" alt="" width="28" height="43" /></span> <span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（４）<a href="#3-4"><span>ARIMA</span>モデル（演算に係る設定のこと）の設定。</a></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>・階差の決定。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>・自己相関、偏自己相関の影響を除去するための変数の設定。</span></p>
+    <p class="MsoNormal"><span>             </span> <span><img src="/images/x12arima/image004.png" alt="" width="28" height="43" /></span> <span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（５）<a href="#3-5">これまでに策定した異常値や変数の適用を設定する。</a></span></p>
+    <p class="MsoNormal"><span>             </span> <span><img src="/images/x12arima/image004.png" alt="" width="28" height="43" /></span> <span> <br /> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（６）<a href="#3-6"><span>x11ARIMA</span>の実行プログラムを設定する。</a></span></p>
+    <p style="margin-left: 10.5pt; text-indent: 10.5pt;" class="MsoNormal"><span>・ここで季節調整データの出力を指定する。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>・<span>x11default</span>を使用する場合は、②から⑤までの手順は省略。</span></p>
+    <p style="margin-left: 28.5pt;" class="MsoListParagraph"><span>     </span> <img src="/images/x12arima/image004.png" alt="" width="28" height="43" /></p>
+    <p style="margin-left: 10.5pt; text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>スペックファイルの完成</span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>※スペックファイルは、完成までに各手順を踏む際に書き換えることとなるが、一連の演算においては上書きで構わない。</span></p>
+    <p class="MsoNormal"><span> <br /> </span></p>
+    <p class="MsoNormal"><strong><span>～スペックファイルの書き方（基本）～</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・スペックファイルは、<span>text</span>ファイルで作成して"<span>.spc</span>"の拡張子を名前の最後につける。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>※自動的にアイコンは変化する。</span></p>
+    <p style="text-indent: 52.5pt;" class="MsoNormal"><span><span><img id="図 193" src="/images/x12arima/image005.png" alt="" width="386" height="71" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span>（内容の基本ルール）</span></strong></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・スペックファイルでは、"コマンド"により各種設定の指示を行う。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>・一つのコマンドについて、コマンド、かっこ、詳細指示コマンドのスタイルをとり、各コマンドの設定が終わる毎に改行し次のコマンド指示を行う。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>[</span><span>各指示コマンド基本書式<span>]</span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><span><img id="図 2" src="/images/x12arima/image006.png" alt="" width="405" height="143" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>[</span><span>基本的なコマンドと各コマンドの基本表記方法<span>]</span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><img id="図 4" src="/images/x12arima/image007.png" alt="" width="653" height="288" /></span></p>
+    <p class="MsoNormal"><span><br /> </span></p>
+    <p class="MsoNormal"><strong><span><a id="3-1" name="3-1"></a>３－（１）　対象となる時系列データの指定　　　　　　　　　　　　『<span>series</span>』コマンド</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>series</span>コマンド：時系列データファイルとデータファイルの開始時期を指定する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><span><img id="図 5" src="/images/x12arima/image008.png" alt="" width="570" height="246" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 42.0pt; text-align: left; text-indent: -42.0pt;" class="MsoNormal"><span>・<span>x-12-ARIMA</span>は、月次データまたは四半期データを対象とすることができる。</span></p>
+    <p style="margin-left: 42.0pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span>月次データの場合　　⇒　<span>period=12</span></span></p>
+    <p class="MsoNormal"><span>四半期データの場合　⇒　<span>period=4</span></span></p>
+    <p style="margin-left: 21.0pt; text-indent: -21.0pt;" class="MsoNormal"><span>注意点として、月次データの場合は、<span>start</span>および<span>span</span>の記入が" <span>yyyy</span>（年）<span>.</span>ｍｍ（月）"となるのに対し（ｍ＝１～１２）、四半期データの場合は、" <span>yyyy</span>（年）<span>.</span>ｑ<span>(</span>期<span>)</span>"（ｑ <span>=</span>１～４）となることに留意すること。</span></p>
+    <div class="WordSection1" style="layout-grid: 18.0pt;"><span> </span> <strong><span><a id="3-2" name="3-2"></a>３－（２）　対数変換の適用の判断、外れ値の検出作業を行う。『<span>transform</span>、 <span>outlier</span>』コマンド</span></strong><span> </span></div>
+    <div class="WordSection1" style="layout-grid: 18.0pt;"><span>・<span>transform</span>コマンド：対数変換の指示、　<span>outlier</span>コマンド：外れ値を検出する。</span></div>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span> <span><img id="図 6" src="/images/x12arima/image010.png" alt="" width="666" height="215" /></span></p>
+    <p style="padding-left: 30px;" class="MsoNormal"><span> </span> <span><img style="float: left;" src="/images/x12arima/image009.png" alt="" width="69" height="91" /></span></p>
+    <p style="margin-left: 84.0pt;" class="MsoNormal"><span>上記のスペックファイルで<span>x12ARIMA</span>を実行すると、スペックファイルと同じフォルダに結果ファイルが出力され、その内、" <span>***.out</span>"ファイルに評価が記載されている。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>【下記のような出力がされた場合】</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>（対数変換について）</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（パターン１）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 11" src="/images/x12arima/image011.png" alt="" width="474" height="35" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→対数変換を行うことを勧める。（乗法型）　→　<span>transform{ function=log }</span>を採用する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（パターン２）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 12" src="/images/x12arima/image012.png" alt="" width="481" height="35" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→対数変換を行うことを勧めない。（加法型）→　<span>transform{ function }</span>を採用しない。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>（外れ値の検出について）</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（パターン１）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 13" src="/images/x12arima/image013.png" alt="" width="471" height="62" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→異常値やレベルシフトは検出されなかった。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン２）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 14" src="/images/x12arima/image014.png" alt="" width="465" height="206" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→<span>2001.1</span>と<span>2003.6</span>のデータが異常であると判断された。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→後に、変数コマンド（<span>regression</span>）にて抽出された外れ値を処理して演算を行う。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>※外れ値の自動探索では、目で見る限り判明しないようなレベルシフトの存在を示唆する場合もあるので、レベルシフトの発生原因があまり明白でないものに関しては、安定性の観点から、レベルシフトとして取り入れるかどうか十分考慮する必要がある。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>※一方で、異常値については、<span>X-11</span>による移動平均処理時の他の時期への影響を回避するために、全ての異常値を取り入れることが望ましい。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>※<strong><span>AIC</span><span>値</span></strong>とは、モデルのあてはまり度とパラメータ数を基に算定される値で、最も小さい値のモデルを選択する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>※<span>outlier</span>コマンドを使用した場合は、<span>AIC</span>値は意味をなさない。したがって、 <span>outlier</span>コマンドで探索された異常値・レベルシフトをモデルに取り入れるかの判断は自ら行い、特にレベルシフトについては、１つずつ発生原因を調査した上で、取り入れるかの判断を行うこと。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-align: center;" class="MsoNormal"><span>＊＊＊＊＊≪　補　　足　≫＊＊＊＊＊</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>【<span>transform</span>のオプションコマンド】</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（表記方法）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 15" src="/images/x12arima/image015.png" alt="" width="265" height="28" /></span></span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>function</span>：対数変換を行うかどうかの内容指示</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（<span>***</span>に入るコマンド）</span></p>
+    <p style="margin-left: 84.0pt; text-indent: -63.0pt;" class="MsoNormal"><span>Auto</span> <span>・・・対数変換を行った場合と行わなかった場合の<span>2</span>つの評価を行い、結果がより安定するほうを採用する。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>Log</span> <span>・・・対数変換を行う。（乗法型）　※加法型の場合は、このコマンドを指定しない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>※<span>transform</span>コマンドには、オプションコマンドとして<span>adjust</span>などもあるが別の手順となるためここでは説明しない。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>【<span>outlier</span>のオプションコマンド】</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>（表記方法）</span></p>
+    <p class="MsoNormal"><span><img id="図 40" src="/images/x12arima/image016.png" alt="" width="273" height="26" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>（出力の記号と意味）</span></p>
+    <p style="text-indent: 24.1pt;" class="MsoNormal"><strong><span>ao</span></strong><span>yyyy.mm</span> <span>：異常値<span>(</span>ｙｙｙｙ年、ｍｍ月）</span></p>
+    <p style="text-indent: 24.1pt;" class="MsoNormal"><strong><span>ls</span></strong><span>yyyy.mm</span> <span>：レベルシフト<span>(</span>ｙｙｙｙ年、ｍｍ月）</span></p>
+    <p style="text-indent: 24.1pt;" class="MsoNormal"><strong><span>ts</span></strong><span>yyyy.mm  </span> <span>：一時的異常<span>(</span>ｙｙｙｙ年、ｍｍ月）</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span><a id="3-3" name="3-3"></a>３－（３）　回帰変数の策定　　　　　　　　　　　　　<span>      </span> 『<span>regression</span>』コマンド</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>regression</span>コマンド：回帰変数を指定するコマンド。様々なオプションコマンドがあり、最も適当であると考えられる回帰変数を採用する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span>～回帰変数を自動検索する場合（<span>aictest</span>オプションを利用する）～</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>aictest</span>オプション：指定した回帰変数について、回帰変数を利用した場合と利用しなかった場合の <span>AIC</span>値を比較して、最適な回帰変数を評価するオプション。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><img id="図 41" src="/images/x12arima/image017.png" alt="" width="639" height="180" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span> <span>【<span>aictest</span>オプションで判定できる変数】</span></p>
+    <p class="MsoNormal"><span><img style="float: left;" src="/images/x12arima/image018.png" alt="" width="15" height="149" /></span><span>・<span>td</span>・・・月の長さと曜日の調整を同時に行う。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>tdnolpyear</span>・・・曜日調整。各曜日の影響。</span></p>
+    <p class="MsoNormal"><span>・<span>tdstock</span>・・・末残ベースのストック系列の曜日調整</span></p>
+    <p class="MsoNormal"><span>・<span>td1coef</span>・・・曜日調整と閏年調整。<span>Td1nolpyear</span>と <span>lpyear</span>を併用した場合と同様。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>td1nolpyear</span>・・・曜日調整。平日と週末の影響。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>user</span>・・・ユーザーファイルを使用。（ジャパンホリデーなど。）</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>※各オプションは併用できないコマンドがあるので注意。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span> <span><img style="float: left;" src="/images/x12arima/image019.png" alt="" width="15" height="169" /></span><span>・<span>td</span> →　<span>td1coef</span>、<span>td1nolpyear</span>、<span>lpyear</span>、 <span>lom</span>、<span>loq</span>、<span>tdstock</span>と併用できない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span> <span>・<span>tdnolpyear</span> →　<span>td</span>、<span>td1coef</span>、<span>td1nolpyear</span>、 <span>tdstock</span>と併用できない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span> <span>・<span>td1coef</span> →　<span>td</span>、<span>tdnolpyear</span>、<span>td1nolpyear</span>、 <span>lpyear</span>、<span>lom</span>、<span>loq</span>、<span>tdstock</span>と併用できない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>td1nolpyear</span> →　<span>td</span>、ｔｄ<span>nolyear</span>、<span>td1coef</span>、 <span>tdstock</span>と併用できない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>lpyear</span> →　ｔｄ、<span>td1coef</span>、ｔｄｓｔｏｃｋと併用できない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>lom</span> →　<span>td</span>、<span>td1coef</span>、<span>tdstock</span>と併用できない。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・<span>tdstock</span> →　<span>td</span>、<span>tdnolpyear</span>、<span>td1coef</span>、 <span>td1nolpyear</span>、<span>lom</span>、<span>loq</span>と併用できない。</span></p>
+</div>
+<div class="WordSection1" style="layout-grid: 18.0pt;">
+    <p class="MsoNormal"> </p>
+    <p class="MsoNormal"><span>【<span>aictest</span>オプションにてユーザーファイルを指定する場合の表記方法】</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><img id="図 48" src="/images/x12arima/image020.png" alt="" width="597" height="110" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>■以上のように、<span>AIC</span>値により判定した回帰変数を採用する。</span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>■併用できないオプションを同時に推奨された場合、出力ファイルのＡＩＣ値を参考にして、最も小さい値（安定した値）をとっている変数を採用する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>（例）</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>【下記のような出力がされた場合】</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン１）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 49" src="/images/x12arima/image021.png" alt="" width="509" height="29" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→<span>tdnolpyear</span>を推奨する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン２）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 50" src="/images/x12arima/image022.png" alt="" width="604" height="30" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→ユーザーファイルの変数を推奨しない。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span>～回帰変数を独自に判定して採用する場合（<span>aictest</span>オプションを利用しない場合）～</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>■どのタイプの回帰変数を導入するかは、国の例を参考にするなどして判断する。</span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>■曜日や閏年などの影響が明らかに考えられる場合は、各種変数を代入して演算を行い、結果をみて判断する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（表記方法）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 51" src="/images/x12arima/image023.png" alt="" width="284" height="22" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>【対数変換を行い、かつ月の長さ調整、曜日調整を行いたい場合】</span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>transform{ adjust=lom }</span>と<span>regression{ variables=tdnolpyear }</span>を使用。原系列を対数変換させる場合のみ有効。</span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>※<span>transform</span>の<span>adjust</span>オプションは、事前調整を行うコマンドであり、変数の指定と同様の影響がある。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン１）</span></p>
+    <p class="MsoNormal"><span><img id="図 52" src="/images/x12arima/image024.png" alt="" width="637" height="237" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン２）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 53" src="/images/x12arima/image025.png" alt="" width="633" height="200" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン３）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 54" src="/images/x12arima/image026.png" alt="" width="490" height="180" /></span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>※各スペックファイルの様式は、併用するオプションなどを考慮し工夫すること。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>【閏年調整および曜日調整を行いたい場合】</span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>transform{ function=log }</span>と<span>regression{ variables=td }</span>を使用する。原系列を対数変換する場合のみ有効。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン１）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 55" src="/images/x12arima/image027.png" alt="" width="492" height="200" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（パターン２）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 56" src="/images/x12arima/image028.png" alt="" width="476" height="200" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>【フロー系列および平残ベースのストック系列の場合・・・ <span>regression{ variables=tdnolpyear  }</span>】</span></p>
+    <p class="MsoNormal"><span>【末残ベースのストック系列の場合・・・ <span>regression{ variables=( tdstock [w] )}</span> 】</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><span><img id="図 57" src="/images/x12arima/image029.png" alt="" width="613" height="200" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>■他にも適用したい変数がある場合は、独自で工夫して採用すればよい。結果については、ＡＩＣ値が最も小さい値（安定した値）を示した変数が最も適していると考えられる。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span>～その他（特殊な設定を行いたい場合）～</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>■対象期間内で曜日構成が変化するケースの場合、変化前と変化後に期間を分けて各種の調整を行う。</span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>■<span>regression</span>コマンドにて、<span>variables</span>オプションを用いて｛調整項目 <span>/yyyy.mm/</span>｝（<span>yyyy</span>：年、<span>mm</span>：月）で期間を分割して回帰する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><span><img id="図 58" src="/images/x12arima/image030.png" alt="" width="568" height="201" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>■期間を分割したほうがよいかどうかは、分割したモデルと分割しないモデルの<span>AIC</span>値を比較する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>■確定的なトレンドが見て取れた場合、モデルへの定数項の取り込みができる。対数変換後の時系列が確定的なトレンドを持つならば、階差処理後の時系列を定数項つきのモデルであらわすことができる。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>■定数項をモデルに取り入れるべきかが不明な場合は、まず「<span>regression</span>」コマンドに定数項（ <span>"const"</span>）を指定し、モデルの推計を行う。推計された定数項のパラメータが有意でない場合は、モデルに取り入れる必要はない。また、 <span>AIC</span>値を比較し、<span>AIC</span>値が小さいほうを採用する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>(</span><span>例<span>)</span></span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（スペックファイル）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 59" src="/images/x12arima/image031.png" alt="" width="455" height="207" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（出力）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 60" src="/images/x12arima/image032.png" alt="" width="455" height="152" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>■パラメータの有意性はｔ値をもとに判定する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-align: center;" class="MsoNormal"><span>＊＊＊＊＊≪　補　　足　≫＊＊＊＊＊</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>【<span>regression</span>コマンドの各オプション】</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・曜日調整に係るオプションコマンド</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>td</span> <span>：月の長さと曜日の調整を同時に行う。</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>td1coef</span> <span>：曜日調整と閏年調整。<span>Td1nolpyear</span>と<span>lpyear</span>を併用した場合と同様。</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>tdnolpyear</span> <span>：曜日調整。各曜日の影響。</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>td1nolpyear</span> <span>：曜日調整。平日と週末の影響。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・閏年調整、月の長さ調整に係るオプションコマンド</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>lpyear</span> <span>：閏年調整</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>lom</span> <span>：月の長さ調整</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>td1coef</span> <span>：曜日調整と閏年調整。<span>Td1nolpyear</span>と<span>lpyear</span>を併用した場合と同様。</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>td</span> <span>：月の長さと曜日の調整を同時に行う。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>・その他のオプションコマンド</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>loq</span> <span>：四半期の長さの調整</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>user</span> <span>：ユーザーファイルの使用（ユーザーオプションの適用）</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>tdstock</span> <span>：月の末日の曜日の違いによって引き起こされる変動を調整。</span></p>
+    <p style="text-indent: 31.5pt;" class="MsoNormal"><span>ao</span><span>、<span>ls</span>、ｔｃ：各種外れ値の抽出</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span>【ユーザー変数のデータファイルの作成について】</span></strong></p>
+    <p style="margin-left: 31.5pt; text-indent: -21.0pt;" class="MsoNormal"><span>(1)text</span><span>ファイルで作成して"<span>.dat</span>"または"<span>.txt</span>"の拡張子を名前の最後につける。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>(2)</span><span>原系列データと同様に、各時期の変数データを縦に時系列に並べる。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>（例）勤務日の日数に影響されるデータを季節調整する場合、近年は週休2日が完全に定着しているので、最近のデータのみを扱う場合には、作成方法１による方がいい結果がでると考えられる。作成方法1の場合、曜日調整には <span>td1nolpyear 又は <span>td1coef を使用する。</span></span></span></p>
+
+    <p>・日本型曜日調整例：作成方法１</p>
+    <p>①実際のカレンダーより、下記条件の日数を抽出。（休日数をカウントする。）</p>
+    <p>（条件）</p>
+    <p>○月～金曜日が祝日となっている日数（カレンダー要因のみを取り入れた場合）</p>
+    <p>○必要に応じて、以下のルールで休日を追加する。</p>
+    <p>年始休業：1月1～3日を休日とする。</p>
+    <p>ゴールデンウィーク：4月29日～5月 5日の間は、中2日以内のウィークデイを休日とする。</p>
+    <p>お盆休み：8月13日～15日を休日とする。</p>
+    <p>年末休業：12月29日～31日を休日とする。</p>
+    <p>②X-12-ARIMA対応変数として、各月毎に【　各データ　－　全データの平均値　】とし、各月データを時系列に整理する。</p>
+    <p>（例）</p>
+    <p>9月　／　全期間平均値　 2.0</p>
+    <table border="1" cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                <td width="121" valign="top">
+                    <p> </p>
+                </td>
+                <td width="97" valign="top">
+                    <p>月間休日数</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>計算式</p>
+                </td>
+                <td width="202" valign="top">
+                    <p>x-12-ARIMA対応変数</p>
+                </td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>2008年9月</p>
+                </td>
+                <td width="97" valign="top"> 1</td>
+                <td width="198" valign="top"> 1 －  2.0  =</td>
+                <td width="202" valign="top"> -1.0</td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>2009年9月</p>
+                </td>
+                <td width="97" valign="top">
+                    <p>3</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>3 －  2.0  ＝</p>
+                </td>
+                <td width="202" valign="top">
+                    <p> 1.0</p>
+                </td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>2010年9月</p>
+                </td>
+                <td width="97" valign="top">
+                    <p>2</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>2 －  2.0  ＝</p>
+                </td>
+                <td width="202" valign="top">  0.0</td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>2011年9月</p>
+                </td>
+                <td width="97" valign="top">
+                    <p>2</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>2 －  2.0  ＝</p>
+                </td>
+                <td width="202" valign="top">
+                    <p> 0.0</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p> </p>
+    <p>・日本型曜日調整例：作成方法２</p>
+    <p>①実際のカレンダーより、下記条件の日数を抽出。（休日数をカウントする。）</p>
+    <p>（条件）</p>
+    <p>○月～土曜日が祝日または休日となっている日数（カレンダー要因のみを取り入れた場合）</p>
+    <p>○土曜日については、1992年4までは月に2回休日（第 2、第4土曜日）、1992年5月以降は全ての土曜日を休日とする。</p>
+    <span> </span> ○必要に応じて、以下のルールで休日を追加する。
+    <p>年始休業：1月1～3日を休日とする。</p>
+    <p>ゴールデンウィーク：4月29日～5月 5日の間は、中2日以内のウィークデイを休日とする。</p>
+    <p>お盆休み：8月13日～15日を休日とする。</p>
+    <p>年末休業：12月29日～31日を休日とする。</p>
+    <p>②X-12-ARIMA対応変数として、【　各データ　－　全データの平均値　】とし、各時期データを時系列に整理する。</p>
+    <p>（例）</p>
+    <p>1997年10月～12月　／　全期間平均値　 5.127</p>
+    <table border="1" cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                <td width="121" valign="top">
+                    <p> </p>
+                </td>
+                <td width="97" valign="top">
+                    <p>月間休日数</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>計算式</p>
+                </td>
+                <td width="202" valign="top">
+                    <p>x-12-ARIMA対応変数</p>
+                </td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>1997年10月</p>
+                </td>
+                <td width="97" valign="top">
+                    <p>5</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>5 －　5.127 ＝</p>
+                </td>
+                <td width="202" valign="top">
+                    <p>-0.127</p>
+                </td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>11月</p>
+                </td>
+                <td width="97" valign="top">
+                    <p>7</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>7 －　5.128 ＝</p>
+                </td>
+                <td width="202" valign="top">
+                    <p>1.873</p>
+                </td>
+            </tr>
+            <tr>
+                <td width="121" valign="top">
+                    <p>12月</p>
+                </td>
+                <td width="97" valign="top">
+                    <p>8</p>
+                </td>
+                <td width="198" valign="top">
+                    <p>8 －　5.129 ＝</p>
+                </td>
+                <td width="202" valign="top">
+                    <p>2.873</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p> </p>
+    <p class="MsoNormal"><span>参考資料）</span></p>
+    <p style="margin-left: 10.5pt;" class="MsoNormal"><span>奥本佳伸、<span>2001</span>年<span>6</span>月、千葉大学経済研究大<span>16</span>巻 <span>1</span>号、「季節調整法センサス局法<span>X-12-ARIMA</span>の適用における日本型曜日調整の有効性」、 <span>p.239-281</span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><strong><span><a id="3-4" name="3-4"></a>３－（４）　<span>ARIMA</span>モデルの決定　<strong><span>『<span>automdl</span>』</span></strong>『 <span>idetify</span>』『 <span>arima</span>』コマンド</span></strong></p>
+    <p><span>■ＡＲＩＭＡモデルについては、</span><a href="#sankou">≪参考≫ARIMAモデルについて</a>で説明。</p>
+    <p class="MsoNormal"><span> X-12-Arima の Ver 3 では、TRAMO の自動モデル選択機能が導入されているので、それを使うと簡単に最適なARIMAモデルを選択することができるようになっている。使用方法は、スペックファイルで、reregression コマンドの下に arima コマンドや identyfy コマンドの代わりに、次のとおり automdl コマンドを記述する。<br /> </span></p>
+    <p style="padding-left: 30px;" class="MsoNormal"><span>automdl { }</span></p>
+    <p class="MsoNormal"><span>automdl は、上のように引数を指定しなくても、既定の設定で動作する。引数の詳細については、X-12-ARIMA Reference Manual の 7.2 AUTOMDL を参照のこと。また、日本語の参考資料としては、以下の文献を参照。</span></p>
+    <p class="MsoNormal"><span><span><a href="http://mitizane.ll.chiba-u.jp/metadb/up/AN10005358/09127216_24-3_99.pdf"> 奥本佳伸、<span>2001</span>年<span>6</span>月、千葉大学経済研究第<span>24</span>巻3･4号、「季節調整法プログラムセンサス局法 X-12-ARIMAのversion 0.3について」</a></span></span></p>
+    <p class="MsoNormal"><span><span>以下は、従来の方法を説明したものである。手間はかかるものの ARIMA モデルについての理解を深めることはできる。<br /> </span></span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>１）これまでに決定した回帰変数、外れ値を採用したうえで、階差の判定を行う。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>・<span>identify</span>コマンド：階差の判定。</span></p>
+    <p class="MsoNormal"><span><img id="図 61" src="/images/x12arima/image033.png" alt="" width="641" height="307" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>■階差をとるべきかの判断をする。出力されるグラフから、最も相関がない条件を選ぶ。</span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（グラフからの判断基準）</span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>12</span>、<span>24</span>、<span>36</span>（月次データの場合）や <span>4</span>、<span>8</span>、<span>12</span>（四半期データの場合）の次数のプロットにおいて有意な相関が発生しており、プロットの高次次数へ向けての動きが滑らか</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→　季節階差をとる必要あり。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>・高次の次数においても有意な相関が発生しており、プロットの高次次数へむけての動きが滑らか</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→　通常の階差をとる必要あり。</span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>・全体に有意な相関がなくなり、プロットの動きも滑らかでないとき（ただし、いくつかの次数においては有意な相関がみられることもある）</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>→　階差をとる必要なし。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>1</span>階の階差の自己相関プロットをみてさらに階差をとる必要がある場合は、階差を<span>2</span>階とる。また、自己相関のプロットから判断しにくい場合は、原系列、 <span>1</span>階階差の系列のプロットからトレンドが除去されているかの確認をする。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（出力グラフの見方）</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>■"<span>.out</span>"ファイルにて出力される。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><img id="図 62" src="/images/x12arima/image034.png" alt="" width="641" height="632" /></span></p>
+    <p class="MsoNormal"><span><br /> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（例）</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>自己相関プロット</span></p>
+    <p class="MsoNormal"><span><img id="図 69" src="/images/x12arima/image035.png" alt="" width="668" height="833" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt;" class="MsoNormal"><span>・以上の<span>4</span>パターンのグラフから判断して、季節階差および通常の階差の両方をとると判断する。　　（相関の有無について判断する。）</span></p>
+    <p style="margin-left: 21.0pt;" class="MsoNormal"><span>また、両方の<span>1</span>階階差をとった時点で全体にほとんど有意な相関がみられなくなったため、これ以上の階差は不要と判断。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>※<span>ARIMA</span>モデルにおいて、通常の階差：ｄ、季節階差：<span>D</span>と表す。この場合、 <span>d=1</span>、<span>D=1</span> となる。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> <br /> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>2</span><span>）<span>ARIMA</span>モデル（ <span>ARIMA(p d q)(P D Q)</span> ）を作成する。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>・<span>arima</span>コマンド：<span>arima</span>モデルの判定。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>■階差を判断したプロット図を利用して、<span>ARIMA</span>モデルの候補を作成する。使用するプロット図は、決定した階差の自己相関、偏自己相関を使う。（上記サンプルでは、 <span>d=1</span>、<span>D=1</span>の相関図について）</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>■季節階差をとった場合、<span>ARIMA</span>（<span>P D Q</span>）について、<span>AR</span>モデル、<span>MA</span>モデル、<span>ARMA</span>モデルのいずれが当てはまるかを判断する。判断方法の詳細は別紙説明。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>■通常の階差をとった場合、<span>ARIMA</span>（<span>p d q</span>）について、<span>AR</span>モデル、<span>MA</span>モデル、<span>ARMA</span>モデルのいずれが当てはまるかを判断する。判断方法の詳細は別紙説明。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-indent: -10.5pt;" class="MsoNormal"><span>■下記のようなスペックファイルを作成して各<span>ARIMA</span>モデルの候補を推計し、最適な<span>ARIMA</span>モデルを決定する。　※数パターンの <span>ARIMA</span>モデル候補を試す。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（<span>ARIMA</span>モデル推計のためのスペックファイル（<span>ARIMA</span>モデル推計のプログラム））</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span><img id="図 70" src="/images/x12arima/image036.png" alt="" width="659" height="208" /></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（例）</span></p>
+    <p style="margin-left: 21.0pt;" class="MsoNormal"><span>d=1,D=1</span><span>のグラフ（プロット図）からの判断により（<span>1,1,1)(0,1,1)</span>、 <span>(1,1,1)(1,1,1)</span>、<span>(1,1,0)(1,1,1)</span>、<span>(1,10)(1,1,2)</span>のいずれかのモデルが当てはまるであろうと推測し、各モデルについて <span>ARIMA</span>モデルの推計を行う。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>（出力結果例）</span></p>
+    <p class="MsoNormal"><span><span><img id="図 74" src="/images/x12arima/image037.png" alt="" width="545" height="342" /></span></span></p>
+    <p style="margin-left: 10.5pt; text-indent: 10.5pt;" class="MsoNormal"><span>上図のように、<span>AIC</span>値が表示される。この場合、<span>ARIMA</span>（<span>1,1,1)(1,1,1)</span>において <span>AIC</span>値は<span>636.8487</span>を示している。</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>また同様に他のモデルを試したところ、</span></p>
+    <table border="1" cellspacing="0" cellpadding="0" class="MsoNormalTable" style="border: medium none currentcolor; margin-left: 26.7pt; border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td width="227" valign="top" style="width: 60.0mm; border: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>ARIMA</span><span>モデル</span></p>
+                </td>
+                <td width="208" valign="top" style="width: 155.9pt; border: solid windowtext 1.0pt; border-left: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>AIC</span><span>値</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="227" valign="top" style="width: 60.0mm; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>(1 1 1)(0 1 1)</span></p>
+                </td>
+                <td width="208" valign="top" style="width: 155.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>635.4451</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="227" valign="top" style="width: 60.0mm; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>(1 1 1)(1 1 1)</span></p>
+                </td>
+                <td width="208" valign="top" style="width: 155.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>636.8487</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="227" valign="top" style="width: 60.0mm; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>(1 1 0)(1 1 1)</span></p>
+                </td>
+                <td width="208" valign="top" style="width: 155.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>643.4968</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="227" valign="top" style="width: 60.0mm; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>(1 1 0)(1 1 2)</span></p>
+                </td>
+                <td width="208" valign="top" style="width: 155.9pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>645.1287</span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="text-align: center;" class="MsoNormal"><span> </span></p>
+    <p class="MsoNormal"><span>という結果になったため、今回は<span>(1,1,1)(0,1,1)</span>を最適モデルとして選択する。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 52.5pt; text-indent: -42.0pt;" class="MsoNormal"><span>（注意）</span><span>実際の手順として様々なパラメータを代入し、<span>AIC</span>値を比較して <span>ARIMA</span>モデルを決定するが、異なる階差（<span>d</span>、<span>D)</span>のパラメータ同士を比較することはできない。したがって、階差は事前に決定しなければいけない。（階差が大きいほど、自動的に <span>AIC</span>値は小さくなる。）</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-indent: -10.5pt;" class="MsoNormal"><span>■選択したモデルについて、念のため各パラメータの有意性の確認を行うことが望ましい。各パラメータのｔ値を求め、有意でない場合はモデルの次数を変更する。（最適モデルでない可能性を示唆。）</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>【計算式】ｔ値＝<span>(Estimate)/(StandardErrors)</span></span></p>
+    <p style="text-align: left; text-indent: 63.0pt;" class="MsoNormal"><span>○各数値は同推計結果にて表示され、ｔ値は手計算。ｔ値が<span>2</span>以上であれば有意。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-indent: 10.5pt;" class="MsoNormal"><span>（例）</span></p>
+    <p style="text-indent: 21.0pt;" class="MsoNormal"><span>有意性のチェック</span></p>
+    <p class="MsoNormal"><span><span><img id="図 76" src="/images/x12arima/image038.png" alt="" width="445" height="429" /></span></span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt;" class="MsoNormal"><span>ARIMA(1,1,1)(1,1,1)</span><span>について推計したところ、<span>Estimate</span>および <span>StandardErroes</span>について上図のような結果がでた。</span></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left;" class="MsoNormal"><span>この場合、<span>Seasonal AR Lag12</span>において<span>0.137/0.13853=0.9889</span>＜<span>2</span>となったため、季節 <span>ARIMA</span>（<span>P</span>値）について次数を変更するべき可能性を示唆されている。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 21.0pt;" class="MsoNormal"><span>結果、<span>ARIMA(1,1,1)(0,1,1)</span>のほうがより<span>AIC</span>値が低く最適であると判断された。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left;" class="MsoNormal"><span>ARIMA(1,1,1)(0,1,1</span><span>）についてｔ値を求めるとすべてのパラメータにおいてｔ＝２以上の値を示したため有意と判断された。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><strong><span><a id="3-5" name="3-5"></a>３－（５）　異常値や回帰変数の導入</span></strong></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>■ここまでの手順で判定された異常値や変数、<span>ARIMA</span>モデルを設定する。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>（例）</span></p>
+    <p style="text-align: left; text-indent: 21.0pt;" class="MsoNormal"><span>（スペックファイルの書き方）</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><span><img id="図 77" src="/images/x12arima/image039.png" alt="" width="616" height="325" /></span></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 10.55pt;" class="MsoNormal"><strong><span>～予測値の推計～</span></strong></p>
+    <p style="text-align: left; text-indent: 21.0pt;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 21.0pt;" class="MsoNormal"><span>■<span>ARIMA</span>モデルを用いて、４～５年分の予測値を推計する。</span></p>
+    <p style="margin-left: 31.5pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span>・<span>forecast</span>コマンド、<span>maxlead</span>オプション…予測する期数を指定（デフォルトは月次データの場合 <span>12</span>期、四半期データの場合<span>4</span>期。最高<span>60</span>期まで指定可能）。</span></p>
+    <p style="margin-left: 42.0pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span>※<span>forecast</span>コマンドを指定しない場合でも、<span>REGARIMA</span>モデルを指定した場合は、自動的に <span>1</span>年分の予測値が推計される。予測値の推計を行わない場合は、<span>maxlead</span>オプションに０を指定する。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><span><img id="図 82" src="/images/x12arima/image040.png" alt="" width="493" height="175" /></span></span></p>
+    <p class="MsoNormal"> </p>
+    <p class="MsoNormal"><strong><span><a id="3-6" name="3-6"></a>３－（６）　<span>x-11ARIMA</span>の実行プログラムを設定する。　　　　　　『 <span>x11</span>』コマンド</span></strong></p>
+    <p class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>・<span>X11</span>コマンド・・・</span></p>
+    <p style="margin-left: 157.5pt; text-align: left; text-indent: -126.0pt;" class="MsoNormal"><span>mode</span> <span>オプシ</span><span>ョン：乗法型または加法型のモデルを選択。乗法</span><span>型の場合は省略しても構わないが、加法型の場合は必ず <span>mode=add</span> を指定すること。</span></p>
+    <p style="margin-left: 157.5pt; text-align: left; text-indent: -126.0pt;" class="MsoNormal"><span>appendfcst</span> <span>オプション：セーブファイルへ出力する事前調整済系列、曜日変動成分および季節変動成分に<span>forecast</span>コマンドで作成した予測値を追加するかの指定（ <span>yes</span>：追加する　<span>no</span>：追加しない）</span></p>
+    <p style="margin-left: 126.0pt; text-align: left; text-indent: -94.5pt;" class="MsoNormal"><span>save</span> <span>オプション：セーブファイルへ出力するテーブル名を指定（「テーブル名」：下記にて別途説明）</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span>■<span>X-11</span>には、いくつかのオプションがある（下記にて別途説明）。　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　季節調整を適用する時系列データの性格に合わせて適当なオプション値を選ぶことで、よりよい季節調整結果が得られる。まずは、デフォルト値で実行し、結果が思わしくなければオプションを選択ないし変更するという方法を推奨する。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>（例）</span></p>
+    <p style="text-align: left; text-indent: 21.0pt;" class="MsoNormal"><span><img src="/images/x12arima/image041.png" alt="" width="563" height="233" /></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span>■変動成分の予測値を出力するには、<span>appendfcst=yes</span>、<span>save=d16</span>（条件により、 <span>d10</span>、<span>d12</span>、<span>d13</span>も可能なので確認すること）を指定する。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>   ■季節調整済指数は　<span>save=d11</span> で出力される。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>《<span>X-11</span>各種オプション》</span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span> </span></p>
+    <table border="1" cellspacing="0" cellpadding="0" class="MsoNormalTable" style="border: medium none currentcolor; margin-left: 12.5pt; border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td width="132" valign="top" style="width: 99.25pt; border: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>オプション</span></p>
+                </td>
+                <td width="350" valign="top" style="width: 262.2pt; border: solid windowtext 1.0pt; border-left: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>説明</span></p>
+                </td>
+                <td width="164" valign="top" style="width: 123.25pt; border: solid windowtext 1.0pt; border-left: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: center;" class="MsoNormal"><span>オプション内容</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="132" valign="top" style="width: 99.25pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>mode</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>季節調整のタイプ</span></p>
+                </td>
+                <td width="350" valign="top" style="width: 262.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>乗法型または加法型のモデルを選択。原系列が対数グラフで描かれる時系列の場合は乗法型を、そうでないもの及び０または負のデータを含んでいる時系列の場合は加法型を選択する。</span></p>
+                </td>
+                <td width="164" valign="top" style="width: 123.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>mult</span><span>：乗法型</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>add</span><span>：加法型</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="132" valign="top" style="width: 99.25pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>seasonalma</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>移動平均項数</span></p>
+                </td>
+                <td width="350" valign="top" style="width: 262.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>季節変動成分を算出するための移動平均の項数を選択。省略時は、<span>MSR</span>（<span>Moving Seasonality Ratio I/S</span>）の値をもとに移動平均項数が自動的に設定される。月、四半期ごとに移動平均項数を分けて指定することも可能。</span></p>
+                </td>
+                <td width="164" valign="top" style="width: 123.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>s3*3</span><span>：加重<span>5</span>項</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>s3*5</span><span>：加重<span>7</span>項</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>s3*9</span><span>：加重<span>11</span>項</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>s3*15</span><span>：加重<span>17</span>項</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>X11default</span><span>：旧<span>X11</span>の標準型</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="132" valign="top" style="width: 99.25pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>sigmalim</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>異常値管理限界の上限、下限</span></p>
+                </td>
+                <td width="350" valign="top" style="width: 262.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>異常値管理限界（判定基準）の上限および下限を指定。判定基準から異常値として判定された不規則変動成分に偏りの大きさに応じた修正ウェイトをかけて、「異常値調整済不規則変動成分」を算出する。省略時は、上限 <span>2.5</span>、下限<span>1.5</span>が設定される。</span></p>
+                </td>
+                <td width="164" valign="top" style="width: 123.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>0</span><span>以上の数字を指定</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>（例）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>x11{sigmalim=(1.8 2.8) }</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="132" valign="top" style="width: 99.25pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>appendcst</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>予測結果の収録</span></p>
+                </td>
+                <td width="350" valign="top" style="width: 262.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>事前調整済原系列、曜日変動成分、季節変動成分に予測値をつなぎあわせる指定。省略時は予測値なし。</span></p>
+                </td>
+                <td width="164" valign="top" style="width: 123.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>（例）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>x11{appendfcst=yes }</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="132" valign="top" style="width: 99.25pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>trendma</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>趨勢循環変動成分の移動平均</span></p>
+                </td>
+                <td width="350" valign="top" style="width: 262.2pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>趨勢循環変動成分をヘンダーソン加重移動平均により算出する際の移動平均項数を指定。省略時には、月次データの場合、通常は <span>13</span>項移動平均が適用されるが、著しく不規則変動の大きい系列には<span>23</span>項移動平均を、また非常に滑らかな系列については、 <span>9</span>項移動平均が適用される。四半期データの場合は、<span>5</span>項移動平均、または<span>7</span>項移動平均が適用される。</span></p>
+                </td>
+                <td width="164" valign="top" style="width: 123.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>１より大きい奇数を設定</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>（例）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>x11{trendma=23 }</span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>《<span>X-11</span>の主なテーブル（表）》　※<span>save</span>オプション使用</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <table border="1" cellspacing="0" cellpadding="0" class="MsoNormalTable" style="border: medium none currentcolor; border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>ｄ<span>1</span></span></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border: solid windowtext 1.0pt; border-left: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>事前調整済系列</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>曜日調整、異常値調整などの事前調整が施された系列。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>appendfcst=yes</span><span>を指定した場合は、<span>forecast</span>コマンドで推計した予測値をつなぎ合わせた期間。</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>d10</span></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>季節変動成分（<span>S</span>）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>appendfcst=yes</span><span>を指定した場合は、<span>forecast</span>コマンドで推計した予測値をつなぎ合わせた期間。（曜日変動成分は含まれない。）</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><strong><span>d11</span></strong></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>季調済系列（<span>TC</span>・<span>I</span>）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>（季調済系列の異常値、レベルシフトについて）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>異常値、レベルシフトは、事前調整で一旦除去されるが、最終季調済系列には、これらの異常値、レベルシフトが戻される（標準型）。ただし、最終季調済系列から異常値、レベルシフトを除去することも可能（ <span>regadjust</span>コマンド、<span>final</span>オプション）。</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>d12</span></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>趨勢循環変動成分（<span>TC</span>）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>趨勢循環変動成分には事前調整で除去したレベルシフトが含まれる。レベルシフトが除去された趨勢循環変動成分は「<span>tal</span>」テーブルを参照のこと。</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>d13</span></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>不規則変動成分（<span>I</span>）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>不規則変動成分には事前調整で除去した異常値が含まれる。</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>d16</span></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>季節変動成分＋曜日変動成分（<span>S</span>・<span>TD</span>）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>apppendfcst=yes</span><span>を指定した場合は「<span>forecast</span>」コマンドで推計した予測値をつなぎ合わせた期間。</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="64" valign="top" style="width: 47.95pt; border: solid windowtext 1.0pt; border-top: none; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>d18</span></p>
+                </td>
+                <td width="599" valign="top" style="width: 449.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; padding: 0mm 5.4pt 0mm 5.4pt;">
+                    <p style="text-align: left;" class="MsoNormal"><span>曜日変動成分（<span>TD</span>）</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>出力期間は、<span>series</span>コマンドの<span>span</span>オプションで指定した期間。</span></p>
+                    <p style="text-align: left;" class="MsoNormal"><span>apppendfcst=yes</span><span>を指定した場合は「<span>forecast</span>」コマンドで推計した予測値をつなぎ合わせた期間。</span></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>※テーブルの関係（乗法の場合）</span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>原系列＝<span>d12 * d13 * d16</span> （曜日調整をしないときは、<span>d16</span>の代わりに<span>d10</span>でもよい。）</span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>加法の場合は、　原系列＝<span>d12+d13+d16</span> となる。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>⇒<span>d11</span>（季節調整済指数）＝<span>d12 * d13</span></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>⇒<strong><span>原系列／<span>d16</span> ＝ <span>d12 * d13</span> ＝　<span>d11</span>（季節調整済指数）</span></strong></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>（加法の場合は、積・商を和・差にする。）</span></p>
+    <p class="MsoNormal"><strong><span>３－（<span>7</span>）　その他コマンド</span></strong></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left; text-indent: -21.0pt;" class="MsoNormal"><span>■<span>x-12-ARIMA</span>には、上記以外にもコマンドやオプションがあるので、アメリカセンサス局がだしているマニュアルや他の研究者の論文を参考にして、適宜確認して最適なスペックを検討することが望ましい。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>（例）</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>・<span>estimate</span>コマンド・・・</span></p>
+    <p style="margin-left: 136.5pt; text-align: left; text-indent: -136.5pt;" class="MsoNormal"><span><span>maxiter</span>オプション：<span>ARMA</span>推定（<span>AR</span>、 <span>MA</span>パラメータに対して行う非線形繰り返し推定）における繰り返し回数の許容最大数を指定する。デフォルトは <span>maxiter=200</span>となっている。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><strong><span>≪備考≫</span></strong></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>「季節調整法の比較研究」（奥本佳伸）より</span></p>
+    <p style="text-align: left; text-indent: 10.5pt;" class="MsoNormal"><span>以下に、<span>ARIMA</span>モデルの決定方法について奥本氏の論文の概略を紹介する。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>奥本氏の考察によると、従来の方法では、<span>AIC</span>値を利用してまず最適な<span>ARIMA</span>モデルを決定後に異常値やレベルシフトの検出、回帰変数を検討するが、この場合、最適な <span>ARIMA</span>モデルが変化する場合があることを指摘している。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>一方で、異常値等を適用した後に<span>ARIMA</span>モデルを再検討するとなると、さらに再度異常値等の再検出を行う必要があり、演算にかかる作業が膨大となる可能性があることも示唆している。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>そこで奥本氏は、まずアメリカセンサス局が推薦する<span>ARIMA</span>モデル（<span>ARIMA</span>（ <span>0 1 1</span>）<span>(0 1 1)</span>）を利用して異常値等を検出し、それを適用後改めて<span>ARIMA</span>モデルを決定するという手順を採用した。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>１）<span>ARIMA(0 1 1)(0 1 1)</span>を用いて、"<span>outlier</span>"コマンドにより異常値を探索。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left; text-indent: -21.0pt;" class="MsoNormal"><span>２）検出された異常値を変数として加えたうえで、<span>AIC</span>基準によりいくつかの曜日・うるう年調整の変数に応じた最適な <span>ARIMA</span>モデルを選出。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left; text-indent: -21.0pt;" class="MsoNormal"><span>３）モデルと曜日・うるう年調整変数の組み合わせについて係数を推定し、係数が有意でないものはあらかじめ除く。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 21.0pt; text-align: left; text-indent: -21.0pt;" class="MsoNormal"><span>４）回帰変数の有意性を満たしたケースについて<span>AIC</span>値を計算し、<span>AIC</span>値が最小値となったケースを最終的に採用する。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 31.5pt; text-align: left; text-indent: -31.5pt;" class="MsoNormal"><span>注意）階差変数が大きいほうが<span>AIC</span>値は低くなる。したがって、階差変数の違うモデル同士を <span>AIC</span>値により比較することはできない。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>この方法が最も正確な結果を導くとは限らないが、精度が上がる可能性は十分にあると考えられる。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><strong><span><a id="sankou" name="sankou"></a>≪参考≫</span></strong></p>
+    <p style="text-align: left;" class="MsoNormal"><strong><span>ARIMA</span></strong><strong><span>モデルについて</span></strong></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 136.5pt; text-align: left; text-indent: -136.5pt;" class="MsoNormal"><span>■<span>ARIMA</span>モデルとは・・・季節調整を行う時系列データについて、階差の適用の判断および自己相関、偏自己相関の影響を除去する処理を指定したもの。</span></p>
+    <p style="text-align: left;" class="MsoNormal"> </p>
+    <table border="0" cellspacing="0" cellpadding="0" align="left">
+        <tbody>
+            <tr>
+                <td width="112" height="11"> </td>
+            </tr>
+            <tr>
+                <td> </td>
+                <td><img src="/images/x12arima/image042.png" alt="" width="478" height="280" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal">  <span><br /> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><img style="float: left;" src="/images/x12arima/image043.png" alt="" width="15" height="215" /></span> <span> </span> <span>・ｐ…偏自己相関のプロットを参照し、次数<span>1</span>からみて有意な相関がなくなる直近の次数を設定。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>・ｄ…<span>identify</span>コマンドにより階差を求める。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span> <span> </span> <span>・<span>q</span>…自己相関のプロットを参照し、次数<span>1</span>からみて有意な相関がなくなる直近の次数を設定。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span> <span><br /> </span></p>
+    <p style="margin-left: 31.5pt; text-align: left; text-indent: -31.5pt;" class="MsoNormal"><span> </span>   <span>・<span>P</span>…偏自己相関のプロットを参照し、<span>12</span>次の整数倍（月次データ）または <span>4</span>次の整数倍（四半期データ）を次数の低いほうからみて有意な相関が無くなる直近の次数を設定。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>・<span>D</span>…<span>identify</span>コマンドにより階差を求める。</span></p>
+    <p style="margin-left: 31.5pt; text-align: left; text-indent: -31.5pt;" class="MsoNormal"><span>   ・<span>Q</span>…自己相関のプロットを参照し、<span>12</span>次の整数倍（月次データ）または <span>4</span>次の整数倍（四半期データ）を次数の低いほうからみて有意な相関が無くなる直近の次数を設定。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>■グラフの特徴をつかみ、各パラメータを推測していくつかのモデルを比較する。</span></p>
+    <p style="margin-left: 10.5pt; text-align: left;" class="MsoNormal"><span>実際は、モデルは簡単に判断できないので数種類のモデル数値を検討し、<span>ARIMA</span>モデルに入力してみて、その中で <span>最も<strong><span>AIC</span>値が小さ</strong></span><strong>いもの</strong>を選択する。（ <span>estimate</span>コマンドを利用）</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="margin-left: 10.5pt; text-align: left; text-indent: -10.5pt;" class="MsoNormal"><span>※<span>AIC</span>値とは、モデルのあてはまり度合とパラメータ数を基に算定される値のこと。簡単に言うと、最も安定したグラフ結果を自動的に判定する指数。様々な数値を入力して各結果を比較して、最も値の小さい値を示した結果が最も安定していることを示す。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>この数値を用いて、異なる階差同士の結果を比較することはできないので注意すること。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>（偏自己相関グラフおよび自己相関グラフと<span>ARIMA</span>モデルの対応図）</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><img id="図 114" src="/images/x12arima/image044.png" alt="" width="699" height="468" /></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>・例えば<span>ARIMA(0 1 1)(0 1 1)</span></span><span>、<span>ARIMA(1 1 1 )(0 1 1)</span>、<span>ARIMA(2 1 0)(0 1 1)</span> <span> </span> などの形になる。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span>実際にスペックファイルに入力する際は、</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><span>arima{ model=(0 1 1)(0 1 1)  }</span></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><span>arima{ model=(1 1 1)(0 1 1)  }</span></span></p>
+    <p style="text-align: left;" class="MsoNormal"><span><span>arima{ model=(2 1 0)(0 1 1)  }</span> といった表記である。</span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+    <p style="text-align: left;" class="MsoNormal"><span> </span></p>
+</div>

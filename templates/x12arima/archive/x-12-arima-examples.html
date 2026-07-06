@@ -1,0 +1,238 @@
+<p>X-12-ARIMA を使って見る 鉱工業指数編</p>
+<p>X-12-ARIMA をどう使うのかを説明するため、実際の統計でどのように使っているのかを具体例で説明したいと思います。ここでは、鉱工業指数で説明しています。こちらの方で<a href="/x-12-arima/gdp/">GDP四半期速報の季節調整</a>の場合で説明しています。</p>
+<p>鉱工業指数の季節調整については、 <a href="http://www.meti.go.jp/statistics/tyo/iip/result/pdf/h2a4809j.pdf"> 季節指数利用上の注意</a>に、スペックファイル、祝日ファイルの内容が記載されているので容易に自分でシュミレーションをすることができます。</p>
+<h4>鉱工業指数の季節調整の特徴</h4>
+<ul>
+    <li>季節調整のモデルの見直しは、5年に一度の基準改定のときに行い、生産・出荷・在庫・在庫率指数の中では全ての系列に同じスペックファイルを適用している。</li>
+    <li>生産指数のような集計項目についても個々に季節調整をおこなっており、詳細項目で季節調整したもので集計しているわけではない。</li>
+    <li>季節調整は年に一度だけ、前年の数値が確定後におこなっている。その時には、前年の数値のみ更新し、それ以前の数値については更新をおこなっていない。直近の数値については、前年の季節指数を用いて季節調整をおこなっている。</li>
+    <li>異常値・レベルシフトについてはほとんど考慮していない。</li>
+</ul>
+<h4>鉱工業生産指数の季節調整をしてみる</h4>
+<p>まず、データを経済産業省の鉱工業指数の<a href="http://www.meti.go.jp/statistics/tyo/iip/result-2.html">集計結果又は推計結果のページ</a>の生産・出荷・在庫・在庫率指数の業務別の原指数の月次のExcelファイル（ha2gom1j.xls）をダウンロードします。鉱工業指数では、翌年になって前年の数値が確定後7年間のデータを使って、前年のデータを季節調整しています。</p>
+<p>2010年のデータを季節調整するには、2004年1月～2010年12月のデータを使用します。実際の処理は、ダウンロードしたExcelファイルから2004年1月～2010年12月の鉱工業の原指数のデータをコピーして、下の図のようにメモ帳等のテキストエディタに貼り付けて、例えば iip0.datという名前をつけて保存します。鉱工業指数のデータは横並びですが、X-12-ARIMAは、そのままでも対応します。<br /> <img src="/media/1088/sdk11_599x240.jpg" alt="arima11.png" width="599" height="240" /></p>
+<p>次に、メモ帳等のテキストエディタで、スペックファイルを作成します。内容は、 <a href="http://www.meti.go.jp/statistics/tyo/iip/result/pdf/h2a4809j.pdf"> 季節指数利用上の注意</a>にあるのと同じにしますが、以下のように series にデータの file で先に保存したデータのファイル名を指定するとともに、regression の file を指定してやります。スペックファイルが作成できたら、例えば、iip0.spc ファイルという名前で保存してやります。</p>
+<pre class="prettyprint">series{
+    file= 'iip0.dat'
+    start=2004.1
+    span=(2004.1,2010.12)
+    decimals=1
+}
+transform  { function = log }
+arima { model=(2 1 0)(0 1 1)}
+regression { variables=(td1nolpyear lpyear)
+       save=( td hol )
+       user=(jap-hol)
+       usertype=holiday
+       start=2004.1
+       file="holiday.dat"
+}
+forecast{maxlead=12}
+estimate { save = ( mdl)
+        maxiter = 500 }
+x11    { print = (none + d10 +d11 +d16)
+         save  = (d10 d11 d16)
+        seasonalma=x11default
+}
+</pre>
+<p>※注）このスペックファイルでは、データファイル及び祝日ファイルはスペックファイルと同じフォルダーに保存するとしてファイル名のみを記述しています。もし、スペックファイルと別のフォルダーに保存したい場合は、ドライブ名及びバス名も記載するようにします。</p>
+<p>次に、祝日ファイルを作成します。祝日ファイルも <a href="http://www.meti.go.jp/statistics/tyo/iip/result/pdf/h2a4809j.pdf"> 季節指数利用上の注意</a>にあるものを使用します。下の図のようにExcelで作成して、メモ帳にコピーして、スペックファイルで指定した名前 holiday.dat で保存します。<br /> <img src="/media/1089/sdk12_600x246.jpg" alt="arima12.png" width="600" height="246" /></p>
+<p>参考までに作成した３つのファイルを zip 形式で圧縮したものをダウンロードできるようにしておきます。</p>
+<p><a href="/media/1094/iip.zip">iip.zip</a></p>
+<p>３つのファイルが作成できたら、一つのフォルダーに下の図のようにまとめておきます。<br /> <img src="/media/1095/iip13_600x257.jpg" alt="iip13.png" width="600" height="257" /></p>
+<p>これで、データ及びスペックファイルの準備が完了です。ここで、Win X-12 を起動させます。Win X-12 が起動すると左上のフォルダー表示でデータ及びスペックファイルを保存したフォルダーを選択します。すると、Select input files に作成したスペックファイル（iip0.spc）が表示されるので、そのファイルを選択します。そして、Run ボタンをクリックします。<br /> <img src="/media/1096/iip14_597x420.jpg" alt="iip14.png" width="597" height="420" /></p>
+<p>データ及びスペックファイルを保存したフォルダーを確認して、以下の図のようにいろいろなファイルができていれば成功です。もし、うまくいかなかった場合は、iip0.err ファイルを見てください。作成されたファイルのうち、iip0.outファイルが結果ファイルで、スペックファイルや入力データの内容、操作結果等が表示されているので参考になります。<br /> <img src="/media/1097/iip15_600x347.jpg" alt="iip15.png" width="600" height="347" /></p>
+<p>季節調整の最終結果は、D11に表示されます。iip0.out ファイルの場合は、以下のように表示されます。この結果を、鉱工業指数の<a href="http://www.meti.go.jp/statistics/tyo/iip/result-2.html">集計結果又は推計結果のページ</a>の生産・出荷・在庫・在庫率指数の業務別の季節調整済指数の月次のExcelファイル（ha2gsm1j.xls）をダウンロードして比較してみます。結果については、ほぼ一致していますが、2010年3月分は、今回の計算結果が95.1に対して、公表している季節調整済指数の方は95.2になって一致していません。これについては、スペックファイルで decimals=4 のように有効桁数を増やしてやるとわかるのですが、実は95.1499というような数字になっており、有効数字の取り方や処理の順番の違いによって生じたものと考えられます。<br /> <img src="/media/1098/iip16_600x335.jpg" alt="iip16.png" width="600" height="335" /></p>
+<p>計算した結果の数字をExcelに移したい場合は、iip0.d11 のファイルを使用した方が便利です。iip0.d11の方は、日付と数字の間がTab区切りになっているので、コピーしたものをそのままExcelに貼り付けることができます。</p>
+<h4>最近の鉱工業生産指数の季節調整済指数を計算する</h4>
+<p>以上の説明で前年分の季節調整済指数を計算することができました。それでは最近の季節調整済指数を計算してみます。季節指数等の運用( Employment of seasonal index, 'trading-day and holiday' and 'leap-year' indices ) には、「平成２３年１月以降の季節指数は、暫定季節調整方式を採用している。具体的には、平成２２年の季節指数を適用している。 これに対し、曜日・祝祭日・うるう年指数は、暫定方式を採らず、上記で推計されたパラメータとカレンダーから計算して利用している。」と記載されています。具体的にいうと、季節調整済指数は、以下の計算式で計算し、季節指数については前年のものを使用し、<span class="pln">曜日・祝祭日・うるう年指数についてはその時点のものを使えと言うことになります。</span></p>
+<p>季節調整済指数 = 原指数 / (季節指数 × <span class="pln">曜日・祝祭日・うるう年指数</span>)</p>
+<p>前年の季節指数は、既に iip0.d10 ファイルに出力されているので、それを使用します。最近の曜日・祝祭日・うるう年指数につては、まだ計算ができていないので計算をしてやる必要があります。</p>
+<p>最近の曜日・祝祭日・うるう年指数の計算の方法としては、iip0.spc を以下のように修正して iipa.spc ファイルとして保存すると iipa.d18 ファイルに曜日・祝祭日・うるう年指数を出力させることができます。年間補正は翌年の4月頃なので実際には2年間分の曜日・祝祭日・うるう年指数が必要になってきます。修正の内容は、forecast {maxlead=12} を forecast {maxlead=24} に修正して2年分の予測値を計算しています。x11 で、<span class="pln">appendfcst</span> <span class="pun">=</span> <span class="pln">yes を追加して、出力に予測の期間についても値を出力するように変更しています。また、曜日・祝祭日・うるう年指数は d18 で出力することができるので、print 及び save に d18を追加しています。<br /> </span></p>
+<pre class="prettyprint">series{
+    file= 'iip0.dat'
+    start=2004.1
+    span=(2004.1,2010.12)
+    decimals=1
+}
+transform  { function = log }
+arima { model=(2 1 0)(0 1 1)}
+regression { variables=(td1nolpyear lpyear)
+       save=( td hol )
+       user=(jap-hol)
+       usertype=holiday
+       start=2004.1
+       file="holiday.dat"
+}
+forecast{maxlead=24}
+estimate { save = ( mdl)
+        maxiter = 500 }
+x11    {  <span class="pln">appendfcst</span> <span class="pun">=</span> <span class="pln">yes</span>
+        print = (none + d10 +d11 +d16　+d18)
+        save  = (d10 d11 d16 d18)
+        seasonalma=x11default
+}
+</pre>
+<p>計算結果は、以下のようになりました。</p>
+<p>D11 季節指数（Final seasonal factors）</p>
+<table border="0" class="article">
+    <tbody>
+        <tr>
+            <td> </td>
+            <th scope="col">Jan</th>
+            <th scope="col">Feb</th>
+            <th scope="col">Mar</th>
+            <th scope="col">Apr</th>
+            <th scope="col">May</th>
+            <th scope="col">Jun</th>
+            <th scope="col">Jul</th>
+            <th scope="col">Aug</th>
+            <th scope="col">Sep</th>
+            <th scope="col">Oct</th>
+            <th scope="col">Nov</th>
+            <th scope="col">Dec</th>
+            <th scope="col">AVGE</th>
+        </tr>
+        <tr>
+            <td>2010</td>
+            <td>90.4</td>
+            <td>94.8</td>
+            <td>106.3</td>
+            <td>94.7</td>
+            <td>93.4</td>
+            <td>103.4</td>
+            <td>104.3</td>
+            <td>95.5</td>
+            <td>107.8</td>
+            <td>104.7</td>
+            <td>103.9</td>
+            <td>101.0</td>
+            <td>100.0</td>
+        </tr>
+    </tbody>
+</table>
+<p>D18  <span class="pln">曜日・祝祭日・うるう年指数（Combined calendar adjustment factors）</span></p>
+<table border="0" class="article">
+    <tbody>
+        <tr>
+            <td> </td>
+            <th scope="col">Jan</th>
+            <th scope="col">Feb</th>
+            <th scope="col">Mar</th>
+            <th scope="col">Apr</th>
+            <th scope="col">May</th>
+            <th scope="col">Jun</th>
+            <th scope="col">Jul</th>
+            <th scope="col">Aug</th>
+            <th scope="col">Sep</th>
+            <th scope="col">Oct</th>
+            <th scope="col">Nov</th>
+            <th scope="col">Dec</th>
+            <th scope="col">AVGE</th>
+        </tr>
+        <tr>
+            <td>2011</td>
+            <td>99.9</td>
+            <td>98.9</td>
+            <td>101.0</td>
+            <td>99.2</td>
+            <td>99.3</td>
+            <td>100.8</td>
+            <td>98.4</td>
+            <td>101.2</td>
+            <td>100.8</td>
+            <td>98.4</td>
+            <td>100.6</td>
+            <td>99.6</td>
+            <td>99.8</td>
+        </tr>
+        <tr>
+            <td>2012</td>
+            <td>99.6</td>
+            <td>104.4</td>
+            <td>99.6</td>
+            <td>99.2</td>
+            <td>102.4</td>
+            <td>99.4</td>
+            <td>99.8</td>
+            <td>101.2</td>
+            <td>99.7</td>
+            <td>101.2</td>
+            <td>102.3</td>
+            <td>98.2</td>
+            <td>100.6</td>
+        </tr>
+    </tbody>
+</table>
+<p> </p>
+<p>原指数から季節調整済指数の計算を以下の式でおこなうと、結果についてはほぼ一致しています。</p>
+<p>季節調整済指数 = 原指数 / (D11 季節指数 × D18  <span class="pln">曜日・祝祭日・うるう年指数</span>)</p>
+<h4>複数の系列を一度に処理をする</h4>
+<p>以上の処理では、鉱工業指数という一つの系列の季節調整をしてみました。しかし、鉱工業指数では、多くの業種や品目があり、それらを季節調整してやる必要があります。鉱工業指数の場合は、季節調整のスペックはすべて基本的に同じなので、データ・メタファイル（data metafile）を使うことにより多くの業種や品目を一度の操作で季節調整することができます。例えば、iip0.dat、iip1.dat、iip2.dat という３つのデータファイルを一度に同じスペックファイルで処理しようと思う場合は、以下ようにデータのファイル名を入力して、拡張子 .dta （例えば iip.dta）で保存します。</p>
+<pre class="prettyprint">iip0.dat
+iip1.dat
+iip2.dat
+</pre>
+<p>すると下の図のように「Select input files」に表示されるようになります。iip.dta を選択して「Run」ボタンをクリックすると、スペックファイルを選択する画面が表示され、スペックファイルを選択して「OK」ボタンをクリックすると処理が始まります。なお、データ・メタファイルで使用するスペックファイルからは、series のファイル名の指定は削除しておきます。</p>
+<p><span class="pln"><img src="/~/media/1131/iip17_597x420.jpg" alt="iip17.png" width="597" height="420" /></span></p>
+<h4>Excel VBA で自動処理をする</h4>
+<p>Excel VBA を利用すれば季節調整の処理を自動化することができます。以下にサンプルのコードを表示しておきます。</p>
+<p>（そのままでは動作はしませんが、どういうイメージで処理をすればいいかはわかると思います）</p>
+<pre class="prettyprint">Const X12PATH = "C:\WinX-12"
+Const 対象年 = "201001"
+Dim Row As Integer<br />
+Sub SeasonalAdjustment()
+    For Row = 3 To 20
+        SetData
+        X12ARIMA
+        Getd11
+    Next
+End Sub<br />
+Sub SetData()
+    Dim fso As FileSystemObject
+    Dim f As TextStream
+    Dim i As Integer
+    Set fso = New FileSystemObject
+    Set f = fso.OpenTextFile(X12PATH &amp; "\data\C1.dat", ForWriting, True)
+    Dim s As String
+    For i = 20 To 103
+        s = Cells(Row, i)
+        f.WriteLine (s)
+    Next
+    f.Close
+End Sub<br />
+Sub X12ARIMA()
+    Dim WSH, wExec, sCmd As String, Result As String
+    Set WSH = CreateObject("WScript.Shell")
+    Set wExec = WSH.Exec(X12PATH &amp; "\x12a\x12a D:\x-12\iip\iip")
+    Do While wExec.Status = 0
+        DoEvents
+    Loop
+    Set wExec = Nothing
+    Set WSH = Nothing
+End Sub<br />
+Sub Getd11()
+    Dim fso As FileSystemObject
+    Dim f As TextStream
+    Set fso = New FileSystemObject
+    Set f = fso.OpenTextFile(X12PATH &amp; "\iip\C1.d11", ForReading)
+    Dim s As String
+    Dim flag As Boolean
+    Dim i As Integer
+    i = 106
+    flag = False
+    While (Not f.AtEndOfStream)
+        s = f.ReadLine
+        Dim fr As Variant
+        fr = Split(s, Chr(9))
+        If (fr(0) = 対象年) Then
+            flag = True
+        End If
+        If (flag) Then
+        Cells(Row, i) = fr(1)
+        i = i + 1
+        End If
+    Wend
+    f.Close
+End Sub<br />
+</pre>

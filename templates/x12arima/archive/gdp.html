@@ -1,0 +1,180 @@
+<h2>X-12-ARIMA を使って見る 四半期別GDP速報編</h2>
+<p><br /> X-12-ARIMA を実際にどう使うのかを、鉱工業指数に続いて、四半期別GDP速報で紹介します。四半期別GDP速報における季節調整のかけ方は、鉱工業指数と比較して以下の特徴があります。</p>
+<ul>
+    <li>1980年（昭和55年）第1四半期から直近期のデータを使って季節調整を行い、毎期毎に1980年まで遡って数値の改訂を行っている。ただし、国内家計最終消費支出(耐久財、非耐久財、半耐久財、サービス（除く持ち家の帰属家賃））、民間企業設備、民間在庫品増加（原材料在庫、仕掛品在庫、製品在庫、流通在庫）については、異なる基礎資料を用いて四半期分割を行ったことから、1980年（昭和55年）から1993年（平成５年）までと1994年（平成６年）に分けて季節調整をおこなっている。</li>
+    <li>季節調整モデルの見直しは、毎年の年次推計の際におこなっている。</li>
+    <li>リーマンショック等大きな変動があった場合には、随時、異常値・レベルシフト調整の設定をおこなっている。</li>
+    <li>詳細項目で季節調整をおこない、集計項目については季節調整を行った詳細項目を集計して算出している。</li>
+</ul>
+<h3>季節調整についての参考資料</h3>
+<p>四半期別GDP速報の季節調整については、以下の資料を参考にしました。</p>
+<p>基本的な考え方については、 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/gaiyou/sakusei/qe_suikei/qe_suikei_top.html"> 四半期別GDP速報(QE)の推計方法(2006年7月改定)について</a> を参考にしました。平成21年8月から、昭和55 年までの遡及結果を公表するようになったことによる季節調整の方法の変更については、<a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/gaiyou/sakusei/siryou/__icsFiles/afieldfile/2011/03/10/announce_10.pdf" target="_blank">昭和55年までの遡及結果(平成12年基準)の四半期別GDP速報への反映について(平2009年8月7日)</a> を参考にしました。</p>
+<p>最新の ARIMAモデルの設定については、 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/gaiyou/20101115/model_j.pdf"> 季節調整用ARIMAモデル設定一覧（2010年12月9日）</a>に記載があります。</p>
+<p>リーマンショックの時の季節調整法の設定変更については、 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/gaiyou/sakusei/siryou/__icsFiles/afieldfile/2011/05/30/announce.pdf"> 平成21年10-12月期四半期別GDP速報における季節調整法の設定変更について(2010年2月3日)</a> に説明があります。</p>
+<h2>四半期別GDOPの季節調整</h2>
+<p>四半期別GDPの統計データについては、内閣府の国民経済計算の四半期別GDP速報の <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/toukei/toukei_top.html"> 統計表一覧のページ</a>から取得します。季節調整は、実額に対して行うので、四半期の実額の名目原系列又は実質原系列を使用します。以下でいくつかの系列を使って季節調整をしてみます。</p>
+<h5>名目国内家計最終消費支出（うち半耐久財）の季節調整</h5>
+<p>まず、 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/gaiyou/20101115/model_j.pdf"> 季節調整用ARIMAモデル設定一覧（2010年12月9日）</a>にスペックファイルの例がある名目国内家計最終消費支出（うち半耐久財）の季節調整をしてみます。データは、 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/toukei/toukei_top.html"> 統計表一覧のページ</a>の「Ⅱ. 形態別国内家計最終消費支出、形態別総固定資本形成及び財貨・サービス別の輸出入」の実額の四半期の名目原系列をクリックしてダウンロードします。Excel だと以下の図のように表示されます。<br /> <img src="/media/1102/gdp01_597x396.jpg" alt="gdp01.png" width="597" height="396" /></p>
+<p>X-12-ARIMAのデータファイルでは、三桁区切りのコンマがあるとそこが数字の区切りだと認識してしまうので、三桁区切りのコンマを表示しないようにします。そして、最終消費支出の半耐久財の1994年1期以降のデータをコピーします。<br /> <img src="/media/1105/gdp02_597x396.jpg" alt="gdp02.png" width="597" height="396" /></p>
+<p>メモ帳を起動して、コピーしたデータを「貼り付け」てやります。それに適当な名前（ここでは m02.dat ）をつけて保存します。<br /> <img src="/media/1106/gdp03.png" alt="gdp03.png" width="425" height="374" /></p>
+<p>データができたら、スペックファイルを作成します。スペックファイルは、 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/gaiyou/20101115/model_j.pdf"> 季節調整用ARIMAモデル設定一覧（2010年12月9日）</a>のスペックファイルの例と同じですが、series でデータファイル、egression で VAT97ファイルを具体的に指定してやります。作成ができたら拡張子を .spc として、適当な名前（ここでは m02.spc）をつけて保存します。</p>
+<pre class="prettyprint">series {
+ file= 'm02.dat'
+ start =1994.1
+ span =(1994.1,2011.2)
+ modelspan =(1994.1,2011.2)
+ period=4
+ decimals =3
+ precision =3}
+transform { function = log }
+arima { model = ( 0 1 0 )( 2 1 2 ) }
+forecast { maxlead = 8
+           maxback = 20 }
+regression {
+ user = (vat97)
+ file = 'vat97.dat'
+ format = 'datevalue' }
+estimate { maxiter = 20000 }
+x11{ savelog = q
+ appendfcst = yes
+ save = ( d11 d16 ) }
+</pre>
+<p>ユーザー定義 vat97 は、平成9年4月の消費税率引き上げに伴う駆け込み需要期（1-3月期）、及びその反動期（4-6月期）に、駆け込み需要と反動期は定量的に同量だけ逆に効くように設定したもので、1997.1＝1、1997.2＝－1 その他の期は0と設定します。具体的には、下の図のようにして作成してやります。なお、予測値の推計期間についても、設定が必要なため、1989年1期から2013年2期までの数値を設定してやる必要があります。実はこのケースでは vat97 を1994年1期から設定しても動作します。なぜかというと、m02.error ファイルを見ればわかるのですが、15年以上の時系列については後方予測はしないということで maxback=20 の設定が無効になっているためです。<br /> <img src="/media/1107/gdp04_600x429.jpg" alt="gdp04.png" width="600" height="429" /></p>
+<p>作ったデータをコピーしてメモ帳に貼り付けてやります。データのみコピーしてもいいのですが、年、月の列も一緒にコピーしておくと後でデータを見たときにわかりやすくなります。データのみの場合を free 形式というのに対して、以下のようなデータ形式を datevalue 形式とよびます。datevalue 形式を使う場合は、スペックファイルで format = 'datevalue' という記述が必要になります。開始時期 start については、データに記載されているので省略することができます。データをスペックファイルで指定した名前（ここでは vat97.dat ）で保存します。<br /> <img src="/media/1108/gdp05.png" alt="gdp05.png" width="425" height="374" /></p>
+<p> 以上で、名目国内家計最終消費支出（うち半耐久財）の季節調整に必要なファイル（m02.dat、m02.spc、vat97.dat） ができたので、同一のフォルダー（ここでは gdp）にコピーします。<br /> <img src="/media/1109/gdp06_600x388.jpg" alt="gdp06.png" width="600" height="388" /></p>
+<p>Win X-12を起動して、左上のフォルダー選択ツリーで作成したフォルダー（gdp）を選択します。すると、中央上の「Select input files」 に作成したスペックファイル（m02.spc）表示されます。m02.spc を選択して、右下の「Run」ボタンをクリックすると季節調整が動作します。<br /> <img src="/media/1110/gdp07_597x420.jpg" alt="gdp07.png" width="597" height="420" /></p>
+<p>設定でHTML出力を有効にしてある場合は、ブラウザーが起動されて、out ファイルと log ファイルが表示されます。out ファイルの方を見るとエラーがある場合には、エラーメッセージが表示されるので、それを参考にしてデータを修正します。エラーがなければ、下の図のような一覧が表示されるので、入力データの確認が簡単にでき、中を見ていくとX-12-ARIMAがどういうことをしているかがよくわかります。季節調整の最終結果は、D11 Final seasonally adjusted data に表示されています。なお、HTML出力が有効になっていない場合には、フォルダー（gdp）の m02.out ファイルに同じ内容が出力されているので、そちらの方で確認します。<br /> <img src="/media/1111/gdp08_598x492.jpg" alt="gdp08.png" width="598" height="492" /></p>
+<p>季節調整の結果を Excel で使いたい場合は、フォルダー（gdp）に、m02.d11 というファイルが作成されているので、そのデータを使います。メモ帳で開くと、以下のように表示されます。タブ区切りになっているので、このデータを「全て選択」して「コピー」をして、それをそのまま Excel に「貼り付け」ることができます。<br /> <img src="/media/1112/gdp09.png" alt="gdp09.png" width="416" height="391" /></p>
+<p>下の図が m02.d11 のデータを「貼り付け」て、表示形式を三桁区切りに変更したものです。内閣府の季節調整済のデータは、年換算しているので4倍して比較してやります。下の図でわかるように、0.2億円程度の誤差となっています。年換算していることを考慮すれば、有効桁数の範囲で一致していますので、内閣府と同じ季節調整ができていると考えていいと思います。<br /> <img src="/media/1113/gdp10_600x519.jpg" alt="gdp10.png" width="600" height="519" /></p>
+<p>補足ですが、設定で Graph を有効にしてあって、Win X-12 の起動画面で、「Run in graphics mode」にチェックをしておくと下の図のように各種のグラフが自動で作成されるので便利な場合もあります。<br /> <img src="/media/1114/gdp11_600x472.jpg" alt="gdp11.png" width="600" height="472" /></p>
+<h5>名目国内家計最終消費支出（うち耐久財）の季節調整</h5>
+<p>次に、名目国内家計最終消費支出（うち耐久財）の季節調整をしてみます。 <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/gaiyou/20101115/model_j.pdf"> 季節調整用ARIMAモデル設定一覧（2010年12月9日）</a>のスペックファイルをみると、異常値・レベルシフトに RP2008.3-2009.1 が追加されています。「世界同時不況の影響による、平成20年秋以降の変動に対して、傾斜的水準変化(Ramp)を設定」ということです。Ramp は、X-12-ARIMA に組み込まれているので、以下のように regression に variables = ( RP2008.3-2009.1 ) を追加すれば設定できます。</p>
+<pre class="prettyprint">series {
+ file= 'm01.dat'
+ start =1994.1
+ span =(1994.1,2011.2)
+ modelspan =(1994.1,2011.2)
+ period=4
+ decimals =3
+ precision =3}
+transform { function = log }
+arima { model = ( 2 1 2 )( 0 1 1 ) }
+forecast { maxlead = 8
+           maxback = 20 }
+regression {
+ variables = ( RP2008.3-2009.1 )
+ user = (vat97)
+ start = 1989.1
+ file = 'vat97.dat' }
+estimate { maxiter = 20000 }
+x11{ savelog = q
+ appendfcst = yes
+ save = ( d11 d16 ) }
+</pre>
+<h5>名目民間住宅の季節調整</h5>
+<p>次に、名目民間の季節調整をしてみます。名目民間住宅のデータは、四半期別GDP速報の <a href="http://www.esri.cao.go.jp/jp/sna/sokuhou/kekka/toukei/toukei_top.html"> 統計表一覧のページ</a>の「Ⅰ.国内総生産（支出側）及び各需要項目（CSV形式）」の四半期の実額の「名目原系列（CSV形式）」をクリックしてダウンロードします。データについては、1980年第1四半期からのすべてのデータを使用します。また、異常値・レベルシフト AO2007.4 （建築基準法改正（平成19年6月）の影響で、建築着工（うち住宅分）が減少したことによる加法型異常値を設定）を設定するので、以下のようなスペックファイルになります。</p>
+<pre class="prettyprint">series {
+ file= 'm03.dat'
+ start =1980.1
+ span =(1980.1,2011.2)
+ modelspan =(1980.1,2011.2)
+ period=4
+ decimals =3
+ precision =3}
+transform { function = log }
+arima { model = ( 1 1 2 )( 0 1 1 ) }
+forecast { maxlead = 8 }
+regression { variables = ( AO2007.4 ) }
+estimate { maxiter = 20000 }
+x11{ savelog = q
+ appendfcst = yes
+ save = ( d11 d16 ) }
+</pre>
+<h5>複数の系列を一度に処理する</h5>
+<p>多くの系列を処理する必要があるときに一つずつスペックファイルを「Run」させていくのは面倒です。こういう場合には、メタファイルを使えば、複数のスペックファイルを一度に処理することができます。メタファイルの作成については、以上の例で、名目国内家計最終消費支出（うち半耐久財）のスペックファイルを m01.spc、名目国内家計最終消費支出（うち半耐久財）のスペックファイルを m02.spc、民間住宅のスペックファイルを m11.spc と設定してあるとすれば、以下のように記述して、拡張子を .mta にして適当な名前（ここでは meimoku.mta）で、スペックファイルと同じフォルダーに保存すれば、作成できます。</p>
+<pre class="prettyprint">m01
+m02
+m11
+</pre>
+<p>Win X-12 を起動すると、下の図のように作成したメタファイルが「Select input files」 に表示されるので、それを選択して「Run」ボタンをクリックするとメタファイルに記述した系列が一度に処理されます。</p>
+<p><img src="/media/1115/gdp12_597x420.jpg" alt="gdp12.png" width="597" height="420" /> </p>
+<h5>作成したファイルのダウンロード</h5>
+<p>参考までに以上で説明したファイルを zip 形式で圧縮したものをダウンロードできるようにしておきます。</p>
+<p><a href="/media/1116/gdp.zip">gdp.zip</a></p>
+<p>なお、gdp.zip には以下のデータ及びスペックファイル等が含まれています。</p>
+<p>m01:名目国内家計消費支出（うち耐久財）<br /> m02:名目国内家計消費支出（うち半耐久財）<br /> m03:名目国内家計消費支出（うち非耐久財）<br /> m04:名目国内家計消費支出（うちサービス（除く持ち家の帰属家賃））<br /> m05:名目国内家計消費支出（うちサービス（持ち家の帰属家賃））<br /> m11:民間住宅<br /> vat97.dat:1997年4月の消費税率引き上げに伴う異常値のユーザー定義<br /> meimoku.mta:メタファイル m01～m11を一括処理</p>
+<h2>四半期別GDPの季節調整を独自におこなうには</h2>
+<p>自分で独自に季節調整をしたいという場合には、ARIMAモデルの選定、閏年調整をするかどうか、異常値・レベルシフトの設定等を行う必要があります。X-12-ARIMAでは、Version 0.3 で、AUTOMDL に TRAMO の ARIMA モデルを自動選択するプログラムが組み込まれたことから、モデルの設定を簡単におこなうことができるようになりました。四半期別GDPの場合であれば、最初に以下のようなスペックファイルを作成して、モデルの設定をおこないます。</p>
+<pre class="prettyprint">series {
+ file= 'm01.dat'
+ start =1980.1
+ span =(1980.1,2011.2)
+ modelspan =(1980.1,2011.2)
+ period=4
+ decimals =3
+ precision =3}
+transform { function = auto }
+automdl { maxorder = (2 2) }
+forecast { maxlead = 8 }
+outlier { types = all }
+estimate { maxiter = 20000 }
+x11{ savelog = q
+ appendfcst = yes
+ save = ( d11 d16 ) }
+</pre>
+<p>※国内家計消費支出（うち耐久財）のように期間分割をして季節調整をおこなうものについては、series の start から modelspan までの期間を期間分割した期間に変更。</p>
+<p>transform {function = auto} 対数変換を適用するかどうかを自動で判断。</p>
+<p>automdl { maxorder = (2 2) } automdl を設定することでARIMAモデルを自動的に選定。maxorder = (2 2) は、ARMAの最大の次数で、既定（maxorder = (2 1)）では通常階差の次数が2まで季節階差の次数が1までとなるが、内閣府のモデル選定では81通りのパターンの中から設定しており季節階差の次数が2のものも考慮しているため設定。</p>
+<p>outlier { types = all } すべてのタイプの異常値・レベルシフトを検出</p>
+<p>実際に名目国内家計消費支出等で計算をおこなった結果は以下のようになりました。</p>
+<table border="0" class="article">
+    <tbody>
+        <tr>
+            <td style="text-align: center;">系列</td>
+            <td style="text-align: center;">ARIMAモデル</td>
+            <td style="text-align: center;">transforme</td>
+            <td style="text-align: center;">異常値・レベルシフト</td>
+        </tr>
+        <tr>
+            <td>
+                <p>名目国内家計消費支出（うち耐久財）</p>
+            </td>
+            <td>(1 0 0)(0 1 1)</td>
+            <td>log</td>
+            <td>TC2009.1、LS2011.1</td>
+        </tr>
+        <tr>
+            <td>〃（うち半耐久財）</td>
+            <td>(0 1 0)(0 1 1)</td>
+            <td>log</td>
+            <td>なし</td>
+        </tr>
+        <tr>
+            <td>〃（うち非耐久財）</td>
+            <td>(0 1 1)(1 1 2)</td>
+            <td>log</td>
+            <td>なし</td>
+        </tr>
+        <tr>
+            <td>〃（うちサービス（除く持ち家の帰属家賃））</td>
+            <td>(0 1 1)(0 1 1)</td>
+            <td>untransformed</td>
+            <td>なし</td>
+        </tr>
+        <tr>
+            <td>〃（うちサービス（持ち家の帰属家賃））</td>
+            <td>(0 2 1)(0 1 1)</td>
+            <td>untransformed</td>
+            <td>AO1991.2</td>
+        </tr>
+        <tr>
+            <td>名目民間住宅</td>
+            <td>(0 1 1)(0 1 1)</td>
+            <td>log</td>
+            <td>AO2007.4</td>
+        </tr>
+    </tbody>
+</table>
+<p>ARIMAモデルは、内閣府が設定しているものと全て異なるという結果になりました。そこで、モデルによってどの程度の差がでるのかを確認するためにグラフを作成してみました。下のグラフは、名目国内家計消費支出（うち耐久財）の場合で、季節調整済が内閣府が公表している数値で、Myモデル1が上で求めたモデルをそのまま使った場合、Myモデル2は異常値・レベルシフトを内閣府と同じものを使用した場合となっています。季節調整済とMyモデル2とには、ほとんど差が見られない結果になっています。このことだけから結論を出すのは適当でないと思いますが、automdl を使うことによって ARIMAモデルの決定が簡単にできるという感想を持ちました。また、異常値・レベルシフトの決定については、影響がかなりあることから慎重な検討が必要であると思いました。</p>
+<p>名目国内家計消費支出（うち耐久財）<br /> <img src="/media/1117/gdp13_722x585.jpg" alt="gdp13.png" width="722" height="585" /></p>
+<p> </p>

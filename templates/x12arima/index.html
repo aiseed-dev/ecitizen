@@ -1,0 +1,63 @@
+{% extends "_layout.html" %}
+{# 季節調整セクションのトップ。旧 /x-12-arima/ を X-13ARIMA-SEATS 中心に刷新
+   (DESIGN.md §19)。旧記事は archive/ 配下。 #}
+
+{% block content %}
+<h2>季節調整法 X-13ARIMA-SEATS について</h2>
+<p>
+    X-13ARIMA-SEATS はアメリカセンサス局(U.S. Census Bureau)が開発・保守している
+    季節調整(Seasonal Adjustment)ソフトウェアです。長く標準的に使われてきた
+    X-12-ARIMA の後継で、従来の X-11 方式に加えて、スペイン銀行で開発された
+    モデルベースの SEATS 方式による季節調整が1つのプログラムでできるようになりました。
+    日本でも政府統計の季節調整は X-12-ARIMA から X-13ARIMA-SEATS への移行が進んでいます。
+</p>
+<p>
+    毎月の売上や四半期の決算数字を比較する場合、季節による変動が大きいため、
+    普通は前年同月比や前年同期比を使います。しかし前年同月比では直近の動きが
+    つかみにくいという欠点があります。季節調整を行うと前月比・前期比で
+    足元の動きを見られるようになります。官庁統計では当たり前に使われている手法ですが、
+    自社の売上データなどにも同じように使えます。
+</p>
+<p>
+    日本語の資料が少なく統計的な知識も必要なため敷居が高く見えますが、
+    実際に動かしてみるとそれほど難しいものではありません。
+    ここでは Linux で X-13ARIMA-SEATS を使うことを中心に説明します
+    (Chromebook の Linux 環境でも同じ手順で使えます)。
+</p>
+
+<h3>記事</h3>
+<ul>
+    <li><a href="/x-12-arima/x-13arima-seats/">X-13ARIMA-SEATS のインストール (Linux)</a>
+        — センサス局のビルド済みバイナリ・ソースからのビルド・R / Python から使う方法</li>
+    <li><a href="/x-12-arima/x-13arima-seats-usage/">X-13ARIMA-SEATS の使い方</a>
+        — spec ファイルの書き方、実行、季節調整済み系列の取り出し、X-11 方式と SEATS 方式</li>
+</ul>
+
+<h3>アーカイブ (X-12-ARIMA 時代の記事)</h3>
+<p>
+    X-12-ARIMA と Windows 用フロントエンド Win X-12 についての以前の記事です。
+    X-12-ARIMA の配布は終了していますが、spec ファイルの書き方や結果の見方は
+    X-13ARIMA-SEATS とほぼ共通なので、参考として残してあります。
+</p>
+<ul>
+    <li><a href="/x-12-arima/archive/x-12-arima/">X-12-ARIMA 使用手順</a></li>
+    <li><a href="/x-12-arima/archive/win-x-12/">Win X-12 のインストール</a></li>
+    <li><a href="/x-12-arima/archive/gdp/">X-12-ARIMA を使ってみる 四半期別GDP速報編</a></li>
+    <li><a href="/x-12-arima/archive/x-12-arima-examples/">X-12-ARIMA を使ってみる 鉱工業指数編</a></li>
+</ul>
+
+<h3>参考資料</h3>
+<ul class="reflist">
+    <li>U.S. Census Bureau,
+        <a href="https://www.census.gov/data/software/x13as.html" target="_blank" rel="noopener">X-13ARIMA-SEATS Seasonal Adjustment Program</a>
+        — 本体の配布とリファレンスマニュアル (英語)。最新版は Version 1.1 Build 62 (2025年7月時点)</li>
+    <li>有田帝馬『入門 季節調整 — 基礎知識の理解から「X-12-ARIMA」の活用法まで』東洋経済新報社
+        — 日本語の入門書。X-12-ARIMA 対象だが考え方は X-13 でも通用する</li>
+    <li>総務省統計局
+        <a href="https://www.stat.go.jp/data/roudou/9.html" target="_blank" rel="noopener">労働力調査における季節調整法</a>
+        など、各府省の季節調整の説明ページ — 実際の官庁統計での設定例</li>
+    <li>R パッケージ
+        <a href="https://cran.r-project.org/package=seasonal" target="_blank" rel="noopener">seasonal</a>
+        — X-13ARIMA-SEATS の R インターフェース (バイナリ同梱で導入が最も簡単)</li>
+</ul>
+{% endblock %}

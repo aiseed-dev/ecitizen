@@ -1,0 +1,109 @@
+{% extends "_layout.html" %}
+{# X-13ARIMA-SEATS の使い方 (spec ファイル・実行・出力の見方)。DESIGN.md §19。 #}
+
+{% block content %}
+<h2>X-13ARIMA-SEATS の使い方</h2>
+<p>
+    X-13ARIMA-SEATS は「spec ファイル」というテキストファイルに設定を書き、
+    コマンドラインで実行するだけで動きます。GUI はありませんが、
+    設定ファイルの基本形を1つ覚えれば使い回しできます。
+</p>
+
+<h3>1. spec ファイルを書く</h3>
+<p>
+    月次の売上データを季節調整する最小限の例です。<code>sales.spc</code> という
+    ファイル名で保存します (拡張子は .spc)。
+</p>
+<pre><code>series{
+  title = "月次売上"
+  start = 2018.jan
+  period = 12
+  data = (
+    5230 4890 5560 5820 6010 5770
+    5480 5150 5900 6120 5980 7450
+    5410 5020 5730 6010 6180 5940
+    ...
+  )
+}
+transform{ function = auto }   # 対数変換するかを自動判定
+automdl{ }                     # ARIMAモデルを自動選択
+outlier{ }                     # 外れ値を自動検出
+x11{ }                         # X-11方式で季節調整</code></pre>
+<p>主なセクション (spec) の意味:</p>
+<table class="ectable">
+    <tr><th>spec</th><th>役割</th></tr>
+    <tr><td class="left">series</td><td class="left">データ本体。開始年月 (start)、周期 (period: 月次=12、四半期=4)、データ (data=(...) に直接書くか file="..." で別ファイル)</td></tr>
+    <tr><td class="left">transform</td><td class="left">変換。function=auto にすると対数変換の要否を自動判定</td></tr>
+    <tr><td class="left">regression</td><td class="left">曜日効果・祝日・介入などの回帰変数。例: variables=(td) で曜日調整</td></tr>
+    <tr><td class="left">automdl</td><td class="left">回帰ARIMAモデルの自動選択 (旧X-12の pickmdl より高性能な TRAMO 系)</td></tr>
+    <tr><td class="left">outlier</td><td class="left">外れ値 (AO/LS/TC) の自動検出</td></tr>
+    <tr><td class="left">x11</td><td class="left">X-11方式の季節調整を行う</td></tr>
+    <tr><td class="left">seats</td><td class="left">SEATS方式 (モデルベース) の季節調整を行う。x11{} の代わりに書く</td></tr>
+</table>
+
+<h3>2. 実行する</h3>
+<pre><code>x13as_html sales        # 拡張子 .spc は付けない
+# → sales.html (結果)、sales_log.html、sales_err.html が出力される
+
+x13as_ascii sales
+# → sales.out、sales.log、sales.err (テキスト)</code></pre>
+<p>
+    付属サンプルで試すこともできます。配布物の <code>examples</code> にある
+    <code>testairline.spc</code> は国際航空旅客数の有名なデータです。
+</p>
+
+<h3>3. 結果を見る</h3>
+<p>X-11方式の主要な出力表は番号で呼ばれます。まずはこの3つを見れば十分です:</p>
+<table class="ectable">
+    <tr><th>表</th><th>内容</th></tr>
+    <tr><td class="left">D11</td><td class="left"><strong>季節調整済み系列</strong> (求めたかった結果)</td></tr>
+    <tr><td class="left">D10</td><td class="left">季節要因 (毎年の季節パターン)</td></tr>
+    <tr><td class="left">D12</td><td class="left">トレンド・サイクル</td></tr>
+</table>
+<p>
+    系列をファイルに保存したい場合は spec に保存指定を足します:
+</p>
+<pre><code>x11{ save = (d11 d10 d12) }
+# → sales.d11 などの表形式テキストが出力される</code></pre>
+<p>
+    調整がうまくいっているかは、出力末尾の <strong>M統計量・Q統計量</strong>
+    (1未満なら良好) と、残差の季節性チェック
+    (「no evidence of residual seasonality」と出れば OK) を確認します。
+</p>
+
+<h3>4. X-11方式と SEATS方式</h3>
+<p>
+    X-13ARIMA-SEATS の名前のとおり、季節調整の方式は2つから選べます。
+    <code>x11{ }</code> を <code>seats{ }</code> に書き換えるだけで切り替えられます。
+</p>
+<ul>
+    <li><strong>X-11方式</strong>: 移動平均に基づく伝統的な方式。日本の官庁統計の多くはこちら
+        (X-12-ARIMA からの継続性がある)</li>
+    <li><strong>SEATS方式</strong>: ARIMA モデルに基づく方式。欧州の統計局で広く使われる</li>
+</ul>
+<p>
+    どちらが良いかは系列によりますが、まず X-11 で始めて、
+    比較したくなったら SEATS も試す、で十分です。
+</p>
+
+<h3>5. X-12-ARIMA からの移行</h3>
+<p>
+    X-12-ARIMA の spec ファイルは<strong>ほぼそのまま X-13ARIMA-SEATS で動きます</strong>。
+    <a href="/x-12-arima/archive/x-12-arima/">アーカイブの X-12-ARIMA 使用手順</a>にある
+    spec の書き方・出力表の読み方は基本的に共通です。
+</p>
+<p class="note">
+    ※ 日本のデータで曜日調整 (regression の td) を使う場合、祝日は
+    アメリカの祝日が前提なので注意してください。日本の祝日効果を入れるには
+    genhol ユーティリティ等で独自の回帰変数を作る必要があります
+    (各府省の季節調整の資料が参考になります)。
+</p>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>季節調整の記事</h5>
+    <ul class="linklist">
+        <li class="chartlink"><a href="/x-12-arima/">X-13ARIMA-SEATS について</a></li>
+        <li class="chartlink"><a href="/x-12-arima/x-13arima-seats/">インストール (Linux)</a></li>
+    </ul>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "_layout.html" %}
+{# X-13ARIMA-SEATS の Linux インストール手順 (DESIGN.md §19)。
+   バージョン等の事実は 2026-07-06 に census.gov で確認 (V1.1 Build 62)。 #}
+
+{% block content %}
+<h2>X-13ARIMA-SEATS のインストール (Linux)</h2>
+<p>
+    X-13ARIMA-SEATS はセンサス局が Linux/Unix 向けに<strong>ビルド済みの実行ファイル</strong>と
+    <strong>ソースコード</strong>の両方を配布しています。コマンド1つで動く単体の実行ファイルなので、
+    インストールというより「置くだけ」です。ここでは Ubuntu/Debian 系を例にしますが、
+    Chromebook の Linux 環境 (Crostini) でも同じ手順で使えます。
+</p>
+<p>
+    プログラムには出力形式の違いで2種類あります。用途に合わせてどちらかを選びます
+    (両方入れても構いません)。
+</p>
+<table class="ectable">
+    <tr><th>実行ファイル</th><th>出力</th><th>向いている用途</th></tr>
+    <tr><td class="left">x13as_html</td><td class="left">HTML ファイル</td><td class="left">ブラウザで結果を読む。診断の表が見やすい</td></tr>
+    <tr><td class="left">x13as_ascii</td><td class="left">テキストファイル</td><td class="left">スクリプトからの利用、R/Python 連携 (statsmodels は ASCII 版を使う)</td></tr>
+</table>
+
+<h3>1. ビルド済みバイナリを使う (最も簡単)</h3>
+<pre><code># ダウンロードして展開 (HTML出力版。最新版は census.gov で確認)
+wget https://www2.census.gov/software/x-13arima-seats/x13as/unix-linux/program-archives/x13as_html-v1-1-b62.tar.gz
+tar xf x13as_html-v1-1-b62.tar.gz
+
+# 実行ファイルをパスの通った場所へ
+sudo install -m 755 x13as/x13as_html /usr/local/bin/
+
+# 動作確認 (引数なしで実行すると使い方が表示される)
+x13as_html</code></pre>
+<p>
+    ASCII 出力版は URL とファイル名の <code>html</code> を <code>ascii</code> に
+    読み替えてください (<code>x13as_ascii-v1-1-b62.tar.gz</code>)。
+    バージョンが上がるとファイル名の <code>v1-1-b62</code> の部分が変わるので、
+    <a href="https://www.census.gov/data/software/x13as.html" target="_blank" rel="noopener">配布ページ</a>で最新版を確認してください。
+</p>
+
+<h3>2. ソースからビルドする</h3>
+<p>
+    ビルド済みバイナリが動かない環境や、コンパイルオプションを変えたい場合は
+    ソースからビルドします。Fortran コンパイラ (gfortran) を使います。
+</p>
+<pre><code>sudo apt install gfortran make
+
+wget https://www2.census.gov/software/x-13arima-seats/x13as/unix-linux/program-archives/x13as_htmlsrc-v1-1-b62.tar.gz
+tar xf x13as_htmlsrc-v1-1-b62.tar.gz
+cd x13as_htmlsrc-v1-1-b62
+
+# gfortran 用の makefile が同梱されている
+make -f makefile.gf
+
+sudo install -m 755 x13as_html /usr/local/bin/</code></pre>
+
+<h3>3. R から使う (導入はこれが一番簡単)</h3>
+<p>
+    R の <a href="https://cran.r-project.org/package=seasonal" target="_blank" rel="noopener">seasonal</a>
+    パッケージを入れると、依存パッケージの x13binary が X-13ARIMA-SEATS の
+    バイナリごとインストールされるので、本体を別途用意する必要がありません。
+</p>
+<pre><code>install.packages("seasonal")
+
+library(seasonal)
+m &lt;- seas(AirPassengers)   # 付属のサンプルデータで季節調整
+summary(m)
+plot(m)
+final(m)                    # 季節調整済み系列</code></pre>
+
+<h3>4. Python から使う</h3>
+<p>
+    statsmodels の <code>x13_arima_analysis()</code> が X-13ARIMA-SEATS のラッパーです。
+    本体 (<strong>ASCII 出力版</strong>) を上の手順で入れておき、実行ファイルの場所を
+    環境変数 <code>X13PATH</code> か引数 <code>x12path</code> で渡します。
+</p>
+<pre><code>import pandas as pd
+from statsmodels.tsa.x13 import x13_arima_analysis
+
+series = pd.read_csv("sales.csv", index_col=0, parse_dates=True)["売上"]
+res = x13_arima_analysis(series, x12path="/usr/local/bin")
+print(res.seasadj)   # 季節調整済み系列</code></pre>
+<p class="note">
+    ※ statsmodels は実行ファイル名 <code>x13as</code> を探すため、
+    <code>sudo ln -s /usr/local/bin/x13as_ascii /usr/local/bin/x13as</code>
+    のようにシンボリックリンクを作っておくと確実です。
+</p>
+
+<p>インストールできたら、<a href="/x-12-arima/x-13arima-seats-usage/">X-13ARIMA-SEATS の使い方</a>に進んでください。</p>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>季節調整の記事</h5>
+    <ul class="linklist">
+        <li class="chartlink"><a href="/x-12-arima/">X-13ARIMA-SEATS について</a></li>
+        <li class="chartlink"><a href="/x-12-arima/x-13arima-seats-usage/">使い方</a></li>
+    </ul>
+{% endblock %}

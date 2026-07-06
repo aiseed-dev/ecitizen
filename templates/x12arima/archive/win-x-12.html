@@ -1,0 +1,44 @@
+<h3>Win X-12 のインストール</h3>
+<p>X-12-ARIMA を利用する場合、Win X-12 を Windows PC にインストールすることにより利用することができます。</p>
+<h5>１．システム要件</h5>
+<p>Win X-12 は、Windows 7/Vista/XP で動作がテストされているので、ほぼすべての Windows PC で動作します。</p>
+<p>Win X-12 の動作には、.NET Framework 2.0 が必要です。.NET Framework 2.0 は、多くの PC でインストール済になっていると思いますが、インストールできていない PC もあります。Win X-12 を起動させてみて、起動しない場合は、次の方法でインストールしてください。</p>
+<p><strong>Window 7/Vista の場合</strong><br /> OS に付属しているので、「コントロールパネル」-&gt;「プログラム」-&gt;「Windows の機能の有効化または無効化」の順でクリックして、「Windows の機能の有効化または無効化」の設定の画面を表示させます。以下のような画面が表示されるので、Microsoft .NET Framework にチェックをします。チェックをすると薄い灰色で塗りつぶされた少し薄いチェックになりますが、それで大丈夫です。また、バージョンが 3.x と表示されていますが .NET Framework の 3.0 又は 3.5 をインストールすると 2.0 もインストールされるので問題はありません。<br /> <img src="/media/1076/Dotnet.png" alt="Dotnet.png" width="384" height="290" /></p>
+<p><strong>Windows XP の場合</strong><br /> インストールできていない場合は、 <a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=0856eacb-4362-4b0d-8edd-aab15c5e04f5&amp;displayLang=ja"> 「Microsoft .NET Framework Version 2.0 再頒布可能パッケージ」のページ</a>から .NET Framework 2.0 をダウンロードしてインストールします。</p>
+<p><strong>Java graphs を利用する場合</strong><br /> Java 1.6 以上が必要になります。インストールできていない場合は、 <a href="http://java.com/ja/download/">Javaのダウンロード</a>のページからダウンロードしてインストールしておきます。もちろん、Java graphs が必要でなければインストールしなくても、Win X-12 は動作します。</p>
+<h5>２．インストールの手順</h5>
+<h6>a．X-12-ARIMA のホームページにアクセス</h6>
+<p>アメリカセンサス局（U.S. Census Bureau）のX-12-ARIMA のホームページにいくと、次の画面が表される。</p>
+<p>（アドレス）<a href="http://www.census.gov/srd/www/x12a/">http://www.census.gov/srd/www/x12a/</a></p>
+<p><img src="/media/1077/WinX-12a_597x330.jpg" alt="WinX-12a.png" width="597" height="330" /></p>
+<h6>b. ソフトウェアのダウンロード</h6>
+<p>左上の「Download Win X12」をクリックすると、Download Win X-12 のページが表示されます。「WinX12.zip」をクリックして WinX12.zip ダウンロードします。WinX12.zip には、X-12-ARIMA バージョン 0.3 が含まれています。<br /> <img src="/media/1078/WinX-12b_596x312.jpg" alt="WinX-12b.png" width="596" height="312" /></p>
+<h6>c. WinX12.zip の展開及び配置</h6>
+<p>ダウンロードした WinX12.zip をダウンロードして、適当な場所に配置します。エクスプローラーを使用する場合は、WinX12.zip を選択後、右クリックして「すべて展開(T)...」を選択すると、次のようなダイアログが表示されます。「フそのまま「展開(E)」をクリックすると、WinX12.zip と同じフォルダーに「WinX12」フォルダーが作成されて、その中に WinX12 のファイルが展開されます。<br /> <img src="/media/1118/winx01_600x474.jpg" alt="winx01.png" width="600" height="474" /><br /> 「WinX12」フォルダーを適当な場所に移動させます。下の図の例では、Cドライブのルートに配置しています。途中に日本語名のフォルダーがあると処理でエラーが出ることがあるので、そういうのは避けてできるだけドライブのルートに近い位置に置くようにします。「WinX12」フォルダーを開くと下の図のよう表示されます。WinX12.exe が Win X-12 の実行ファイルです。「WinX12.exe」を右クリックして、 「タスク バーに表示する」又は「スタート メニューに表示する」を選択してタスクバーやスタートメニュー表示させるか、「ショートカットを作成する」を選択して作成したショートカットをデスクトップに登録しておくと Winx12 を起動させる時に便利になります。また、「x12a」フォルダーには、X-12 ARIMA のソフトが配置されます。<br /> <img src="/media/1119/winx02_600x376.jpg" alt="winx02.png" width="600" height="376" /></p>
+<h6>d. 起動及び初期設定</h6>
+<p>上の c. で説明した Win X-12 の実行ファイルである WinX12.exe をダブルクリックすると Win X-12 が起動します。初回のみ以下のような設定画面が表示されます。なお、設定画面は<span><span>、Win X-12を起動して、メニューで [File]-&gt;[Settings] を選択するといつでも表示させて設定の変更を行うことができます。</span><br /> </span></p>
+<p><img src="/media/1120/winx03.png" alt="winx03.png" width="590" height="512" /> </p>
+<p>[X-12-ARIMA <span>Executable]の項目に、X-12-ARIMA の実行ファイルを設定します。X</span><span>-12-ARIMA の実行ファイルは、「WinX12」フォルダーにある [x12a] フォルダーの[x12a.exe]です。他の項目の設定は任意なので最初に設定をしなくても大丈夫ですが、HTML出力やGraphicsモードを設定しておけば便利なのでできるだけ最初に設定しておくようにします。</span></p>
+<h6>e. Win X-12 の設定項目の説明</h6>
+<p class="defn"><span><strong>X-12-ARIMA executable</strong>:</span> X-12-ARIMA の実行ファイル (x12a.exe.) を、フルパスで拡張子.exe も含めたファイル名を指定します。普通は。「Browse」ボタンをクリックしてファイル選択ダイアログで実行ファイルを選択することにより入力します。</p>
+<p class="defn"><strong>Convert output to HTML?</strong> 出力ファイルとログファイルは、既定ではテキストファイルで保存されますが、HTML コンバーター cnvout2html.exe 又は cnvout2xhtml.exe を使用することで、HTML 又は XHTML ファイルでも出力することができます。出力を HTML ファイルにしたい場合は、ドロップダウンリストで "Yes" を選択し、<strong>HTML converter</strong> の欄は、「Browse」ボタンをクリックして、<span>[x12a] フォルダーにある</span> HTML コンバーター cnvout2html.exe 又は cnvout2xhtml.exe を選択して入力します。<span><strong>HTML output directory</strong> の欄は、</span>既定で出力ファイルは spec ファイルのあるディレクトリに出力されますが、ここに<span>ディレクトリ名を入力することにより他のディレクトリに出力することができるようになります。</span></p>
+<p class="defn"><strong>Initial directory:</strong> X-12-ARIMA の入力ファイルを含むディレクトリを入力します。X-12 が起動したときにメイン画面のフォルダーブラウザーにこのディレクトリが表示されます。既定ではデスクトップになっています。</p>
+<p class="defn"><span><strong>Type of graph to create when run in graphics mode</strong>:</span> spec ファイルで X-12-ARIMA を graphics mode にした場合にグラフを作成することができます。"Win X-12 Java graphs" を選択した場合は Java を使ってグラフが作成されます。"X-12-Graph SAS graphs" を選択した場合は、SAS program を使ってグラフが作成されます。このためには、SAS Version 8 以上及び X-12-Graph Batch program Version 1.4 がインストールされている必要があります。<span>X-12-Graph program directory の欄には、</span>X-12-Graph Batch program をインストールしたパスを入力します。<strong>Default graphics path</strong> の欄は、「Browse」ボタンをクリックして、<span>[WinX12] フォルダーにある graphics</span> フォルダーを選択して入力すればいいでしょう。勿論他の適当なフォルダーを指定しても問題はありません。<br /> なお、Type of graph to create when run in graphics mode で "None" を選択した場合に、spec ファイルで graphics mode にしてもグラフは作成されませんが、graphics ファイルは保存されるので後からグラフを作成することができます。</p>
+<p class="defn"><span><strong>Program for opening text files</strong>:</span> <span>Use default viewer のボックスをチェックすると Win X-12 で入力ファイルと出力ファイルが開きます。この場合、Win X-12 を閉じると開いているすべてのファイルが同時に閉じられます。別のエディターで編集をしたい場合は、</span><span>Use default viewer のボックスをチェックをはずして、使用したいエディターの実行ファイルをフルパスでファイル名を Program for opening text files の欄に入力します。例えば、メモ帳の場合には</span> C:\Windows\notepad.exe となります。</p>
+<p class="defn"><span><strong>Output file types to view</strong>:</span> Win X-12 のメイン画面で開きたいファイルのタイプを選択します。</p>
+<h6 class="defn">f. Win X-12 を動作させてみる</h6>
+<p>設定画面で「Save」ボタンをクリックすると、以下の図のように Win X-12 が起動します。<br /> <img src="/media/1121/winx04_597x420.jpg" alt="winx04.png" width="597" height="420" /></p>
+<p>X-12-ARIMA には、一つだけサンプルが含まれているので、それを動作させてみます。左上のフォルダーのツリー画面で WinX12 のフォルダーにある x12a フォルダーを選択します。すると、下の図のように「Select input files」の欄に Testairline.spc が表示されます。Testairline.spc を選択して「Run」ボタンをクリックすると処理が始まります。<br /> <img src="/media/1122/winx05_597x420.jpg" alt="winx05.png" width="597" height="420" /></p>
+<p>Testairline.spc の内容を見たい場合や修正をしたい場合には、Testairline.spc を選択して右クリックして「View Input File」を選択すると以下のような画面が表示されて、Testairline.spc の内容が表示され修正もできるようになります。<br /> <img src="/media/1124/winx06_597x540.jpg" alt="winx06.png" width="597" height="540" /></p>
+<h6>g. Win X-12 の主な結果の出力</h6>
+<p>最も基本的な出力は、スペックファイルがあるフォルダーにテキストファイルとして出力されます。左上の 「View output files」に一覧が表示されるので、見たいものをダブルクリックすると該当の出力ファイルが表示されます。例えば、TestAirle.out をダブルクリックすると以下のように表示されます。<br /> <img src="/media/1129/winx11_600x497.jpg" alt="winx11.png" width="600" height="497" /></p>
+<p>スペックファイルがある x12a フォルダをエクスプローラで見ると、下の図のようになっています。「out」、「log」、「err」 の3つのファイルが出力されているのがわかります。これらは、処理の内容を確認する基本的な出力ファイルです。<br /> <img src="/media/1126/winx08_598x360.jpg" alt="winx08.png" width="598" height="360" /></p>
+<p><strong>診断（Diagnostics）画面</strong></p>
+<p>下の図のように各種の診断の結果が一覧になって表示されます。結果が一覧で表示されるので、パラメータを変えてどのスペックを使うのがいいのか試験する場合には特に便利です。初期状態でRunの後で表示されるようになっていますが、表示されない場合は、「View upon completion」の「Output files」にチェックをしてください。<br /> <img src="/media/1125/winx07_600x346.jpg" alt="winx07.png" width="600" height="346" /></p>
+<p><strong>HTML 出力</strong></p>
+<p>設定で 「Convert output to HTML?」を Yes にしている場合に、テキストファイルの「out」、「log」、「err」が HTML に変換されて表示されます。好みにもよりますが自分の場合はテキストよりも見やすいので、こちらをメインで利用しています。表示されない場合は、「View upon completion」の「Diagnostics」にチェックをしてください。<br /> <img src="/media/1127/winx09.png" alt="winx09.png" width="571" height="440" /></p>
+<p><strong>Graph 出力</strong></p>
+<p>設定で「Type of graph to create when run in graphics mode」を設定してあれば、以下のようにグラフが表示されます。もし、表示されない場合は、Option の「Run in graphics mode」にチェックをしてください。<br /> <img src="/media/1128/winx10_600x472.jpg" alt="winx10.png" width="600" height="472" /></p>
+<h6>h. スペックファイル等のGUIによる作成</h6>
+<p>Win X-12 でも、GUI を使ってスペックファイルを作成することができます。<span><span>メニューで [Create]-&gt;[Spec file] を選択すると以下の図のような画面が表示されます。画面にしたがってパラメータを入力していけばいいので簡単にスペックファイルを作ることができます。入力は必要な項目のみすればよく、データファイルの指定ができていれば動作するスペックファイルが作成されます。</span></span><br /> <img src="/media/1130/winx12_597x510.jpg" alt="winx12.png" width="597" height="510" /></p>
+<p> </p>

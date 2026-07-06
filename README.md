@@ -105,4 +105,6 @@ wrangler pages deploy public/
       マルチプラットフォーム展開。仕様書 = DESIGN.md §17**。
       未決 D6: 統計表実データの扱い / D7: ネイティブ版の配布方法。
       データ契約 = DATA_CONTRACT.md §2.9)
+- [x] 季節調整セクション刷新 (X-13ARIMA-SEATS 中心・Linux中心の新3ページ、
+      旧X-12-ARIMA記事4本は /x-12-arima/archive/ へ301+バナー。DESIGN.md §19)
 - [ ] Phase 5: 仕上げ (sitemap / 404 / 本番切替)

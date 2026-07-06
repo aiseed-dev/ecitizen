@@ -9,6 +9,7 @@ usage:
 import argparse
 import datetime
 import json
+import re
 import shutil
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
@@ -51,6 +52,11 @@ INDEX_ROWS = [
 ]
 
 REDIRECTS = """\
+# 旧 X-12-ARIMA 記事はアーカイブへ (DESIGN.md §19)
+/x-12-arima/win-x-12* /x-12-arima/archive/win-x-12/ 301
+/x-12-arima/gdp* /x-12-arima/archive/gdp/ 301
+/x-12-arima/x-12-arima-examples* /x-12-arima/archive/x-12-arima-examples/ 301
+/x-12-arima/x-12-arima* /x-12-arima/archive/x-12-arima/ 301
 # 旧サイトの RedirectToActionPermanent (市町村合併)
 /Population/City/03305 /Population/City/03216 301
 /Population/City/04423 /Population/City/04216 301
@@ -325,6 +331,50 @@ def build_rankings(ctx_common: dict) -> None:
     write_text("Population/Census2010/index.html", html)
 
 
+def build_x12arima(ctx_common: dict, source: Path) -> None:
+    """季節調整 (X-13ARIMA-SEATS) セクション (DESIGN.md §19)。
+
+    新3ページ + 旧X-12-ARIMA記事のアーカイブ4ページ。旧記事の画像
+    (wwwroot の /images/x12arima/ と参照されている /media/{id}/) もコピーする。
+    """
+    env = make_env()
+    ctx = dict(ctx_common, nav_active="x12arima")
+
+    pages = [
+        ("x12arima/index.html", "x-12-arima/index.html",
+         "季節調整法 X-13ARIMA-SEATS について"),
+        ("x12arima/x13_install.html", "x-12-arima/x-13arima-seats/index.html",
+         "X-13ARIMA-SEATS のインストール (Linux)"),
+        ("x12arima/x13_usage.html", "x-12-arima/x-13arima-seats-usage/index.html",
+         "X-13ARIMA-SEATS の使い方"),
+    ]
+    for tpl, rel, title in pages:
+        write_text(rel, env.get_template(tpl).render(dict(ctx, page_title=title)))
+
+    archive_dir = ROOT / "templates" / "x12arima" / "archive"
+    titles = json.loads((archive_dir / "_titles.json").read_text(encoding="utf-8"))
+    media_refs = set()
+    for slug, title in titles.items():
+        body = (archive_dir / f"{slug}.html").read_text(encoding="utf-8")
+        media_refs.update(re.findall(r'src="(/(?:media|images)/[^"]+)"', body))
+        html = env.get_template("x12arima/archive_page.html").render(
+            dict(ctx, body=body, page_title=f"{title} (アーカイブ)"))
+        write_text(f"x-12-arima/archive/{slug}/index.html", html)
+
+    wwwroot = source / "wwwroot"
+    n_img = 0
+    for ref in sorted(media_refs):
+        src = wwwroot / ref.lstrip("/")
+        if not src.exists():
+            print(f"警告: 旧画像なし {ref}")
+            continue
+        dst = PUBLIC / ref.lstrip("/")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        n_img += 1
+    print(f"x-12-arima {len(pages)}+{len(titles)} ページ / 旧画像 {n_img} 枚")
+
+
 def copy_statdb_data() -> None:
     """Statdb アプリとカタログのスナップショットを配信物に含める (DESIGN.md §17.5)。
 
@@ -421,6 +471,10 @@ def main() -> None:
 
     copy_assets(args.source)
     copy_statdb_data()
+    build_x12arima({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    }, args.source)
     population2015_redirects = "".join(
         f"/Population/Population2015/{(p + '/') if p else ''} "
         f"/Population/Population2015/{(p + '/') if p else ''}popu/ 301\n"
