@@ -232,3 +232,27 @@ def age4_stack_svg(title: str, groups: list, years: list, source_note: str,
     fig.text(0.5, 0.13, source_note, ha="center", fontsize=6.5, color="#888888")
     fig.subplots_adjust(left=0.08, right=0.98, top=0.92, bottom=0.26)
     return _inline_svg(fig, tooltips, id_prefix=id_prefix)
+
+
+def cpi_line_svg(title: str, series: dict, ylabel: str, id_prefix: str) -> str:
+    """CPI等の月次折れ線 (DESIGN.md §22)。series = {ラベル: {"YYYY-MM": 値文字列}}。"""
+    fig, ax = plt.subplots(figsize=(9.2, 4.6), dpi=100)
+    months = sorted({m for d in series.values() for m in d})
+    x = {m: i for i, m in enumerate(months)}
+    for label, d in series.items():
+        pts = [(x[m], float(v)) for m, v in sorted(d.items()) if v not in ("-", "…", "***")]
+        ax.plot([p[0] for p in pts], [p[1] for p in pts], linewidth=1.1, label=label)
+    ticks = [i for i, m in enumerate(months) if m.endswith("-01") and int(m[:4]) % 5 == 0]
+    ax.set_xticks(ticks, [months[i][:4] for i in ticks], fontsize=8)
+    ax.set_title(title, fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=9)
+    ax.tick_params(axis="y", labelsize=8)
+    ax.grid(color="#DDDDDD", linewidth=0.6)
+    ax.set_axisbelow(True)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    ax.legend(fontsize=8, frameon=False, loc="upper left")
+    fig.text(0.99, 0.01, "出典: 総務省統計局「消費者物価指数(2020年基準)」",
+             ha="right", fontsize=6.5, color="#888888")
+    fig.subplots_adjust(left=0.07, right=0.98, top=0.92, bottom=0.09)
+    return _inline_svg(fig, {}, id_prefix=id_prefix)

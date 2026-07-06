@@ -1,0 +1,25 @@
+{% extends "_layout.html" %}
+{# 消費者物価指数 (旧 LivingController.Cpi ほか。DESIGN.md §22) #}
+
+{% block content %}
+<h2>消費者物価指数 (CPI)</h2>
+<p>
+    総務省統計局の消費者物価指数 (2020年基準) から、全国と東京都区部の主要3系列
+    (総合・生鮮食品を除く総合 (コアCPI)・生鮮食品及びエネルギーを除く総合 (コアコアCPI))
+    の推移をグラフにしています。データは {{ latest }} 分までです。
+</p>
+{% for c in charts %}
+<figure class="chart">{{ c | safe }}</figure>
+{% endfor %}
+<h3>直近13ヶ月の前年同月比 (%)</h3>
+<div class="table-responsive">
+<table class="ectable">
+    <tr><th>年月</th>{% for s in series %}<th>全国<br>{{ s }}</th>{% endfor %}<th>東京都区部<br>総合</th></tr>
+{% for row in recent %}
+    <tr><td class="center">{{ row.month }}</td>
+{% for v in row['values'] %}<td>{{ v }}</td>{% endfor %}</tr>
+{% endfor %}
+</table>
+</div>
+<p class="note">出典: 政府統計の総合窓口(e-Stat)「消費者物価指数(2020年基準)」を加工して作成</p>
+{% endblock %}

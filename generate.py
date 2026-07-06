@@ -19,6 +19,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from citizenlib import masters, rankings
 from citizenlib.charts import (
     SOURCE_NOTE_EUROSTAT, SOURCE_NOTE_IPSS, age4_stack_svg, city_pyramid_svg, city_stack_svg,
+    cpi_line_svg,
 )
 from citizenlib.eurostat import COUNTRY_PROJECTION_YEARS as EUROSTAT_PROJECTION_YEARS
 from citizenlib.filters import FILTERS
@@ -60,6 +61,10 @@ REDIRECTS = """\
 /x-12-arima/gdp* /x-12-arima/archive/gdp/ 301
 /x-12-arima/x-12-arima-examples* /x-12-arima/archive/x-12-arima-examples/ 301
 /x-12-arima/x-12-arima* /x-12-arima/archive/x-12-arima/ 301
+# 旧 Living 配下は統合CPIページへ
+/Living/CpiJapan* /Living/Cpi/ 301
+/Living/CpiTokyoKubu* /Living/Cpi/ 301
+/Living/CpiForSelectedAreas* /Living/Cpi/ 301
 # 旧 Aging2015/Young2015 (e-Stat直叩き) は2020年版へ
 /Population/Aging2015* /Population/Aging2020/ 301
 /Population/Young2015* /Population/Young2020/ 301
@@ -498,6 +503,35 @@ def build_lc(ctx_common: dict) -> None:
     print(f"Lc/Mame 1+{len(mame_list)} ページ")
 
 
+def build_living(ctx_common: dict) -> None:
+    """消費者物価指数 (旧 LivingController。DESIGN.md §22)。data/cpi.json が無ければスキップ。"""
+    path = ROOT / "data" / "cpi.json"
+    if not path.exists():
+        print("CPI データなし (tools/fetch_cpi.py 未実行) — スキップ")
+        return
+    env = make_env()
+    cpi = json.loads(path.read_text(encoding="utf-8"))
+    series, d = cpi["series"], cpi["data"]
+    months = sorted(d["japan"]["index"][series[0]])
+    charts = [
+        cpi_line_svg("全国の消費者物価指数の推移 (2020年=100)",
+                     {s_: d["japan"]["index"][s_] for s_ in series}, "指数", "ci_"),
+        cpi_line_svg("全国の消費者物価指数の前年同月比",
+                     {s_: d["japan"]["yoy"][s_] for s_ in series}, "%", "cy_"),
+        cpi_line_svg("東京都区部の消費者物価指数の前年同月比",
+                     {s_: d["tokyo"]["yoy"][s_] for s_ in series}, "%", "ct_"),
+    ]
+    recent = [{"month": m,
+               "values": [d["japan"]["yoy"][s_].get(m, "-") for s_ in series]
+                         + [d["tokyo"]["yoy"][series[0]].get(m, "-")]}
+              for m in months[-13:]][::-1]
+    write_text("Living/Cpi/index.html", env.get_template("living/cpi.html").render(
+        dict(ctx_common, nav_active="living", charts=charts, series=series,
+             recent=recent, latest=months[-1],
+             page_title="消費者物価指数 (CPI) の推移 - 統計メモ帳")))
+    print("Living/Cpi 1 ページ")
+
+
 def build_x12arima(ctx_common: dict, source: Path) -> None:
     """季節調整 (X-13ARIMA-SEATS) セクション (DESIGN.md §19)。
 
@@ -720,6 +754,10 @@ def main() -> None:
         "prefs": masters.PREF_CODE,
     }, args.source)
     build_lc({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    })
+    build_living({
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,
     })
