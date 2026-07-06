@@ -326,12 +326,21 @@ def build_rankings(ctx_common: dict) -> None:
 
 
 def copy_statdb_data() -> None:
-    """Statdb カタログのスナップショットを配信物に含める (DESIGN.md §17.5)。
+    """Statdb アプリとカタログのスナップショットを配信物に含める (DESIGN.md §17.5)。
 
-    Flet/Flutter アプリ (Web・ネイティブとも) は public/Statdb/data/ を
-    データソースとして fetch する。data/statdb/ が無ければスキップ
-    (tools/fetch_statdb.py 未実行の開発環境でもビルド可能にするため)。
+    - statdb_app/build/web (Flutter Web 版、`flutter build web --base-href
+      /Statdb/` の成果物) → public/Statdb/
+    - data/statdb/ (カタログ JSON) → public/Statdb/data/
+      Flet/Flutter アプリ (Web・ネイティブとも) がデータソースとして fetch する
+
+    どちらも無ければスキップ (未ビルドの開発環境でもサイト生成可能にするため)。
     """
+    web_build = ROOT / "statdb_app" / "build" / "web"
+    if (web_build / "index.html").exists():
+        shutil.copytree(web_build, PUBLIC / "Statdb", dirs_exist_ok=True)
+        print("Statdb Web アプリを配置")
+    else:
+        print("Statdb Web アプリ未ビルド (flutter build web) — スキップ")
     src = ROOT / "data" / "statdb"
     if not (src / "catalog.json").exists():
         print("Statdb データなし (tools/fetch_statdb.py 未実行) — スキップ")
@@ -417,7 +426,18 @@ def main() -> None:
         f"/Population/Population2015/{(p + '/') if p else ''}popu/ 301\n"
         for p in [None] + list(masters.PREF_CODE)
     )
-    write_text("_redirects", REDIRECTS + population2015_redirects)
+    # Statdb: 旧 StatsData/StatsMeta は e-Stat の統計表表示画面へ (D6 推奨案)。
+    # それ以外の /Statdb/* は SPA フォールバック (実ファイルがあればそちらが優先
+    # されるのが Cloudflare Pages の仕様のため、/Statdb/data/* はこの影響を受けない)
+    statdb_redirects = ""
+    if (PUBLIC / "Statdb" / "index.html").exists():
+        statdb_redirects = (
+            "/Statdb/StatsData/* https://www.e-stat.go.jp/dbview?sid=:splat 302\n"
+            "/Statdb/StatsMeta/* https://www.e-stat.go.jp/dbview?sid=:splat 302\n"
+            "/Statdb/* /Statdb/index.html 200\n"
+            "/statdb/* /Statdb/index.html 200\n"
+        )
+    write_text("_redirects", REDIRECTS + population2015_redirects + statdb_redirects)
     write_text("_headers", HEADERS)
 
     # スモークチェック (DESIGN.md §10)
