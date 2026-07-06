@@ -480,6 +480,24 @@ def build_sac(ctx_common: dict, source: Path) -> None:
     print("sac 1+47 ページ")
 
 
+def build_lc(ctx_common: dict) -> None:
+    """市町村の豆知識 (旧 LcController.Mame。DESIGN.md §22)。本文は旧Razorから抽出済み。"""
+    env = make_env()
+    ctx = dict(ctx_common, nav_active="lc")
+    mame_dir = ROOT / "templates" / "lc" / "mame"
+    mame_list = json.loads((mame_dir / "_index.json").read_text(encoding="utf-8-sig"))
+    write_text("Lc/Mame/index.html", env.get_template("lc/mame.html").render(
+        dict(ctx, mame_list=mame_list, body=None, q_title=None, current=None,
+             page_title="市町村の豆知識 - 統計メモ帳")))
+    for m in mame_list:
+        body = (mame_dir / f"{m['id']}.html").read_text(encoding="utf-8")
+        write_text(f"Lc/Mame/{m['id']}/index.html",
+                   env.get_template("lc/mame.html").render(dict(
+                       ctx, mame_list=mame_list, body=body, q_title=m["title"],
+                       current=m["id"], page_title=f"{m['title']} - 市町村の豆知識")))
+    print(f"Lc/Mame 1+{len(mame_list)} ページ")
+
+
 def build_x12arima(ctx_common: dict, source: Path) -> None:
     """季節調整 (X-13ARIMA-SEATS) セクション (DESIGN.md §19)。
 
@@ -701,6 +719,10 @@ def main() -> None:
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,
     }, args.source)
+    build_lc({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    })
     build_x12arima({
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,

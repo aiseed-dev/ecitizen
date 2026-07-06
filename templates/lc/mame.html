@@ -1,0 +1,18 @@
+{% extends "_layout.html" %}
+{# 市町村の豆知識 (旧 Views/Lc/Mame*.cshtml)。DESIGN.md §22 #}
+
+{% block content %}
+<h2>市町村の豆知識</h2>
+{% if body %}
+<h3>{{ q_title }}</h3>
+<div class="static-body">{{ body | safe }}</div>
+<h5>他の豆知識</h5>
+{% endif %}
+<ul>
+{% for m in mame_list %}
+{% if m.id != current %}
+    <li><a href="/Lc/Mame/{{ m.id }}/">{{ m.title }}</a></li>
+{% endif %}
+{% endfor %}
+</ul>
+{% endblock %}
