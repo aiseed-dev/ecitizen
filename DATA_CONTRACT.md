@@ -32,6 +32,31 @@
 `IPSS_CODE_TRANS`(`CITY_DIC` 以降の市制施行等による IPSS 側コード差異、1件)
 と `CHANGE_CODE_AFTER_2010`(TFRランキングのリンク先解決用)がある。
 
+### 1.1 `municipal_changes.json` — 市町村の廃置分合 (e-Stat LOD 由来)
+
+`tools/fetch_sac_lod.py` が e-Stat 統計LOD (標準地域コード) の SPARQL から
+生成する (DESIGN.md §18)。1970-04-01 以降の全変更。**コミットする**マスター。
+ローダとコード変換は `citizenlib/municipal.py`。
+
+```jsonc
+{"fetched_at": "2026-07-06",
+ "reasons": {   // 事由キー → 日本語ラベル (16種)
+   "establishmentOfNewMunicipalityByMerging": "新設合併",
+   "absorption": "編入合併", "changesToCity": "市制施行", ...},
+ "changes": [   // sacs:succeedingMunicipality の全ペア (date, old.code 順)
+   {"date": "2004-10-12",
+    "reason": "establishmentOfNewMunicipalityByMerging",
+    "old": {"code": "46388", "name": "里村"},
+    "new": {"code": "46215", "name": "薩摩川内市"}},
+   ...]}
+```
+
+- `old`/`new` の code は5桁ゼロ埋め文字列。名称変更・境界変更等では
+  old.code == new.code のペアも含まれる (名称履歴として保持。
+  `build_code_trans()` はコード不変ペアを無視する)
+- `citizenlib.municipal.build_code_trans(since, until=None)` は
+  `since < date <= until` の変更を連鎖解決した `{旧code: 現行code}` を返す
+
 ## 2. 取得層の中間データ (`data/population/`)
 
 ### 2.1 `city/{code}.json` — 市町村 1 件の描画用モデル
