@@ -1,0 +1,19 @@
+{% extends "_layout.html" %}
+{# 分野の項目一覧 (旧 IndicatorCat/BasicCat 共用)。items = majors.json の1グループ #}
+
+{% block content %}
+<h2>{{ kind_label }} {{ major }} {{ major_name }} の項目一覧</h2>
+<p><a href="/Ssds/">← 都道府県ランキングのトップへ</a></p>
+<div class="table-responsive">
+<table class="ectable">
+    <tr><th>項目コード</th><th>項目名</th><th>単位</th></tr>
+{% for it in items %}
+    <tr>
+        <td class="left nowrap"><a href="/Ssds/Indicators/{{ it.code | replace('#','_') }}/">{{ it.code }}</a></td>
+        <td class="left"><a href="/Ssds/Indicators/{{ it.code | replace('#','_') }}/">{{ it.name }}</a></td>
+        <td class="left">{{ it.unit }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

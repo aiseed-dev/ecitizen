@@ -1,0 +1,39 @@
+{% extends "_layout.html" %}
+{# Ssds トップ (旧 Views/Ssds/Index.cshtml)。DESIGN.md §21 #}
+
+{% block content %}
+<h2>統計指標で都道府県ランキングを作ってみた</h2>
+<p>
+    総務省・統計センターの「社会・人口統計体系」(統計データAPI) を使って、
+    都道府県ランキングを作りました。各項目の値と全国順位を、分野別・都道府県別に一覧できます。
+</p>
+
+<h3>社会生活統計指標</h3>
+<h6>指標から検索</h6>
+<ul class="ssdsnavi">
+{% for k, v in major_names.items() %}
+    <li><a href="/Ssds/IndicatorCat/{{ k }}/">{{ k }} {{ v }}</a></li>
+{% endfor %}
+</ul>
+<h6>都道府県から検索</h6>
+<ul class="ssdsnavi">
+{% for k, v in prefs.items() %}
+    <li><a href="/Ssds/Pref/{{ k }}/A/">{{ v }}</a></li>
+{% endfor %}
+</ul>
+
+<h3>基礎データ</h3>
+<h6>指標から検索</h6>
+<ul class="ssdsnavi">
+{% for k, v in major_names.items() %}
+    <li><a href="/Ssds/BasicCat/{{ k }}/">{{ k }} {{ v }}</a></li>
+{% endfor %}
+</ul>
+<h6>都道府県から検索</h6>
+<ul class="ssdsnavi">
+{% for k, v in prefs.items() %}
+    <li><a href="/Ssds/PrefBasic/{{ k }}/A/">{{ v }}</a></li>
+{% endfor %}
+</ul>
+<p class="note">出典: 政府統計の総合窓口(e-Stat)「社会・人口統計体系」を加工して作成</p>
+{% endblock %}

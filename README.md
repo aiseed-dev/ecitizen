@@ -33,6 +33,7 @@ python tools/fetch_eurostat.py    # Eurostat census/projection を取得 (初回
 python tools/fetch_ons.py         # ONS UK将来推計を取得 (初回のみ)
 python tools/fetch_statdb.py      # Statdb カタログ取得 (243,806表。再実行で差分検出)
 python tools/fetch_sac_lod.py     # 市町村廃置分合を e-Stat LOD から取得 (data/masters/ 更新時のみ)
+python tools/fetch_ssds.py        # 社会・人口統計体系 都道府県26表 (Ssds。年次更新)
 python build_data.py              # 取得層: data/ に中間 JSON を生成
 python generate.py --clean        # 描画層: public/ に HTML/JSON/SVG を生成
 ```
@@ -106,7 +107,10 @@ ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk --yes   # APK (build/apk
       旧Population2010Controllerの他ルートはPhase2既存機能の重複ルート、
       またはe-Stat直叩き系のためPhase3へ整理・移動)
       (City3d/Country3d/Prefecture3d は廃止・移植しない。K10)
-- [ ] Phase 3: e-Stat 由来 (CPI / Ssds / Sac / Lg / Aging2015 / Young2015 / Migration 系)
+- [x] Phase 3 (一部): Ssds 都道府県ランキング (社会・人口統計体系26表、
+      5,356項目×47都道府県。トップ+分野別カタログ26+県別1,222+項目別5,356ページ。
+      DESIGN.md §21)
+- [ ] Phase 3 (残り): CPI / Sac / Lg / Aging2015 / Young2015 / Migration 系
 - [ ] Phase 4: 静的コンテンツ・Statdb (**Flutter に決定 K13、Web + PC + スマホの
       マルチプラットフォーム展開。仕様書 = DESIGN.md §17**。
       未決 D6: 統計表実データの扱い / D7: ネイティブ版の配布方法。

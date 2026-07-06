@@ -1,0 +1,31 @@
+{% extends "_layout.html" %}
+{# 項目別の47都道府県×年 (旧 Indicators)。item = data/ssds/items/{code}.json #}
+
+{% block content %}
+<h2>{{ item.code }} {{ item.name }}{{ " (" + item.unit + ")" if item.unit }}</h2>
+<p>
+    <a href="/Ssds/">都道府県ランキング</a> /
+    <a href="/Ssds/{{ 'IndicatorCat' if item.kind == 'indicator' else 'BasicCat' }}/{{ item.major }}/">{{ item.major }} {{ major_name }}</a>
+    — 47都道府県の値の推移と、最新年({{ item.years[-1] }}年)の全国順位です。
+</p>
+<div class="table-responsive">
+<table class="ectable">
+    <tr>
+        <th>都道府県</th><th>{{ item.years[-1] }}年順位</th>
+{% for y in item.years | reverse %}
+        <th>{{ y }}年</th>
+{% endfor %}
+    </tr>
+{% for k, v in prefs.items() %}
+    <tr>
+        <td class="left nowrap">{{ v }}</td>
+        <td class="center">{{ item.orders[item.years[-1]].get(k, "-") }}</td>
+{% for y in item.years | reverse %}
+        <td>{{ item['values'][y].get(k) | ssdsnum }}</td>
+{% endfor %}
+    </tr>
+{% endfor %}
+</table>
+</div>
+<p class="note">出典: 政府統計の総合窓口(e-Stat)「社会・人口統計体系」を加工して作成</p>
+{% endblock %}

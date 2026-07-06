@@ -456,6 +456,71 @@ def build_x12arima(ctx_common: dict, source: Path) -> None:
     print(f"x-12-arima {len(pages)}+{len(titles)} ページ / 旧画像 {n_img} 枚")
 
 
+def _ssdsnum(v):
+    """Ssds の値 (e-Stat 文字列) の表示: 整数はカンマ区切り、小数・記号はそのまま。"""
+    if v is None:
+        return "-"
+    s = str(v)
+    try:
+        f = float(s)
+    except ValueError:
+        return s  # "-", "...", "X" 等の欠損記号
+    if "." in s:
+        i, d = s.split(".", 1)
+        return f"{int(i):,}.{d}"
+    return f"{int(f):,}"
+
+
+def build_ssds(ctx_common: dict) -> None:
+    """Ssds 都道府県ランキング (DESIGN.md §21)。data/ssds/ が無ければスキップ。"""
+    ssds_dir = ROOT / "data" / "ssds"
+    if not (ssds_dir / "majors.json").exists():
+        print("Ssds データなし (tools/fetch_ssds.py 未実行) — スキップ")
+        return
+    env = make_env()
+    env.filters["ssdsnum"] = _ssdsnum
+    majors = json.loads((ssds_dir / "majors.json").read_text(encoding="utf-8"))
+    major_names = majors["major_names"]
+    ctx = dict(ctx_common, nav_active="ssds", major_names=major_names)
+
+    write_text("Ssds/index.html", env.get_template("ssds/index.html").render(
+        dict(ctx, page_title="統計指標で都道府県ランキングを作ってみた - 統計メモ帳")))
+
+    kinds = [("indicator", "IndicatorCat", "社会生活統計指標", "Pref"),
+             ("basic", "BasicCat", "基礎データ", "PrefBasic")]
+    for kind, cat_base, kind_label, pref_base in kinds:
+        for m, mname in major_names.items():
+            items = majors["groups"].get(f"{kind}_{m}", [])
+            write_text(f"Ssds/{cat_base}/{m}/index.html",
+                       env.get_template("ssds/cat.html").render(dict(
+                           ctx, items=items, major=m, major_name=mname,
+                           kind_label=kind_label,
+                           page_title=f"{kind_label} {m} {mname} の項目一覧 - 都道府県ランキング")))
+            for pref, pname in masters.PREF_CODE.items():
+                rows = json.loads((ssds_dir / "pref" / f"{pref}_{kind}_{m}.json")
+                                  .read_text(encoding="utf-8"))
+                html = env.get_template("ssds/pref.html").render(dict(
+                    ctx, rows=rows, pref=pref, pref_name=pname, major=m,
+                    major_name=mname, kind_label=kind_label, base=pref_base,
+                    page_title=f"{pname}の{kind_label} ({m} {mname}) - 都道府県ランキング"))
+                write_text(f"Ssds/{pref_base}/{pref}/{m}/index.html", html)
+                if m == "A":  # 分野省略時の旧URL互換 (A にフォールバック)
+                    write_text(f"Ssds/{pref_base}/{pref}/index.html", html)
+
+    n = 0
+    for f in sorted((ssds_dir / "items").glob("*.json")):
+        item = json.loads(f.read_text(encoding="utf-8"))
+        if not item["years"]:
+            continue
+        slug = item["code"].replace("#", "_")
+        write_text(f"Ssds/Indicators/{slug}/index.html",
+                   env.get_template("ssds/indicator.html").render(dict(
+                       ctx, item=item, major_name=major_names[item["major"]],
+                       page_title=f"{item['name']} の都道府県ランキング - 統計メモ帳")))
+        n += 1
+    print(f"Ssds: カタログ26 + 県別{47 * len(kinds) * len(major_names)} + 項目{n}")
+
+
 def copy_statdb_data() -> None:
     """Statdb アプリとカタログのスナップショットを配信物に含める (DESIGN.md §17.5)。
 
@@ -557,6 +622,10 @@ def main() -> None:
     copy_assets(args.source)
     copy_statdb_data()
     build_home({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    })
+    build_ssds({
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,
     })

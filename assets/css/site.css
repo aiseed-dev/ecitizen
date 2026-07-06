@@ -293,3 +293,7 @@ p code, li code, td code { background: #f0f0f0; padding: 1px 4px; border-radius:
 /* ---- トップ/人口トップの2枚並びチャート ---- */
 .chart-pair { display: flex; flex-wrap: wrap; gap: 8px; }
 .chart-pair .chart { flex: 1 1 340px; min-width: 0; margin: 0; }
+
+/* ---- Ssds 都道府県ランキング ---- */
+.ssdsnavi { list-style: none; margin: 0 0 8px; padding: 0; }
+.ssdsnavi li { display: inline-block; margin-right: 14px; }

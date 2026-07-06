@@ -40,6 +40,7 @@ Statdb アプリの開発環境は §5 を参照。
 |--------|--------|---------------|
 | `fetch_statdb.py` | e-Stat API | **随時** (統計表カタログの更新。再実行すると前回との差分が「更新情報」に載る) |
 | `fetch_sac_lod.py` | e-Stat 統計LOD | 廃置分合があった時 (年数回。data/masters/municipal_changes.json を更新→コミット) |
+| `fetch_ssds.py` | e-Stat API | 社会・人口統計体系の年次更新時 (26表・約500万値、初回10分程度。--use-raw でキャッシュから再加工) |
 | `fetch_ipss.py` | IPSS | 将来推計人口の改定時のみ (5年に1回程度) |
 | `fetch_eurostat.py` | Eurostat | EUROPOP改定・census更新時 (年1回確認で十分) |
 | `fetch_ons.py` | 英国ONS | UK将来推計の改定時のみ |

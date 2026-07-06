@@ -1,0 +1,43 @@
+{% extends "_layout.html" %}
+{# 県×分野の全項目 (旧 Pref/PrefBasic 共用)。rows = data/ssds/pref/{pref}_{kind}_{major}.json #}
+
+{% block content %}
+<h2>{{ pref_name }} の{{ kind_label }} ({{ major }} {{ major_name }})</h2>
+<p>各項目の最新年の値と全国順位です。項目名をクリックすると47都道府県の推移が表示されます。</p>
+<p class="chart-switch">
+{% for k, v in major_names.items() %}
+    <a class="btn{{ ' disabled' if k == major }}" href="/Ssds/{{ base }}/{{ pref }}/{{ k }}/">{{ k }} {{ v }}</a>
+{% endfor %}
+</p>
+<form class="form-inline">
+    <label for="prefsel">都道府県:</label>
+    <select id="prefsel" data-ssds-base="/Ssds/{{ base }}" data-major="{{ major }}">
+{% for k, v in prefs.items() %}
+        <option value="{{ k }}"{{ ' selected' if k == pref }}>{{ v }}</option>
+{% endfor %}
+    </select>
+</form>
+<div class="table-responsive">
+<table class="ectable">
+    <tr><th>項目</th><th>値</th><th>単位</th><th>年</th><th>全国順位</th></tr>
+{% for r in rows %}
+    <tr>
+        <td class="left"><a href="/Ssds/Indicators/{{ r.code | replace('#','_') }}/">{{ r.code }} {{ r.name }}</a></td>
+        <td>{{ r.value | ssdsnum }}</td>
+        <td class="left">{{ r.unit }}</td>
+        <td class="center">{{ r.year or "-" }}</td>
+        <td class="center">{{ r.order or "-" }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+<p class="note">出典: 政府統計の総合窓口(e-Stat)「社会・人口統計体系」を加工して作成</p>
+{% endblock %}
+
+{% block add_script %}
+<script>
+    document.getElementById("prefsel").addEventListener("change", function () {
+        location.href = this.dataset.ssdsBase + "/" + this.value + "/" + this.dataset.major + "/";
+    });
+</script>
+{% endblock %}
