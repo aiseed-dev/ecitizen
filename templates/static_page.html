@@ -1,0 +1,9 @@
+{% extends "_layout.html" %}
+{# 静的コンテンツページ (About/Privacy/Gdp/Io/ExcelVba 等)。body は旧 Razor から
+   抽出した素の HTML (templates/static/{slug}.html)。DESIGN.md §6 Phase 4。 #}
+
+{% block content %}
+<div class="static-body">
+{{ body | safe }}
+</div>
+{% endblock %}

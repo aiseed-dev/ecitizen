@@ -366,6 +366,53 @@ def build_home(ctx_common: dict) -> None:
     print("トップ + 人口トップ")
 
 
+def build_static_pages(ctx_common: dict, source: Path) -> None:
+    """静的コンテンツ (About/Privacy/Gdp/Io/ExcelVba) と 404 (DESIGN.md §6 Phase 4/5)。
+
+    本文は旧 Razor から抽出済みの素の HTML (templates/static/)。
+    参照している旧 /images/ アセットもコピーする。
+    旧 /Search (Google AFS の廃止API) は移植しない — ヘッダーの検索フォームが
+    google.co.jp/cse に直接POSTするため専用ページは不要。
+    /contacts/ は廃止 (K2)。Pages は 410 を返せないため 404 に落ちる。
+    """
+    env = make_env()
+    static_dir = ROOT / "templates" / "static"
+    titles = json.loads((static_dir / "_titles.json").read_text(encoding="utf-8"))
+    media_refs = set()
+    for slug, title in titles.items():
+        body = (static_dir / (slug.replace("/", "__") + ".html")).read_text(encoding="utf-8")
+        media_refs.update(re.findall(r'(?:src|href)="(/images/[^"]+)"', body))
+        html = env.get_template("static_page.html").render(
+            dict(ctx_common, nav_active="", body=body, page_title=title))
+        write_text(f"{slug}/index.html", html)
+
+    wwwroot = source / "wwwroot"
+    for ref in sorted(media_refs):
+        src = wwwroot / ref.lstrip("/")
+        if src.exists():
+            dst = PUBLIC / ref.lstrip("/")
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
+
+    write_text("404.html", env.get_template("404.html").render(
+        dict(ctx_common, nav_active="", page_title="ページが見つかりません - 統計メモ帳")))
+    print(f"静的ページ {len(titles)} + 404 / 画像 {len(media_refs)} 枚")
+
+
+def build_sitemap() -> None:
+    """sitemap.xml (Phase 5)。public/ 内の index.html から生成する。"""
+    urls = []
+    for p in sorted(PUBLIC.rglob("index.html")):
+        rel = p.parent.relative_to(PUBLIC).as_posix()
+        rel = "" if rel == "." else rel + "/"
+        urls.append(f"  <url><loc>https://ecitizen.jp/{rel}</loc></url>")
+    body = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            + "\n".join(urls) + "\n</urlset>\n")
+    write_text("sitemap.xml", body)
+    print(f"sitemap.xml {len(urls)} URL")
+
+
 def build_x12arima(ctx_common: dict, source: Path) -> None:
     """季節調整 (X-13ARIMA-SEATS) セクション (DESIGN.md §19)。
 
@@ -518,6 +565,10 @@ def main() -> None:
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,
     }, args.source)
+    build_static_pages({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    }, args.source)
     population2015_redirects = "".join(
         f"/Population/Population2015/{(p + '/') if p else ''} "
         f"/Population/Population2015/{(p + '/') if p else ''}popu/ 301\n"
@@ -534,6 +585,7 @@ def main() -> None:
             "/Statdb/* /Statdb/index.html 200\n"
             "/statdb/* /Statdb/index.html 200\n"
         )
+    build_sitemap()
     write_text("_redirects", REDIRECTS + population2015_redirects + statdb_redirects)
     write_text("_headers", HEADERS)
 

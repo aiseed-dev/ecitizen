@@ -1,0 +1,15 @@
+<h2>Excel VBA メモ帳</h2>
+<h5><span>ファイル一覧の取得</span></h5>
+<p>
+    <span>
+        FileSystemObject への参照設定をしておく必要があります。<br />
+        <br /> Sub FileOperation(Target)<br /><br />
+        Dim FSO As FileSystemObject<br />
+        Dim F As File<br /> Dim FD As Folder<br /> Dim FS As Files<br /> <br /> Set FSO = New FileSystemObject<br /> Set FD = FSO.GetFolder(Target)<br /> Set FS = FD.Files<br /> 'ThisWorkbook.Sheets("Sheet1").UsedRange.Delete<br /> <br /> '見出しを付ける<br /> ThisWorkbook.ActiveSheet.Range("C2") = "ファイル名"<br /> ThisWorkbook.ActiveSheet.Range("D2") = "ファイル種別"<br /> ThisWorkbook.ActiveSheet.Range("E2") = "ファイル容量（バイト）"<br />
+        <br /> Dim i As Integer<br /> i = 3<br /> For Each F In FS<br /> 'ファイル名<br /> ThisWorkbook.ActiveSheet.Cells(i, 3) = F.Name<br /> 'ファイル種別<br /> ThisWorkbook.ActiveSheet.Cells(i, 4) = F.Type<br /> 'ファイル容量<br /> ThisWorkbook.ActiveSheet.Cells(i, 5) = F.Size<br /> i = i + 1<br /> Next<br /> End Sub
+    </span>
+</p>
+<h5>Excelのシートからハイパーリンクを取り出すVBA</h5>
+<p>
+    <br /> Function HyperLinkChar(s As String)<br /> Dim r As Range<br /> Set r = Range(s)<br /> HyperLinkChar = r.Hyperlinks.Item(1).Address<br /> End Function
+</p>

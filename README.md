@@ -113,4 +113,10 @@ ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk --yes   # APK (build/apk
       データ契約 = DATA_CONTRACT.md §2.9)
 - [x] 季節調整セクション刷新 (X-13ARIMA-SEATS 中心・Linux中心の新3ページ、
       旧X-12-ARIMA記事4本は /x-12-arima/archive/ へ301+バナー。DESIGN.md §19)
-- [ ] Phase 5: 仕上げ (sitemap / 404 / 本番切替)
+- [x] ホーム (/) と人口トップ (/Population/)。JP/EUの4区分チャートは
+      ビルド時SVG (旧CountryBy4AgeGroupの置き換え)
+- [x] 静的コンテンツ: /about/ /privacy/ /gdp/ /gdp/fertility-rate-and-gdp/
+      /io/ /excel-vba/ (旧Razorから本文抽出して移植。/Search は廃止APIのため
+      移植せず、ヘッダーの検索フォームで代替)
+- [x] Phase 5 (一部): 404.html、sitemap.xml (全ページ自動生成)
+- [ ] Phase 5 (残り): 本番切替 (カスタムドメイン割り当て。DEPLOY.md §4)

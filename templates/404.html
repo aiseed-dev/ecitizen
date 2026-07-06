@@ -1,0 +1,19 @@
+{% extends "_layout.html" %}
+{# Cloudflare Pages はルートの 404.html をカスタム404として配信する (Phase 5)。 #}
+
+{% block content %}
+<h2>ページが見つかりません (404)</h2>
+<p>お探しのページは移動したか、削除された可能性があります。</p>
+<ul>
+    <li><a href="/">トップページ (統計メモ帳)</a></li>
+    <li><a href="/Population/">世界と日本の人口</a></li>
+    <li><a href="/Population/Ranking">2045年市町村将来推計人口ランキング</a></li>
+    <li><a href="/Statdb/">統計データAPI エクスプローラ</a></li>
+    <li><a href="/x-12-arima/">季節調整法 X-13ARIMA-SEATS</a></li>
+</ul>
+<p>
+    旧サイトのお問い合わせフォームは廃止しました。連絡は
+    <a href="https://twitter.com/#!/eCitizenJp" target="_blank" rel="noopener">Twitter</a>
+    でお願いします。
+</p>
+{% endblock %}
