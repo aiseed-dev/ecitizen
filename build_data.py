@@ -121,6 +121,12 @@ def main() -> None:
         write_json(rank_dir / "ranking2050_pref" / f"{pref}.json",
                    rankings.build_pref_ranking2050(ranking_national, pref))
 
+    # 2020年国勢調査の高齢化率/年少人口割合ランキング (旧Aging2015/Young2015の後継)
+    for field, name in (("old_pct", "aging2020"), ("young_pct", "young2020")):
+        rows = rankings.build_pct_ranking2020(city_models, field)
+        assert len(rows) == len(masters.CITY_DIC) - 13, (name, len(rows))
+        write_json(rank_dir / f"{name}.json", rows)
+
     area_ranking = rankings.build_area_ranking(source.load_area())
     assert len(area_ranking) == 1741
     write_json(rank_dir / "cityarea.json", area_ranking)

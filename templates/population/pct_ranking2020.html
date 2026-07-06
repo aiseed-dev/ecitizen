@@ -1,0 +1,27 @@
+{% extends "_layout.html" %}
+{# 2020年国勢調査による割合ランキング (高齢化率/年少人口割合)。
+   旧 Aging2015/Young2015 (e-Stat直叩き) の後継 (DESIGN.md §22)。 #}
+
+{% block content %}
+<h2>{{ page_h2 }}</h2>
+<p>{{ page_lead }}</p>
+<div class="table-responsive">
+<table class="ranking">
+    <tr>
+        <th>順位</th><th>市町村名</th><th>総人口</th>
+        <th>{{ value_label }}</th><th>{{ rate_label }}</th>
+    </tr>
+{% for d in rows %}
+    <tr>
+        <td>{{ d.order }}</td>
+        <td class="left"><a href="/Population/City/{{ d.code }}">{{ d.code }} {{ d.pref_name }}{{ d.name }}</a></td>
+        <td>{{ d.total | num }}</td>
+        <td>{{ d.value | num }}</td>
+        <td>{{ d.rate | f1 }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+<p>※福島県浜通りの13町村は2020年国勢調査の市町村別人口が公表されていないため対象外です。</p>
+<p>出典: 2020年国勢調査 (政府統計の総合窓口 e-Stat) を独自集計</p>
+{% endblock %}

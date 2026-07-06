@@ -60,6 +60,11 @@ REDIRECTS = """\
 /x-12-arima/gdp* /x-12-arima/archive/gdp/ 301
 /x-12-arima/x-12-arima-examples* /x-12-arima/archive/x-12-arima-examples/ 301
 /x-12-arima/x-12-arima* /x-12-arima/archive/x-12-arima/ 301
+# 旧 Aging2015/Young2015 (e-Stat直叩き) は2020年版へ
+/Population/Aging2015* /Population/Aging2020/ 301
+/Population/Young2015* /Population/Young2020/ 301
+/population/Aging2015* /Population/Aging2020/ 301
+/population/Young2015* /Population/Young2020/ 301
 # 旧サイトの RedirectToActionPermanent (市町村合併)
 /Population/City/03305 /Population/City/03216 301
 /Population/City/04423 /Population/City/04216 301
@@ -310,6 +315,23 @@ def build_rankings(ctx_common: dict) -> None:
         page_lead="国立社会保障・人口問題研究所の『日本の地域別将来推計人口(令和5(2023)年推計)』を使って、"
                   "2020年から2050年の30年間で75歳以上の人口が増加する市区町村のランキングを作成してみました。"))
     write_text("Population/CityOldOld2045/index.html", html)
+
+    # 2020年 高齢化率/年少人口割合ランキング (旧Aging2015/Young2015の後継)
+    for name, rel, h2, vlabel, rlabel, lead in (
+        ("aging2020", "Population/Aging2020",
+         "2020年市町村別高齢化率ランキング", "老年人口(65歳以上)", "高齢化率(%)",
+         "2020年国勢調査による市区町村別の高齢化率(65歳以上人口の割合)のランキングです。"
+         "市町村名をクリックすると年齢階級別人口の推移が表示されます。"),
+        ("young2020", "Population/Young2020",
+         "2020年市町村別年少人口割合ランキング", "年少人口(15歳未満)", "年少人口割合(%)",
+         "2020年国勢調査による市区町村別の年少人口(15歳未満)割合のランキングです。"
+         "市町村名をクリックすると年齢階級別人口の推移が表示されます。"),
+    ):
+        rows = json.loads((DATA_RANKINGS / f"{name}.json").read_text(encoding="utf-8"))
+        html = env.get_template("population/pct_ranking2020.html").render(dict(
+            ctx_common, rows=rows, page_h2=h2, page_lead=lead,
+            value_label=vlabel, rate_label=rlabel, page_title=h2))
+        write_text(f"{rel}/index.html", html)
 
     # Population2015 ランキング (人口順/増減数順/増減率順/コード順 × 全国+47都道府県)
     cityinfo = json.loads((ROOT / "data" / "cityinfo2015.json").read_text(encoding="utf-8"))

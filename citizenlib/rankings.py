@@ -157,3 +157,30 @@ def build_pref_ranking2050(national: list, pref: str) -> dict:
         "total2020": sum(r["value2020"] for r in rows),
         "cities": rows,
     }
+
+
+def build_pct_ranking2020(city_models: dict, field: str) -> list:
+    """2020年国勢調査による高齢化率/年少人口割合ランキング (DESIGN.md §22)。
+
+    旧 Aging2015/Young2015 (リクエスト時にe-Stat直叩き) の置き換え。
+    市町村モデルの census 2020年列 (index) から計算する。K5準拠でローカル完結。
+    field: "old_pct" (高齢化率) または "young_pct" (年少人口割合)。
+    人口非公表の福島県浜通り13町村は index に2020年が無いため対象外。
+    """
+    rows = []
+    for code, model in city_models.items():
+        e = next((i for i in model["index"]
+                  if i["year"] == 2020 and i["kind"] == "census"), None)
+        if e is None or e[field] is None:
+            continue
+        rows.append({
+            "code": code,
+            "name": model["name"],
+            "pref_name": model["pref_name"],
+            "total": model["census"][0]["population"][8],
+            "value": e["old" if field == "old_pct" else "young"],
+            "rate": e[field],
+        })
+    rows.sort(key=lambda r: -r["rate"])
+    assign_rank(rows, key=lambda r: r["rate"])
+    return rows
