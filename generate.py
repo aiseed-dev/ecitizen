@@ -387,7 +387,11 @@ def copy_statdb_data() -> None:
     """
     web_build = ROOT / "statdb_app" / "build" / "web"
     if (web_build / "index.html").exists():
-        shutil.copytree(web_build, PUBLIC / "Statdb", dirs_exist_ok=True)
+        # .last_build_id 等の隠しファイルは配信不要 (cf-publish もアップロード
+        # しない仕様のため、コピーするとファイル数の集計がズレる)
+        shutil.copytree(web_build, PUBLIC / "Statdb", dirs_exist_ok=True,
+                        ignore=lambda d, names: [n for n in names
+                                                 if n.startswith(".")])
         print("Statdb Web アプリを配置")
     else:
         print("Statdb Web アプリ未ビルド (flutter build web) — スキップ")
