@@ -1,0 +1,82 @@
+// Zed の Run → Spawn Task に載る操作一覧 (MANUAL.md の各手順に対応)。
+// eCitizenStatic をワークスペースとして開いた場合に読み込まれる。
+[
+  {
+    "label": "サイト: フルビルド (build_data + generate --clean)",
+    "command": ".venv/bin/python build_data.py && .venv/bin/python generate.py --clean",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "always"
+  },
+  {
+    "label": "サイト: 描画層のみフルビルド (generate --clean)",
+    "command": ".venv/bin/python generate.py --clean",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "サイト: 部分ビルド (先頭20市町村)",
+    "command": ".venv/bin/python generate.py --limit 20",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "サイト: ローカルサーバー (http://localhost:5012/)",
+    "command": "python3 -m http.server 5012 --directory public",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": true
+  },
+  {
+    "label": "デプロイ: dry-run (確認のみ)",
+    "command": "./deploy.py --dry-run",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "デプロイ: 本番 (https://ecitizen.jp)",
+    "command": "./deploy.py",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "デプロイ: プレビューURL",
+    "command": "./deploy.py --branch preview",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "データ取得: Statdb カタログ更新 (e-Stat)",
+    "command": ".venv/bin/python tools/fetch_statdb.py",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "データ取得: 市町村廃置分合 (e-Stat LOD)",
+    "command": ".venv/bin/python tools/fetch_sac_lod.py",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "テスト: 廃置分合データ自己チェック",
+    "command": ".venv/bin/python -m citizenlib.municipal",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "テスト: Statdb Flet版 全ビュー構築",
+    "command": ".venv/bin/python test_views.py",
+    "cwd": "$ZED_WORKTREE_ROOT/statdb_flet"
+  },
+  {
+    "label": "Statdb: Flet版をデスクトップで起動",
+    "command": ".venv/bin/flet run",
+    "cwd": "$ZED_WORKTREE_ROOT/statdb_flet",
+    "use_new_terminal": true
+  },
+  {
+    "label": "Statdb: Android APK ビルド (Flet版)",
+    "command": "ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk --yes",
+    "cwd": "$ZED_WORKTREE_ROOT/statdb_flet"
+  },
+  {
+    "label": "Statdb: Flutter Web ビルド (public/Statdb 用)",
+    "command": "$HOME/development/flutter/bin/flutter build web --base-href /Statdb/",
+    "cwd": "$ZED_WORKTREE_ROOT/statdb_app"
+  },
+  {
+    "label": "Statdb: Flutter analyze",
+    "command": "$HOME/development/flutter/bin/flutter analyze",
+    "cwd": "$ZED_WORKTREE_ROOT/statdb_app"
+  }
+]

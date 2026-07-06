@@ -77,7 +77,9 @@ Statdb の Flutter Web 版を含める場合は先に
 
 - プロジェクト名は `ecitizen` (deploy.py 内で指定)。初回は自動作成される
 - 完了すると `https://<デプロイID>.ecitizen.pages.dev` の URL が表示される
-- 本番 URL は `https://ecitizen.pages.dev` (branch=main のため)
+- **本番 URL は `https://ecitizen.jp`** (現行どおり。§4 のカスタムドメイン
+  割り当て後に branch=main のデプロイが ecitizen.jp で配信される。
+  割り当て前の確認は `https://ecitizen.pages.dev` で行う)
 
 ### 2.4 プレビューデプロイ (本番に影響しない確認用)
 

@@ -2,8 +2,11 @@
 
 eCitizen (統計メモ帳 / ecitizen.jp) の静的サイト版。
 ASP.NET Core 2.2 の動的サイトを「静的サイト + Python によるデータ(JSON)生成」に
-移行するプロジェクト。設計は [DESIGN.md](DESIGN.md)、JSON スキーマは
-[DATA_CONTRACT.md](DATA_CONTRACT.md) を参照。
+移行するプロジェクト。
+
+- 日常の操作手順: **[MANUAL.md](MANUAL.md)** (Zed の Run → Spawn Task にも登録済み)
+- デプロイ: [DEPLOY.md](DEPLOY.md)
+- 設計: [DESIGN.md](DESIGN.md) / JSON スキーマ: [DATA_CONTRACT.md](DATA_CONTRACT.md)
 
 ## セットアップ
 
