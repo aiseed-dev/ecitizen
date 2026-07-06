@@ -1,0 +1,32 @@
+{% extends "_layout.html" %}
+{# 市区町村コード表 (旧 Views/Sac)。DESIGN.md §22 #}
+
+{% block content %}
+<h2>市区町村コード表{{ " — " + pref_name if pref_name }}</h2>
+{% if not pref_name %}
+<p>全国地方公共団体コード (JIS X 0401/0402、総務省) の一覧です。都道府県を選んでください。
+    検査数字 (チェックディジット) 付きの6桁表記も併記しています。</p>
+<ul class="ssdsnavi">
+{% for k, v in prefs.items() %}
+    <li><a href="/sac/{{ k }}/">{{ k }} {{ v }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p><a href="/sac/">← 都道府県の選択に戻る</a></p>
+<div class="table-responsive">
+<table class="ectable">
+    <tr><th>コード</th><th>6桁 (検査数字付)</th><th>名称</th><th>ふりがな</th><th>種別</th></tr>
+{% for r in rows %}
+    <tr>
+        <td class="center">{{ r.code }}</td>
+        <td class="center">{{ r.code6 }}</td>
+        <td class="left{{ ' ward' if r.is_ward }}">{{ "　" + r.name if r.is_ward else r.name }}</td>
+        <td class="left">{{ r.kana }}</td>
+        <td class="center">{{ r.type }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+<p>出典: 総務省「全国地方公共団体コード」を独自集計 (2016年10月時点の市町村構成)</p>
+{% endif %}
+{% endblock %}

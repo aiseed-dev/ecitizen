@@ -434,6 +434,52 @@ def build_sitemap() -> None:
     print(f"sitemap.xml {len(urls)} URL")
 
 
+_SAC_TYPES = ["都道府県", "政令指定都市", "中核市", "特例市", "市", "町", "村", "特別区", "区"]
+
+
+def _check_digit(code: str) -> str:
+    """全国地方公共団体コードの検査数字 (JIS X 0401/0402、モジュラス11)。"""
+    s = sum(int(d) * w for d, w in zip(code, (6, 5, 4, 3, 2)))
+    cd = 11 - s % 11
+    return str(cd % 10 if cd >= 10 else cd)
+
+
+def build_sac(ctx_common: dict, source: Path) -> None:
+    """市区町村コード表 (旧 SacController。DESIGN.md §22)。
+
+    旧 App_Data/NAreaCode/StandardAreaCodeList.json の現在有効なコード
+    (2016-10-10 時点。CITY_DIC と同じ基準日) から生成する。
+    """
+    env = make_env()
+    ctx = dict(ctx_common, nav_active="sac")
+    entries = json.loads(
+        (source / "App_Data" / "NAreaCode" / "StandardAreaCodeList.json")
+        .read_text(encoding="utf-8-sig"))
+    asof = "2016-10-10"
+    valid = [e for e in entries
+             if e["施行年月日"][:10] <= asof < e["廃止年月日"][:10]]
+
+    write_text("sac/index.html", env.get_template("sac.html").render(
+        dict(ctx, pref_name=None, rows=[],
+             page_title="市区町村コード表 - 統計メモ帳")))
+    for pref, pname in masters.PREF_CODE.items():
+        rows = []
+        for e in sorted((x for x in valid
+                         if f"{x['id']:05d}".startswith(pref) and x["種別"] != 0),
+                        key=lambda x: x["id"]):
+            code = f"{e['id']:05d}"
+            rows.append({
+                "code": code, "code6": code + _check_digit(code),
+                "name": e["名称"], "kana": e.get("ふりがな", ""),
+                "type": _SAC_TYPES[e["種別"]],
+                "is_ward": e["種別"] == 8,
+            })
+        write_text(f"sac/{pref}/index.html", env.get_template("sac.html").render(
+            dict(ctx, pref_name=pname, rows=rows,
+                 page_title=f"{pname}の市区町村コード表 - 統計メモ帳")))
+    print("sac 1+47 ページ")
+
+
 def build_x12arima(ctx_common: dict, source: Path) -> None:
     """季節調整 (X-13ARIMA-SEATS) セクション (DESIGN.md §19)。
 
@@ -651,6 +697,10 @@ def main() -> None:
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,
     })
+    build_sac({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    }, args.source)
     build_x12arima({
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,
