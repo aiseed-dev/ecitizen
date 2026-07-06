@@ -75,8 +75,6 @@ def _inline_svg(fig, tooltips: dict, id_prefix: str = "") -> str:
 
 SOURCE_NOTE_IPSS = ("出典: 国勢調査を独自集計、"
                     "「日本の地域別将来推計人口(令和5(2023)年推計)」(国立社会保障・人口問題研究所)")
-SOURCE_NOTE_OLD = ("出典: 国勢調査を独自集計、"
-                   "「日本の地域別将来推計人口(平成30(2018)年3月推計)」(国立社会保障・人口問題研究所)")
 SOURCE_NOTE_EUROSTAT = "出典: Eurostat「Population on 1 January」・EUROPOP2023(基準シナリオ)、UKのみONS推計"
 
 
@@ -86,7 +84,7 @@ def city_stack_svg(name: str, series: list, years: list, source_note: str = SOUR
     series は DATA_CONTRACT §3.1/3.3/3.4 の配列 (先頭=年齢不詳=スタック最上段)。
     旧チャートの reversedStacks 相当: 末尾の系列 (0～4歳) を最下段に積む。
     years はカテゴリ (x軸) ラベル。City/Pref は15個(1980-2050、IPSS令和5年推計)、
-    Country は14個(1980-2045、旧平成30年推計のまま。source_note=SOURCE_NOTE_OLD を渡す)。
+    Country-JP も City/Pref と同じ15個 (IPSS令和5年推計。2026-07-06 更新)、非JP は15個(1980-2020+2025-2050)。
     """
     years = [str(y) for y in years]
     n = len(years)

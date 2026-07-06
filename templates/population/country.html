@@ -62,9 +62,6 @@
 </div>
 
 <h3>{{ m.name }} の人口(1980年～{{ census_years[-1] }}年)</h3>
-{% if m.is_jp %}
-<a href="//ecitizen.jp/download/population/{{ m.code }}.xls"><img src="/images/excel.svg" width="18" alt=""/>データのダウンロード(xls形式)</a>
-{% endif %}
 <div class="table-responsive">
     <table>
         <tr>
@@ -125,7 +122,7 @@
     </table>
 </div>
 {% if m.is_jp %}
-<p>データについては、国立社会保障・人口問題研究所の<a href="http://www.ipss.go.jp/pp-zenkoku/j/zenkoku2017/db_zenkoku2017/db_s_suikeikekka_1.html">『日本の将来推計人口(平成29年推計)』</a>の出生(中位)死亡(中位)推計結果を使用しています。</p>
+<p>データについては、国立社会保障・人口問題研究所の<a href="https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp" target="_blank" rel="noopener">『日本の地域別将来推計人口(令和5(2023)年推計)』</a>の47都道府県の合算値を使用しています(市町村・都道府県ページと同一の推計)。</p>
 {% elif m.code == "UK" %}
 <p>データについては、英国統計局(ONS)の<a href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationprojections/datasets/z1zippedpopulationprojectionsdatafilesuk">『National population projections: 2024-based』(Principal projection)</a>を使用しています。
 イギリスは Eurostat の将来推計(EUROPOP2023)の対象外(EU離脱国のため)であり、他国とは推計の基準年・手法が異なります。表示年は他国に揃えて5年刻み(2025年～2050年)で抜粋しています。</p>

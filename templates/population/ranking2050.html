@@ -1,0 +1,60 @@
+{% extends "_layout.html" %}
+{# 2050年市町村将来推計人口ランキング (IPSS令和5年推計)。
+   ranking = data/rankings/ranking2050_national.json
+   2026-07-06: 旧「2045年ランキング」(平成30年推計、URLは /Population/Ranking のまま)
+   を令和5(2023)年推計の2050年ランキングに刷新。福島県も浜通り13町村以外は掲載。 #}
+
+{% block content %}
+<h2>2050年市町村将来推計人口ランキング</h2>
+<p>国立社会保障・人口問題研究所の<a href="https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp" target="_blank" rel="noopener">『日本の地域別将来推計人口(令和5(2023)年推計)』</a>のデータを使用して、2050年の市町村の人口ランキングを作りました。2020年国勢調査人口から2050年推計人口への増減率によって色を付けています。赤が増加が想定される市町村で、青が減少が想定される市町村です。殆どの市町村は減少し、地方では30年間で人口が30%以上減少する市町村が珍しくないという厳しい推計です。もちろん推計なので状況を変えることは可能で、対応を考えていく必要があると思います。市町村名をクリックすると年齢階級別人口の1980年からの推移のグラフが表示されます。</p>
+<p>※<a href="/Population/Population2015/">2015年市区町村別人口ランキング</a>も作成していますので参考にしてください。</p>
+
+<form class="form-inline">
+    <label for="pref">都道府県の選択:</label>
+    <select id="pref" data-nav-base="/Population/Ranking/">
+        <option value="">全国</option>
+{% for k, v in prefs.items() %}
+        <option value="{{ k }}">{{ v }}</option>
+{% endfor %}
+    </select>
+</form>
+<div class="table-responsive">
+<table class="ranking">
+    <tr>
+        <th>順位</th><th>市町村名</th><th>2050年推計人口</th><th>2020年人口</th>
+        <th>人口増減</th><th>増減率</th><th>2020年順位</th>
+    </tr>
+{% for d in ranking %}
+{% set rate = (d.value2050 - d.value2020) * 100.0 / d.value2020 %}
+    <tr class="{{ rate | rate_class }}">
+        <td>{{ d.order2050 }}</td>
+        <td class="left"><a href="/Population/City/{{ d.code }}">{{ d.code }} {{ d.pref_name }}{{ d.name }}</a></td>
+        <td>{{ d.value2050 | num }}</td>
+        <td>{{ d.value2020 | num }}</td>
+        <td>{{ (d.value2050 - d.value2020) | num }}</td>
+        <td>{{ rate | f1 }}</td>
+        <td>{{ d.order2020 }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+<p>※福島県浜通りの13町村については、東日本大震災に伴う福島第一原子力発電所の事故の影響で市町村別の将来推計が公表されていないため、この表から除外しています。</p>
+{% endblock %}
+
+{% block rightside_under %}
+    <h5>都道府県の5歳年齢階級別人口の推移のグラフ</h5>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/Prefecture/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+{% endblock %}
+
+{% block add_script %}
+<script>
+    document.getElementById("pref").addEventListener("change", function () {
+        var v = this.value;
+        location.href = v ? "/Population/Ranking/" + v + "/" : "/Population/Ranking/";
+    });
+</script>
+{% endblock %}

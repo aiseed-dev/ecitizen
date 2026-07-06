@@ -104,6 +104,29 @@ class IpssData:
         wb = self._wb(pref)
         return _parse_sheet(wb[wb.sheetnames[0]])
 
+    def japan(self) -> dict:
+        """全国計 (47都道府県の合算)。Country/JP の2020年実績+令和5年推計に使う。
+
+        IPSSの全国推計(日本の将来推計人口)とは別物だが、市町村・都道府県ページ
+        との完全整合(合算=全国)を優先して都道府県合算を採用する。
+        """
+        if getattr(self, "_japan", None) is None:
+            from . import masters
+            agg = None
+            for pref in masters.PREF_CODE:
+                d = self.prefecture(pref)
+                if agg is None:
+                    agg = {k: [{"series": r["series"],
+                                "population": list(r["population"])} for r in rows]
+                           for k, rows in d.items()}
+                else:
+                    for k in agg:
+                        for a, r in zip(agg[k], d[k]):
+                            a["population"] = [x + y for x, y in
+                                               zip(a["population"], r["population"])]
+            self._japan = agg
+        return self._japan
+
     def close(self) -> None:
         for wb in self._workbooks.values():
             wb.close()

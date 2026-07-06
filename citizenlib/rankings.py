@@ -23,34 +23,6 @@ def assign_rank(items: list, key: callable, reverse: bool = True) -> None:
         item["order"] = order
 
 
-def build_pref_ranking2045(national: list, pref: str) -> dict:
-    """旧 Ranking2045.PrefRanking(pref) の移植。都道府県別ランキングビュー。"""
-    rows = [r for r in national if str(r["Code"] // 1000).zfill(2) == pref]
-    rows = sorted(rows, key=lambda r: -r["Value2015"])
-    pref_rows = []
-    for r in rows:
-        pref_rows.append({
-            "code": str(r["Code"]).zfill(5), "name": r["Name"],
-            "value": r["Value"], "value2015": r["Value2015"],
-            "order_national": r["Order"], "order2015_national": r["Order2015"],
-        })
-    assign_rank(pref_rows, key=lambda r: r["value2015"])
-    for r in pref_rows:
-        r["pref_order2015"] = r.pop("order")
-
-    pref_rows.sort(key=lambda r: -r["value"])
-    assign_rank(pref_rows, key=lambda r: r["value"])
-    for r in pref_rows:
-        r["pref_order"] = r.pop("order")
-
-    return {
-        "pref": pref, "pref_name": masters.PREF_CODE[pref],
-        "total": sum(r["value"] for r in pref_rows),
-        "total2015": sum(r["value2015"] for r in pref_rows),
-        "cities": pref_rows,
-    }
-
-
 def build_area_ranking(raw: list) -> list:
     """旧 PopulationClass.AreaSort() の移植 (面積降順・同順位あり)。"""
     rows = [{"code": r["団体コード"], "name": r["団体名"], "area": r["面積"], "note": r["参考値"]}
@@ -133,3 +105,55 @@ def build_population2015_ranking(cityinfo: list, order: str, pref: str | None) -
     rows = [r for r in cityinfo if pref is None or r["code"].startswith(pref)]
     _, key = POPULATION2015_ORDERS[order]
     return sorted(rows, key=key)
+
+
+def build_ranking2050(city_models: dict) -> list:
+    """2050年市町村将来推計人口ランキング (IPSS令和5年推計。DATA_CONTRACT §2.6)。
+
+    旧 CityRanking2045.json (平成30年推計、福島県全域なし) の置き換え。
+    市町村モデルの census 2020年列 (実績値) と projection 2050年列から計算する。
+    将来推計のない福島県浜通り13町村のみ対象外。
+    """
+    rows = []
+    for code, model in city_models.items():
+        if not model["projection"]:
+            continue
+        rows.append({
+            "code": code,
+            "name": model["name"],
+            "pref_name": model["pref_name"],
+            "value2050": model["projection"][0]["population"][6],
+            "value2020": model["census"][0]["population"][8],
+        })
+    rows.sort(key=lambda r: -r["value2050"])
+    assign_rank(rows, key=lambda r: r["value2050"])
+    for r in rows:
+        r["order2050"] = r.pop("order")
+    by2020 = sorted(rows, key=lambda r: -r["value2020"])
+    assign_rank(by2020, key=lambda r: r["value2020"])
+    for r in by2020:
+        r["order2020"] = r.pop("order")
+    return rows
+
+
+def build_pref_ranking2050(national: list, pref: str) -> dict:
+    """2050年ランキングの都道府県ビュー (全国順位を保持しつつ県内順位を付与)。"""
+    rows = [dict(r) for r in national if r["code"].startswith(pref)]
+
+    rows.sort(key=lambda r: -r["value2020"])
+    assign_rank(rows, key=lambda r: r["value2020"])
+    for r in rows:
+        r["pref_order2020"] = r.pop("order")
+
+    rows.sort(key=lambda r: -r["value2050"])
+    assign_rank(rows, key=lambda r: r["value2050"])
+    for r in rows:
+        r["pref_order2050"] = r.pop("order")
+
+    return {
+        "pref": pref,
+        "pref_name": masters.PREF_CODE[pref],
+        "total2050": sum(r["value2050"] for r in rows),
+        "total2020": sum(r["value2020"] for r in rows),
+        "cities": rows,
+    }

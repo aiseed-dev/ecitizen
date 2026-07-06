@@ -18,12 +18,12 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from citizenlib import masters, rankings
 from citizenlib.charts import (
-    SOURCE_NOTE_EUROSTAT, SOURCE_NOTE_OLD, age4_stack_svg, city_pyramid_svg, city_stack_svg,
+    SOURCE_NOTE_EUROSTAT, SOURCE_NOTE_IPSS, age4_stack_svg, city_pyramid_svg, city_stack_svg,
 )
 from citizenlib.eurostat import COUNTRY_PROJECTION_YEARS as EUROSTAT_PROJECTION_YEARS
 from citizenlib.filters import FILTERS
 from citizenlib.population import (
-    CENSUS_YEARS, COUNTRY_CENSUS_YEARS, PROJECTION_YEARS, age4_series, countrydata_series,
+    CENSUS_YEARS, PROJECTION_YEARS, age4_series, countrydata_series,
     stacked_series,
 )
 
@@ -216,11 +216,12 @@ def _build_country(code: str) -> str:
     write_text(f"Population/CountryData/{code}.json", compact_json(series))
 
     if model["is_jp"]:
-        # JP のみ IPSS 対象外。旧平成30年推計のまま (2015-2045、7列)。
-        # census 最終年(2015)と projection 開始年(2015)が重複するため [1:] で1点飛ばす。
-        census_years = COUNTRY_CENSUS_YEARS
-        proj_years = list(range(2015, 2050, 5))
-        source_note = SOURCE_NOTE_OLD
+        # 2026-07-06: JP も IPSS 令和5年推計 (47都道府県合算) へ更新。
+        # City/Pref と同じく census 最終年(2020)と projection 開始年(2020)が
+        # 重複するため [1:] で1点飛ばす。
+        census_years = CENSUS_YEARS
+        proj_years = PROJECTION_YEARS
+        source_note = SOURCE_NOTE_IPSS
         chart_years = census_years + proj_years[1:]
     else:
         # Eurostat(EUROPOP2023)/ONS(UKのみ) へ切替。census は City/Pref と同じ1980-2020だが、
@@ -241,7 +242,7 @@ def _build_country(code: str) -> str:
     html = _env.get_template("population/country.html").render(ctx)
     write_text(f"Population/Country/{code}/index.html", html)
 
-    # 人口ピラミッド用の推計年 (JP は census 最終年と重複する2015年を除く6点、
+    # 人口ピラミッド用の推計年 (JP は census 最終年と重複する2020年を除く6点、
     # 非JP は重複がないため6点そのまま。country.html 用の proj_years とは別物)
     pyramid_proj_years = proj_years[1:] if model["is_jp"] else proj_years
 
@@ -267,17 +268,15 @@ def build_rankings(ctx_common: dict) -> None:
     """ランキング系ページ (地域別データなし、非並列で十分高速)。"""
     env = make_env()
 
-    national = json.loads((DATA_RANKINGS / "ranking2045_national.json").read_text(encoding="utf-8"))
-    html = env.get_template("population/ranking2045.html").render(
-        dict(ctx_common, ranking=national, page_title="2045年市町村将来推計人口ランキング"))
+    national = json.loads((DATA_RANKINGS / "ranking2050_national.json").read_text(encoding="utf-8"))
+    html = env.get_template("population/ranking2050.html").render(
+        dict(ctx_common, ranking=national, page_title="2050年市町村将来推計人口ランキング"))
     write_text("Population/Ranking/index.html", html)
 
     for pref in masters.PREF_CODE:
-        if pref == "07":
-            continue
-        r = json.loads((DATA_RANKINGS / "ranking2045_pref" / f"{pref}.json").read_text(encoding="utf-8"))
-        html = env.get_template("population/ranking2045_pref.html").render(
-            dict(ctx_common, r=r, page_title=f"2045年{r['pref_name']}の市町村将来推計人口ランキング"))
+        r = json.loads((DATA_RANKINGS / "ranking2050_pref" / f"{pref}.json").read_text(encoding="utf-8"))
+        html = env.get_template("population/ranking2050_pref.html").render(
+            dict(ctx_common, r=r, page_title=f"2050年{r['pref_name']}の市町村将来推計人口ランキング"))
         write_text(f"Population/Ranking/{pref}/index.html", html)
 
     area = json.loads((DATA_RANKINGS / "cityarea.json").read_text(encoding="utf-8"))
@@ -343,10 +342,10 @@ def build_home(ctx_common: dict) -> None:
     env = make_env()
 
     charts = {}
-    for code, note in (("JP", SOURCE_NOTE_OLD), ("EU", SOURCE_NOTE_EUROSTAT)):
+    for code, note in (("JP", SOURCE_NOTE_IPSS), ("EU", SOURCE_NOTE_EUROSTAT)):
         model = json.loads((DATA_COUNTRY / f"{code}.json").read_text(encoding="utf-8"))
         if model["is_jp"]:
-            chart_years = COUNTRY_CENSUS_YEARS + list(range(2020, 2050, 5))
+            chart_years = CENSUS_YEARS + PROJECTION_YEARS[1:]
             title = "日本の年齢階級別人口の推移"
         else:
             chart_years = CENSUS_YEARS + list(EUROSTAT_PROJECTION_YEARS)

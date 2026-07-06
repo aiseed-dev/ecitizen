@@ -73,27 +73,26 @@ def main() -> None:
         write_json(pref_pyramid_dir / f"{pref}.json", model)
     print(f"都道府県ピラミッドモデル {len(masters.PREF_CODE)} 件")
 
-    # --- 国 (Phase 2、日本以外は Eurostat(census/EUROPOP2023)・UKのみ ONS へ切替) ---
+    # --- 国 (日本以外は Eurostat/ONS、日本は IPSS令和5年推計の47都道府県合算) ---
     country_dir = ROOT / "data" / "population" / "country"
     for code in masters.COUNTRY_CODE:
-        model = build_country_model(source, code)
-        assert len(model["projection"]) == 20, code
+        model = build_country_model(source, code, ipss)
         if model["is_jp"]:
-            assert len(model["census"]) == 21 and len(model["census"][0]["population"]) == 8, code
-            assert len(model["projection"][0]["population"]) == 7, code
-            assert len(model["index"]) == 15, code
+            assert len(model["census"]) == 21 and len(model["census"][0]["population"]) == 9, code
+            assert len(model["projection"]) == 21 and len(model["projection"][0]["population"]) == 7, code
+            assert len(model["index"]) == 16, code
         else:
             assert len(model["census"]) == 20 and len(model["census"][0]["population"]) == 9, code
-            assert len(model["projection"][0]["population"]) == 6, code
+            assert len(model["projection"]) == 20 and len(model["projection"][0]["population"]) == 6, code
             assert len(model["index"]) == 15, code
         write_json(country_dir / f"{code}.json", model)
     print(f"国モデル {len(masters.COUNTRY_CODE)} 件")
 
-    # --- 国 人口ピラミッド ---
+    # --- 国 人口ピラミッド (JP含め全カ国15年分) ---
     country_pyramid_dir = ROOT / "data" / "population" / "pyramid" / "country"
     for code in masters.COUNTRY_CODE:
-        model = build_country_pyramid_model(source, code)
-        assert len(model["years"]) == (14 if model["is_jp"] else 15), code
+        model = build_country_pyramid_model(source, code, ipss)
+        assert len(model["years"]) == 15, code
         assert all(len(y["male"]) == 19 and len(y["female"]) == 19 for y in model["years"]), code
         write_json(country_pyramid_dir / f"{code}.json", model)
     print(f"国ピラミッドモデル {len(masters.COUNTRY_CODE)} 件")
@@ -109,17 +108,18 @@ def main() -> None:
     print(f"人口ピラミッドモデル {len(masters.CITY_DIC)} 件")
     ipss.close()
 
-    # --- ランキング系 (Phase 2、既存データからの再計算のみ。新規ソース読込は area/tfr/ranking2045 のみ) ---
+    # --- ランキング系 (既存データからの再計算のみ。新規ソース読込は area/tfr のみ) ---
     rank_dir = ROOT / "data" / "rankings"
 
-    ranking2045_raw = source.load_ranking2045()
-    assert len(ranking2045_raw) == 1682
-    write_json(rank_dir / "ranking2045_national.json", ranking2045_raw)
+    # 2026-07-06: 平成30年推計の旧CityRanking2045.jsonから、IPSS令和5年推計
+    # (市町村モデルに取り込み済み) による2050年ランキングに刷新。
+    # 福島県も浜通り13町村以外は推計があるため掲載できるようになった
+    ranking_national = rankings.build_ranking2050(city_models)
+    assert len(ranking_national) == len(masters.CITY_DIC) - 13, len(ranking_national)
+    write_json(rank_dir / "ranking2050_national.json", ranking_national)
     for pref in masters.PREF_CODE:
-        if pref == "07":  # 福島県: 将来推計非公表のため対象外
-            continue
-        write_json(rank_dir / "ranking2045_pref" / f"{pref}.json",
-                   rankings.build_pref_ranking2045(ranking2045_raw, pref))
+        write_json(rank_dir / "ranking2050_pref" / f"{pref}.json",
+                   rankings.build_pref_ranking2050(ranking_national, pref))
 
     area_ranking = rankings.build_area_ranking(source.load_area())
     assert len(area_ranking) == 1741
@@ -133,7 +133,7 @@ def main() -> None:
     assert len(aging_oldold) == len(masters.CITY_DIC) - 13
     write_json(rank_dir / "city_aging_2045.json", rankings.rank_generation(aging_oldold, "old"))
     write_json(rank_dir / "city_oldold_2045.json", rankings.rank_generation(aging_oldold, "old_old"))
-    print("ランキングデータ (ranking2045 全国+47県 / cityarea / citytfr / aging・oldold 2050) を生成しました")
+    print("ランキングデータ (ranking2050 全国+47県 / cityarea / citytfr / aging・oldold 2050) を生成しました")
 
     # --- Census2010 (2010年国勢調査人口と2008年推計の比較。ローカル完結、K5準拠) ---
     census2010_rows = census2010.build_census2010_rows(

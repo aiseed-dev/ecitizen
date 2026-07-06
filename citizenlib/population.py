@@ -33,7 +33,6 @@ class SourceData:
         self.country_m_dir = base / "CountryM"
         self.country_f_dir = base / "CountryF"
         self.info2015 = base / "2015" / "population2015.json"
-        self.ranking2045 = base / "Ranking" / "CityRanking2045.json"
         self.area = base / "Area" / "CityAreaData2015.json"
         self.tfr = base / "Tfr" / "CityTfr.xml"
         root = Path(source_root) / "App_Data"
@@ -93,9 +92,6 @@ class SourceData:
 
     def load_cityinfo2015(self) -> list:
         return json.loads(self.info2015.read_text(encoding="utf-8-sig"))
-
-    def load_ranking2045(self) -> list:
-        return json.loads(self.ranking2045.read_text(encoding="utf-8-sig"))
 
     def load_area(self) -> list:
         return json.loads(self.area.read_text(encoding="utf-8-sig"))
@@ -244,11 +240,12 @@ def build_pref_model(source: SourceData, pref: str, ipss) -> dict:
     }
 
 
-def build_country_model(source: SourceData, code: str) -> dict:
+def build_country_model(source: SourceData, code: str, ipss=None) -> dict:
     """DATA_CONTRACT §2.4 の国モデルを構築する。
 
-    日本 (kaikyu=90): census 21行×8列(1980-2015、Ages3) + projection 20行×7列
-    (2015-2045、平成30年推計)。旧データのまま変更なし。
+    日本 (kaikyu=90、2026-07-06 IPSS令和5年推計へ更新): City/Pref と同一構成。
+    census 21行×9列(1980-2020、Ages3。2020列は47都道府県合算の実績値) +
+    projection 21行×7列(2020-2050、IPSS令和5年推計の都道府県合算)。
     日本以外 (kaikyu=85、2026-07-05 Eurostat/ONS へ切替): census 20行×9列
     (1980-2020、Ages2、Eurostat demo_pjangroup) + projection 20行×6列
     (2025-2050、90歳以上まで分離。EU/EFTA は EUROPOP2023、UK のみ
@@ -258,11 +255,12 @@ def build_country_model(source: SourceData, code: str) -> dict:
 
     is_jp = code == "JP"
     if is_jp:
-        census = source.load_country_ed(code)
-        projection = source.load_country_ep(code)
-        assert len(census) == 21 and len(projection) == 20, code
-        census_years = COUNTRY_CENSUS_YEARS
-        proj_years = list(range(2015, 2050, 5))
+        ipss_jp = ipss.japan()
+        census = _append_ipss_census(source.load_country_ed(code), ipss_jp["total"])
+        projection = ipss_jp["total"]
+        assert len(census) == 21 and len(projection) == 21, code
+        census_years = CENSUS_YEARS
+        proj_years = PROJECTION_YEARS
     else:
         census = eurostat.load_census(eurostat.GEO_CODES.get(code, code))
         projection = (eurostat.load_projection_uk() if code == "UK"
@@ -395,12 +393,13 @@ def build_pref_pyramid_model(source: SourceData, pref: str, ipss) -> dict:
     }
 
 
-def build_country_pyramid_model(source: SourceData, code: str) -> dict:
+def build_country_pyramid_model(source: SourceData, code: str, ipss=None) -> dict:
     """DATA_CONTRACT §2.5 相当の国版人口ピラミッドモデル。
 
-    JP: census 21行(Ages3、90歳以上を含む19区分)×8列(1980-2015、旧データ)、
-    projection 20行×7列(2015-2045、旧データ)。census最終年とprojection先頭年
-    が重複(2015年)するため1点スキップ(旧 stacked_series と同じ扱い)。
+    JP (2026-07-06 IPSS令和5年推計へ更新): PrefPyramid と同一構成。
+    census は旧 CountryM/F の1980-2015に IPSS 47都道府県合算の2020年実績列を
+    追加した21行×9列、projection は IPSS 合算の21行×7列(2020-2050)。
+    census最終年とprojection先頭年が重複(2020年)するため1点スキップ。
     非JP: census 20行(Ages2、90歳以上を含まない18区分)×9列(1980-2020、
     Eurostat)、projection 20行×6列(2025-2050、Eurostat/ONS)。census年は
     90歳以上に対応するデータがないため0で埋めて19区分に揃える
@@ -411,13 +410,15 @@ def build_country_pyramid_model(source: SourceData, code: str) -> dict:
 
     is_jp = code == "JP"
     if is_jp:
-        census_m = source.load_country_gender_ed("M", code)
-        census_f = source.load_country_gender_ed("F", code)
-        projection_m = source.load_country_gender_ep("M", code)
-        projection_f = source.load_country_gender_ep("F", code)
-        census_years = list(enumerate(COUNTRY_CENSUS_YEARS))
-        proj_years = list(range(2015, 2050, 5))
-        proj_year_cols = [(c, y) for c, y in enumerate(proj_years) if y > 2015]
+        ipss_jp = ipss.japan()
+        census_m = _append_ipss_census(source.load_country_gender_ed("M", code),
+                                       ipss_jp["male"])
+        census_f = _append_ipss_census(source.load_country_gender_ed("F", code),
+                                       ipss_jp["female"])
+        projection_m = ipss_jp["male"]
+        projection_f = ipss_jp["female"]
+        census_years = list(enumerate(CENSUS_YEARS))
+        proj_year_cols = [(c, y) for c, y in enumerate(PROJECTION_YEARS) if y > 2020]
     else:
         geo = eurostat.GEO_CODES.get(code, code)
         census_m = eurostat.load_census(geo, "M")
