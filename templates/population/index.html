@@ -1,0 +1,95 @@
+{% extends "_layout.html" %}
+{# 人口トップ「人口を可視化してみました」(旧 Views/Population/Index.cshtml)。
+   Highcharts→ビルド時SVG (K8)、jQueryの県セレクタ→site.jsのdata-link-base方式。
+   人口移動 (Migration系) はPhase 3のため本節は未掲載 (実装後に復活させる)。 #}
+
+{% block content %}
+<h2>人口を可視化してみました</h2>
+<p>
+    地方では人口減少への対応が大きな課題になっています。そこで、各市町村の
+    年齢階級別の1980年〜2050年の人口の推移をグラフにして一目でわかるようにしてみました。
+    2020年国勢調査の実績値と「日本の地域別将来推計人口(令和5(2023)年推計)」
+    (国立社会保障・人口問題研究所) にもとづいています。
+</p>
+<p>
+    日本と同じように少子化が問題になっているヨーロッパの国の人口の推移グラフも
+    参考のため作成しました。<a href="/Population/Country/FR">フランス</a>、
+    <a href="/Population/Country/UK">イギリス</a>、<a href="/Population/Country/DE">ドイツ</a>
+    といった主要国では比較的安定した推移になっています。
+</p>
+
+<div class="chart-pair">
+    <figure class="chart">{{ chart_jp | safe }}</figure>
+    <figure class="chart">{{ chart_eu | safe }}</figure>
+</div>
+
+<div class="section">
+    <h3>市町村別の5歳年齢階級別人口の推移のグラフ</h3>
+    <p>
+        市町村別の5歳年齢階級別人口の推移のグラフへ移動
+        <select id="pref" data-link-base="/Population/City/" data-list="citylinklist">
+{% for k, v in prefs.items() %}
+            <option value="{{ k }}"{{ ' selected' if k == '13' }}>{{ v }}</option>
+{% endfor %}
+        </select>
+    </p>
+    <ul id="citylinklist" class="linklist">
+{% for k, v in tokyo_cities.items() %}
+        <li class="chartlink"><a href="/Population/City/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+</div>
+
+<div class="section">
+    <h3>都道府県別の5歳年齢階級別人口の推移のグラフ</h3>
+    <p>
+        都道府県別の5歳年齢階級別人口の推移のグラフです。
+        <a href="/Population/Prefecture/13">東京</a>ではまだ実感はないかも分かりませんが、
+        地方では人口が急激に減少し始めています。
+    </p>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/Prefecture/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+</div>
+
+<div class="section">
+    <h3>各国の5歳年齢階級別人口の推移のグラフ</h3>
+    <ul class="linklist">
+{% for k, v in countries.items() %}
+        <li class="chartlink"><a href="/Population/Country/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block rightside_under %}
+    <p>1980〜2050年の人口ピラミッドのグラフも作成しました。</p>
+    <h5>市町村の男女別5歳年齢階級別人口 (人口ピラミッド)</h5>
+    <select id="pref1" data-link-base="/Population/CityPyramid/" data-list="citylinklist1">
+{% for k, v in prefs.items() %}
+        <option value="{{ k }}"{{ ' selected' if k == '26' }}>{{ v }}</option>
+{% endfor %}
+    </select>
+    <ul id="citylinklist1" class="linklist">
+{% for k, v in kyoto_cities.items() %}
+        <li class="chartlink"><a href="/Population/CityPyramid/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+    <div style="clear:both"></div>
+    <h5>世界の国の5歳年齢階級別人口 (人口ピラミッド)</h5>
+    <ul class="linklist">
+        <li class="chartlink"><a href="/Population/CountryPyramid/JP">日本</a></li>
+        <li class="chartlink"><a href="/Population/CountryPyramid/UK">イギリス</a></li>
+        <li class="chartlink"><a href="/Population/CountryPyramid/FR">フランス</a></li>
+        <li class="chartlink"><a href="/Population/CountryPyramid/DE">ドイツ</a></li>
+    </ul>
+    <div style="clear:both"></div>
+    <h5>都道府県の男女別5歳年齢階級別人口 (人口ピラミッド)</h5>
+    <ul class="linklist">
+{% for k, v in prefs.items() %}
+        <li class="chartlink"><a href="/Population/PrefPyramid/{{ k }}">{{ v }}</a></li>
+{% endfor %}
+    </ul>
+{% endblock %}

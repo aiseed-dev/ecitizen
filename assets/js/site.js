@@ -13,13 +13,14 @@
     }
 
     // 県セレクタ: /Population/CityList/{pref}.json を取得してリンクを差し替える
-    // (旧 City.cshtml の changePref/linklist の置き換え)
-    var pref = document.getElementById("pref");
-    var list = document.getElementById("citylinklist");
-    if (pref && list) {
-        var base = pref.dataset.linkBase || "/Population/City/";
-        pref.addEventListener("change", function () {
-            fetch("/Population/CityList/" + pref.value + ".json")
+    // (旧 City.cshtml の changePref/linklist の置き換え)。
+    // data-link-base = リンク先の接頭辞、data-list = 差し替える ul の id
+    // (省略時 "citylinklist")。1ページに複数置ける (人口トップは2つ)
+    document.querySelectorAll("select[data-link-base]").forEach(function (sel) {
+        var list = document.getElementById(sel.dataset.list || "citylinklist");
+        if (!list) return;
+        sel.addEventListener("change", function () {
+            fetch("/Population/CityList/" + sel.value + ".json")
                 .then(function (r) { return r.json(); })
                 .then(function (cities) {
                     list.textContent = "";
@@ -27,14 +28,14 @@
                         var li = document.createElement("li");
                         li.className = "chartlink";
                         var a = document.createElement("a");
-                        a.href = base + c.code;
+                        a.href = sel.dataset.linkBase + c.code;
                         a.textContent = c.name;
                         li.appendChild(a);
                         list.appendChild(li);
                     });
                 });
         });
-    }
+    });
 
     // 人口ピラミッド: 14年分の SVG を事前埋め込みしておき、表示/非表示を切り替えるだけ
     // (K8: クライアント側チャートライブラリ・fetch は使わない。旧 CityPyramid.cshtml の

@@ -179,3 +179,58 @@ def city_pyramid_svg(name: str, year: int, male: list, female: list, max_value: 
     fig.subplots_adjust(left=0.12, right=0.96, top=0.93, bottom=0.14)
     # 1ページに15年分を埋め込むため、id_prefix で id 衝突を回避する (_inline_svg 参照)
     return _inline_svg(fig, tooltips, id_prefix=f"y{year}_")
+
+
+# ホーム/人口トップの4区分チャート (旧 CountryBy4AgeGroup + Highcharts の置き換え)
+AGE4_COLORS = {"15歳未満": "#55BF3B", "15～64歳": "#7798BF",
+               "65～74歳": "#f4a259", "75歳以上": "#DF5353"}
+
+
+def age4_stack_svg(title: str, groups: list, years: list, source_note: str,
+                   id_prefix: str = "") -> str:
+    """4区分 (15歳未満/15～64歳/65～74歳/75歳以上) の積み上げ縦棒。
+
+    groups は [{"name":..., "data":[...]}] (下から積む順)。単位は百万人表示。
+    1ページに2枚 (日本+EU) 並べるため id_prefix 必須 (SVG内部IDの衝突回避)。
+    """
+    years = [str(y) for y in years]
+    n = len(years)
+    fig, ax = plt.subplots(figsize=(6.4, 4.6), dpi=100)
+    x = list(range(n))
+    bottoms = [0.0] * n
+    tooltips = {}
+
+    for gi, g in enumerate(groups):
+        data = (list(g["data"]) + [0] * n)[:n]
+        bars = ax.bar(x, data, 0.72, bottom=bottoms,
+                      color=AGE4_COLORS.get(g["name"], "#CCCCCC"),
+                      label=g["name"], linewidth=0)
+        for xi, rect in enumerate(bars):
+            if data[xi]:
+                gid = f"a{gi}x{xi}"
+                rect.set_gid(gid)
+                tooltips[gid] = f"{years[xi]}年 {g['name']}: {data[xi]:,}人"
+        bottoms = [b + d for b, d in zip(bottoms, data)]
+
+    ymax = max(bottoms)
+    for xi, total in enumerate(bottoms):
+        if total:
+            ax.text(xi, total + ymax * 0.012, f"{total / 1e6:.0f}", ha="center",
+                    va="bottom", fontsize=7, fontweight="bold", color="#555555")
+
+    ax.set_title(title, fontsize=12)
+    ax.set_ylabel("人口(百万人)", fontsize=9)
+    ax.set_xticks(x, years, fontsize=7.5, rotation=45)
+    ax.set_ylim(0, ymax * 1.09)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v / 1e6:.0f}"))
+    ax.tick_params(axis="y", labelsize=8)
+    ax.grid(axis="y", color="#DDDDDD", linewidth=0.7)
+    ax.set_axisbelow(True)
+    for side in ("top", "right", "left"):
+        ax.spines[side].set_visible(False)
+
+    fig.legend(loc="lower center", ncol=4, fontsize=8, frameon=False,
+               bbox_to_anchor=(0.5, 0.0))
+    fig.text(0.5, 0.13, source_note, ha="center", fontsize=6.5, color="#888888")
+    fig.subplots_adjust(left=0.08, right=0.98, top=0.92, bottom=0.26)
+    return _inline_svg(fig, tooltips, id_prefix=id_prefix)

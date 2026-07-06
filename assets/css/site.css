@@ -289,3 +289,7 @@ p code, li code, td code { background: #f0f0f0; padding: 1px 4px; border-radius:
     #popuindex { grid-template-columns: 1fr; }
     .linklist .chartlink { margin: 10px 5px 10px 15px; }
 }
+
+/* ---- トップ/人口トップの2枚並びチャート ---- */
+.chart-pair { display: flex; flex-wrap: wrap; gap: 8px; }
+.chart-pair .chart { flex: 1 1 340px; min-width: 0; margin: 0; }

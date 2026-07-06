@@ -17,11 +17,14 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from citizenlib import masters, rankings
-from citizenlib.charts import SOURCE_NOTE_EUROSTAT, SOURCE_NOTE_OLD, city_pyramid_svg, city_stack_svg
+from citizenlib.charts import (
+    SOURCE_NOTE_EUROSTAT, SOURCE_NOTE_OLD, age4_stack_svg, city_pyramid_svg, city_stack_svg,
+)
 from citizenlib.eurostat import COUNTRY_PROJECTION_YEARS as EUROSTAT_PROJECTION_YEARS
 from citizenlib.filters import FILTERS
 from citizenlib.population import (
-    CENSUS_YEARS, COUNTRY_CENSUS_YEARS, PROJECTION_YEARS, countrydata_series, stacked_series,
+    CENSUS_YEARS, COUNTRY_CENSUS_YEARS, PROJECTION_YEARS, age4_series, countrydata_series,
+    stacked_series,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -331,6 +334,38 @@ def build_rankings(ctx_common: dict) -> None:
     write_text("Population/Census2010/index.html", html)
 
 
+def build_home(ctx_common: dict) -> None:
+    """サイトトップと人口トップ (DESIGN.md §6 Phase 4)。
+
+    旧HomeController.Index / PopulationController.Index の移植。
+    JP/EU の4区分チャートはビルド時SVG (K8、旧 CountryBy4AgeGroup)。
+    """
+    env = make_env()
+
+    charts = {}
+    for code, note in (("JP", SOURCE_NOTE_OLD), ("EU", SOURCE_NOTE_EUROSTAT)):
+        model = json.loads((DATA_COUNTRY / f"{code}.json").read_text(encoding="utf-8"))
+        if model["is_jp"]:
+            chart_years = COUNTRY_CENSUS_YEARS + list(range(2020, 2050, 5))
+            title = "日本の年齢階級別人口の推移"
+        else:
+            chart_years = CENSUS_YEARS + list(EUROSTAT_PROJECTION_YEARS)
+            title = "EUの年齢階級別人口の推移"
+        charts[code] = age4_stack_svg(title, age4_series(model), chart_years,
+                                      note, id_prefix=f"h{code}_")
+
+    ctx = dict(ctx_common, chart_jp=charts["JP"], chart_eu=charts["EU"],
+               countries=masters.COUNTRY_CODE)
+    write_text("index.html", env.get_template("home.html").render(
+        dict(ctx, nav_active="", page_title="統計メモ帳 - 日本と世界の統計データをグラフで")))
+    write_text("Population/index.html", env.get_template("population/index.html").render(
+        dict(ctx, nav_active="population",
+             tokyo_cities=masters.cities_of_pref("13"),
+             kyoto_cities=masters.cities_of_pref("26"),
+             page_title="人口を可視化してみました - 統計メモ帳")))
+    print("トップ + 人口トップ")
+
+
 def build_x12arima(ctx_common: dict, source: Path) -> None:
     """季節調整 (X-13ARIMA-SEATS) セクション (DESIGN.md §19)。
 
@@ -475,6 +510,10 @@ def main() -> None:
 
     copy_assets(args.source)
     copy_statdb_data()
+    build_home({
+        "config": config, "build_year": args.build_year,
+        "prefs": masters.PREF_CODE,
+    })
     build_x12arima({
         "config": config, "build_year": args.build_year,
         "prefs": masters.PREF_CODE,

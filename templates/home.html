@@ -1,0 +1,54 @@
+{% extends "_layout.html" %}
+{# サイトトップ (旧 Views/Home/Index.cshtml の刷新移植。DESIGN.md §6 Phase 4)。
+   旧HighchartsのJP/EU 4区分チャートはビルド時SVG (K8)。文面は2020年国勢調査・
+   IPSS令和5年推計・Eurostat/ONSへの更新を反映して書き直した。 #}
+
+{% block content %}
+<h2>統計メモ帳</h2>
+<p>
+    この Web サイトでは、人口や GDP など、日本と世界の統計データをグラフにして
+    見やすい形で提供しています。データはすべて公的統計 (国勢調査、
+    国立社会保障・人口問題研究所、Eurostat など) を独自に集計したものです。
+</p>
+
+<h5><a href="/Population/">世界と日本の人口</a></h5>
+<p>
+    全国1,741市区町村の5歳年齢階級別人口の推移 (1980年〜2050年) をグラフ化しています。
+    2020年国勢調査の実績値と、国立社会保障・人口問題研究所
+    「日本の地域別将来推計人口(令和5(2023)年推計)」による2050年までの将来推計を収録。
+    <a href="/Population/Prefecture/13">東京</a>ではまだ実感がないかもしれませんが、
+    地方では人口減少が急速に進んでいます。
+    ヨーロッパ各国 (<a href="/Population/Country/DE">ドイツ</a>・
+    <a href="/Population/Country/FR">フランス</a>・<a href="/Population/Country/UK">イギリス</a>など)
+    との比較もできます。
+</p>
+
+<div class="chart-pair">
+    <figure class="chart">{{ chart_jp | safe }}</figure>
+    <figure class="chart">{{ chart_eu | safe }}</figure>
+</div>
+
+<h5><a href="/Population/Ranking">2045年市町村将来推計人口ランキング</a></h5>
+<p>
+    将来推計人口による市町村ランキングです。
+    <a href="/Population/Population2015/popu/">2015年国勢調査の市区町村別人口ランキング</a>や、
+    <a href="/Population/CityAging2045/">今後高齢者が増加する市町村のランキング</a>も作成しています。
+</p>
+
+<h5><a href="/Statdb/">統計データAPI エクスプローラ</a></h5>
+<p>
+    政府統計の総合窓口 (e-Stat) の統計データAPIで提供されている約24万の統計表を、
+    階層をたどって、または検索で探せるサービスです。
+</p>
+
+<h5><a href="/x-12-arima/">季節調整法 X-13ARIMA-SEATS について</a></h5>
+<p>
+    月次・四半期データの季節調整を行う X-13ARIMA-SEATS の日本語の解説です。
+    Linux でのインストールから使い方まで。
+</p>
+
+<p><a href="/gdp/">世界の国のGDP</a></p>
+<p><a href="/gdp/fertility-rate-and-gdp/">世界の合計特殊出生率と一人当たりGDPの関係</a></p>
+<p><a href="/io/">2005年 地域 &amp; 都道府県産業連関表へのリンク</a></p>
+<p><a href="/excel-vba/">Excel VBA メモ帳</a></p>
+{% endblock %}

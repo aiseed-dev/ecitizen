@@ -457,3 +457,35 @@ def build_country_pyramid_model(source: SourceData, code: str) -> dict:
         "projection_m": projection_m,
         "projection_f": projection_f,
     }
+
+
+# ホーム/人口トップの4区分チャート (旧 PopulationController.CountryBy4AgeGroup の移植)
+_AGE4_DEF = [
+    ("15歳未満", ["0～4歳", "5～9歳", "10～14歳"]),
+    ("15～64歳", ["15～19歳", "20～24歳", "25～29歳", "30～34歳", "35～39歳",
+                  "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳"]),
+    ("65～74歳", ["65～69歳", "70～74歳"]),
+    ("75歳以上", ["75～79歳", "80～84歳", "85～89歳", "90歳以上", "85歳以上"]),
+]
+
+
+def age4_series(model: dict) -> list:
+    """国モデルから4区分 (15歳未満/15～64歳/65～74歳/75歳以上) の系列を作る。
+
+    countrydata_series の年齢階級系列を名前で合算するだけ (年の整列は
+    countrydata_series と同一)。年齢不詳は対象外 (旧チャートでは独立系列
+    だったが僅少のため省く)。下から積む順 (15歳未満が最下段) で返す。
+    """
+    by_name = {s["name"]: s["data"] for s in countrydata_series(model)}
+    n = max(len(d) for d in by_name.values())
+    groups = []
+    for label, members in _AGE4_DEF:
+        total = [0] * n
+        for name in members:
+            data = by_name.get(name)
+            if data is None:
+                continue
+            for i, v in enumerate(data):
+                total[i] += v
+        groups.append({"name": label, "data": total})
+    return groups
