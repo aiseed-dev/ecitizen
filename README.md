@@ -65,8 +65,11 @@ ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk --yes   # APK (build/apk
 
 ## デプロイ (Cloudflare Pages)
 
+[cf-publish](https://github.com/aiseed-dev/cf-publish) を使う。手順は [DEPLOY.md](DEPLOY.md)。
+
 ```bash
-wrangler pages deploy public/
+./deploy.py --dry-run   # 確認
+./deploy.py             # 本番 (プロジェクト名: ecitizen)
 ```
 
 ## 設定 (config.json、任意)
