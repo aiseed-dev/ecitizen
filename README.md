@@ -53,8 +53,11 @@ python -m http.server 5012 --directory public
 - `statdb_flet/` — **Flet 版** (Python。Android・Chromebook の Linux 環境・
   デスクトップ向けの実験場)
 
-どちらもアプリから e-Stat API を呼ばない (カタログはビルド時スナップショット)。
-開発手順は [docs/MANUAL.md §5](docs/MANUAL.md)。
+e-Stat の全統計表カタログ (約24万表) を検索・閲覧して目的の統計表に
+たどり着くためのツール。カタログはビルド時に取得した静的スナップショットを
+参照するので、検索は常に一瞬で、オフラインでも動き、統計局のサーバーに
+負荷をかけない (実行時の API アクセスはゼロ)。開発手順は
+[docs/MANUAL.md §5](docs/MANUAL.md)。
 
 ## ライセンス
 
