@@ -50,9 +50,9 @@ def main(page: ft.Page):
                 pass
             page.update()
 
-    # 既定は OS 標準。同梱フォント (BIZ UD / Klee One) は既定にせず、
-    # 設定画面の選択肢として提供するだけ
-    saved_font = "system"
+    # 既定は BIZ UDゴシック (OS 標準は環境によって見た目が悪いため、
+    # 同梱で必ず使える BIZ UD を既定にする)。設定画面で変更可
+    saved_font = "BIZ UDPGothic"
     try:
         saved_font = page.client_storage.get("font_family") or saved_font
     except Exception:
