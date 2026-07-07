@@ -1,4 +1,4 @@
-# eCitizenStatic 設計書
+# ecitizen 設計書
 
 eCitizen (統計メモ帳 / ecitizen.jp) を ASP.NET Core 2.2 の動的サイトから
 **静的サイト + Python によるデータ(JSON)生成** へ移行するための設計書。
@@ -88,7 +88,7 @@ WeatherStatic と同じ「取得層」「描画層」の分離。
 ## 4. ディレクトリ構成
 
 ```
-eCitizenStatic/
+ecitizen/
 ├── DESIGN.md              # 本書
 ├── DATA_CONTRACT.md       # data/*.json および公開 JSON のスキーマ定義
 ├── README.md              # セットアップ・ビルド手順

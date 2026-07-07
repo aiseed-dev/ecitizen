@@ -1,4 +1,4 @@
-# DATA_CONTRACT — eCitizenStatic
+# DATA_CONTRACT — ecitizen
 
 取得層 (`build_data.py`) と描画層 (`generate.py`) の境界、および公開 JSON
 (旧 JSON エンドポイント互換) のスキーマ定義。ここに書かれていないフィールドを

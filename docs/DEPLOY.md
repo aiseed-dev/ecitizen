@@ -1,6 +1,6 @@
 # デプロイマニュアル (Cloudflare Pages + cf-publish)
 
-eCitizenStatic の `public/` を [cf-publish](https://github.com/aiseed-dev/cf-publish)
+ecitizen の `public/` を [cf-publish](https://github.com/aiseed-dev/cf-publish)
 で Cloudflare Pages にデプロイする手順。wrangler (Node.js) は不要。
 
 ## 1. 事前準備 (最初の1回だけ)
