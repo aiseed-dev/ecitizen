@@ -29,11 +29,14 @@ python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-e-Stat API を使うツール (上表で「appId 要」) は、リポジトリ直下に
-`secrets.json` が必要 (git 管理外):
+e-Stat API を使うツール (上表で「appId 要」) は `secrets.json` が必要。
+推奨の置き場所は `~/.config/ecitizen/secrets.json`
+(リポジトリ直下でも可 — 開発用の上書き。git 管理外):
 
 ```bash
-cp secrets.json.example secrets.json   # estat_app_id を書き込む
+mkdir -p ~/.config/ecitizen && chmod 700 ~/.config/ecitizen
+cp secrets.json.example ~/.config/ecitizen/secrets.json   # estat_app_id を書き込む
+chmod 600 ~/.config/ecitizen/secrets.json
 ```
 
 appId は [e-Stat API 機能](https://www.e-stat.go.jp/api/) の

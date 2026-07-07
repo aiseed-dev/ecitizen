@@ -1,7 +1,7 @@
 """e-Stat API 3.0 クライアント (DESIGN.md K5: ローカルバッチ専用、ライブ呼び出しはしない)。
 
-appId は `secrets.json` (git 管理外。リポジトリ直下) から読む:
-    {"estat_app_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
+appId は `secrets.json` から読む (形式: {"estat_app_id": "xxxx..."})。
+探索順: リポジトリ直下 (開発用の上書き) → ~/.config/ecitizen/secrets.json (推奨)。
 
 使い方:
     from citizenlib.estat import EstatClient
@@ -10,6 +10,7 @@ appId は `secrets.json` (git 管理外。リポジトリ直下) から読む:
     data = client.get_stats_data(statsDataId="0003xxxxxx")
 """
 import json
+import os
 import time
 import urllib.error
 import urllib.parse
@@ -18,8 +19,13 @@ from pathlib import Path
 
 API_BASE = "https://api.e-stat.go.jp/rest/3.0/app/json"
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SECRETS = ROOT / "secrets.json"
 USER_AGENT = "eCitizenStatic-build/1.0 (+https://github.com/aiseed-dev/ecitizen; local batch, not live)"
+
+
+def _secrets_paths() -> list[Path]:
+    """secrets.json の探索順: リポジトリ直下 (開発用の上書き) → XDG config。"""
+    xdg = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+    return [ROOT / "secrets.json", xdg / "ecitizen" / "secrets.json"]
 
 
 class EstatError(RuntimeError):
@@ -33,13 +39,16 @@ class EstatClient:
         self._last_request = 0.0
 
     @classmethod
-    def from_secrets(cls, path: Path = DEFAULT_SECRETS) -> "EstatClient":
-        if not path.exists():
+    def from_secrets(cls, path: Path | None = None) -> "EstatClient":
+        candidates = [path] if path else _secrets_paths()
+        path = next((p for p in candidates if p.exists()), None)
+        if path is None:
+            locations = " または ".join(str(p) for p in candidates)
             raise EstatError(
-                f"{path} が見つかりません。"
+                f"secrets.json が見つかりません ({locations})。"
                 "secrets.json.example をコピーして appId を書き込んでください "
-                "(取得: https://www.e-stat.go.jp/api/ の利用登録。"
-                "git 管理外。.gitignore 済み)。")
+                "(取得: https://www.e-stat.go.jp/api/ の利用登録)。"
+                "推奨の置き場所は ~/.config/ecitizen/secrets.json。")
         secrets = json.loads(path.read_text(encoding="utf-8"))
         app_id = secrets.get("estat_app_id")
         if not app_id:

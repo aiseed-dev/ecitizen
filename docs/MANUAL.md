@@ -27,9 +27,12 @@ python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 pip install -e ../cf-publish        # デプロイ用 (ローカルの cf-publish)
 
-# e-Stat appId (Statdb カタログ取得に必要。git 管理外)
-cp secrets.json.example secrets.json   # → estat_app_id を書き込む
+# e-Stat appId (Statdb カタログ取得に必要)
+mkdir -p ~/.config/ecitizen && chmod 700 ~/.config/ecitizen
+cp secrets.json.example ~/.config/ecitizen/secrets.json   # → estat_app_id を書き込む
+chmod 600 ~/.config/ecitizen/secrets.json
 # appId の取得 (無料): https://www.e-stat.go.jp/api/
+# リポジトリ直下の secrets.json も可 (開発用の上書き。git 管理外)
 ```
 
 人口系の一次データは `data/legacy/` に同梱 (git 管理) なので checkout だけで
