@@ -50,7 +50,14 @@ def main(page: ft.Page):
                 pass
             page.update()
 
-    saved_font = font_state["key"]
+    # 既定フォント: モバイルのみ同梱 BIZ UD (フォールバックが Noto のため)。
+    # PC は OS 標準 — 良いフォントは本人がインストールして設定で指定する
+    try:
+        is_mobile = page.platform in (ft.PagePlatform.ANDROID,
+                                      ft.PagePlatform.IOS)
+    except Exception:
+        is_mobile = False
+    saved_font = "BIZ UDPGothic" if is_mobile else "system"
     try:
         saved_font = page.client_storage.get("font_family") or saved_font
     except Exception:
