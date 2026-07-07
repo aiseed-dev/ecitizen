@@ -21,8 +21,8 @@ git 管理で同梱。旧リポジトリのローカル checkout は不要。
 ## ライセンス
 
 プログラムは **AGPL-3.0-or-later** ([LICENSE](LICENSE))。
-同梱データは政府統計 (e-Stat 等) の利用条件、フォントは SIL OFL 1.1 に従う。
-区分の詳細は [NOTICE.md](NOTICE.md) を参照。
+同梱の加工済みデータは **CC BY 4.0** (© aiseed.dev。元データの出典明記も必要)、
+フォントは SIL OFL 1.1。区分の詳細は [NOTICE.md](NOTICE.md) を参照。
 フォントはモリサワ BIZ UD ゴシック / BIZ UD 明朝 (SIL OFL) を `assets/fonts/` に同梱
 (サイト配信用 woff2 + matplotlib 用 TTF。ライセンスは同ディレクトリの OFL.txt)。
 2020年国勢調査・将来推計は IPSS「日本の地域別将来推計人口(令和5年推計)」
