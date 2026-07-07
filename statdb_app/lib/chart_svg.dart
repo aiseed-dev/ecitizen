@@ -1,7 +1,8 @@
 /// ビルド時生成の matplotlib SVG チャートを表示する部品 (DESIGN.md §17)。
 ///
-/// SVG は svg.fonttype='none' (テキスト保持) で生成し、フォントは
-/// pubspec の BIZ UDGothic / BIZ UDPGothic (アプリ同梱) で解決する。
+/// SVG は svg.fonttype='none' (テキスト保持) で生成する。フォントは
+/// 同梱せず名前指定のみ — BIZ UDGothic がインストール済みなら使われ、
+/// 無ければ OS 既定にフォールバックする (Windows は標準搭載)。
 /// vector_graphics コンパイラでの互換性検証済み (text版は path版の1/7サイズ)。
 library;
 

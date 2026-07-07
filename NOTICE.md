@@ -32,7 +32,7 @@ Copyright (C) aiseed.dev
 
 ## フォント — SIL Open Font License 1.1
 
-`assets/fonts/` のモリサワ BIZ UDゴシック / BIZ UD明朝 (ビルド用) と
-Flutter 版同梱の BIZ UD (`statdb_app/assets/fonts/`) は
+`assets/fonts/` のモリサワ BIZ UDゴシック / BIZ UD明朝
+(ビルド時の matplotlib 用) と `statdb_app/test/fonts/` (テスト用) は
 SIL OFL 1.1 (ライセンス全文は各ディレクトリに同梱)。
-Flet 版はフォントを同梱しない (名前指定のみ)。
+配布物 (サイト・アプリ) にはフォントを同梱しない (名前指定のみ)。

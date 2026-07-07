@@ -11,7 +11,7 @@ void main() {
   testWidgets('pyramid text-SVG renders to PNG with BIZ UD font',
       (tester) async {
     await tester.runAsync(() async {
-      final fontData = File('assets/fonts/BIZUDGothic-Regular.ttf')
+      final fontData = File('test/fonts/BIZUDGothic-Regular.ttf')
           .readAsBytesSync();
       final loader = FontLoader('BIZ UDGothic')
         ..addFont(Future.value(ByteData.view(fontData.buffer)));
