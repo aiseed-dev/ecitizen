@@ -3,6 +3,9 @@
 
 国勢調査データが更新されない限り再実行は不要。抽出結果はリポジトリにコミットする。
 
+注意: C# ソースはこのリポジトリに移設していない。再実行が必要になった場合は
+旧リポジトリ (GitHub: aiseed-dev/ecitizen) を checkout して --source で指定する。
+
 usage: python tools/extract_masters.py [--source /path/to/eCitizen/eCitizen]
 """
 import argparse

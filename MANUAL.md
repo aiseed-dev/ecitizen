@@ -31,8 +31,8 @@ pip install -e ../cf-publish        # デプロイ用 (ローカルの cf-publis
 echo '{"estat_app_id": "..."}' > secrets.json
 ```
 
-前提: 旧リポジトリ `../eCitizen/eCitizen` (App_Data がデータの一次ソース)。
-Statdb アプリの開発環境は §5 を参照。
+人口系の一次データは `data/legacy/` に同梱 (git 管理) なので checkout だけで
+ビルドできる。旧 eCitizen リポジトリは不要。Statdb アプリの開発環境は §5 を参照。
 
 ## 2. データ取得 (tools/) — いつ何を実行するか
 

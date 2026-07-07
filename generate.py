@@ -29,7 +29,7 @@ from citizenlib.population import (
 )
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_SOURCE = ROOT.parent / "eCitizen" / "eCitizen"
+DEFAULT_SOURCE = ROOT / "data" / "legacy"
 PUBLIC = ROOT / "public"
 DATA_CITY = ROOT / "data" / "population" / "city"
 DATA_PREF = ROOT / "data" / "population" / "pref"

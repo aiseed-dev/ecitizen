@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """取得層ドライバ (DESIGN.md §3)。
 
-Phase 1: 旧リポジトリの App_Data/Population2015 を一次ソースとして、
-DATA_CONTRACT.md §2 の中間データを data/ に生成する。
+Phase 1: data/legacy/App_Data/Population2015 (旧 eCitizen リポジトリから
+移設した一次データ、git 管理) を一次ソースとして、DATA_CONTRACT.md §2 の
+中間データを data/ に生成する。
 
-usage: python build_data.py [--source ../eCitizen/eCitizen]
+usage: python build_data.py [--source data/legacy]
 """
 import argparse
 import json
@@ -18,7 +19,7 @@ from citizenlib.population import (
 )
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_SOURCE = ROOT.parent / "eCitizen" / "eCitizen"
+DEFAULT_SOURCE = ROOT / "data" / "legacy"
 
 
 def write_json(path: Path, obj) -> None:
