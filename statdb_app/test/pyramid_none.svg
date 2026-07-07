@@ -1,0 +1,666 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 547.2 460.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="y2050_figure_1">
+  <g id="y2050_patch_1">
+   <path d="M 0 460.8 
+L 547.2 460.8 
+L 547.2 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="y2050_axes_1">
+   <g id="y2050_patch_2">
+    <path d="M 65.664 396.288 
+L 525.312 396.288 
+L 525.312 32.256 
+L 65.664 32.256 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="y2050_matplotlib.axis_1">
+    <g id="y2050_xtick_1">
+     <g id="y2050_line2d_1">
+      <path d="M 133.998978 396.288 
+L 133.998978 32.256 
+" clip-path="url(#y2050_p2cb465e343)" style="fill: none; stroke: #dddddd; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="y2050_line2d_2">
+      <defs>
+       <path id="y2050_m6e333cc5b1" d="M 0 0 
+L 0 3.5 
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#y2050_m6e333cc5b1" x="133.998978" y="396.288" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_1">
+      <text style="font-size: 8px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="133.998978" y="410.327063" transform="rotate(-0 133.998978 410.327063)">4,000,000</text>
+     </g>
+    </g>
+    <g id="y2050_xtick_2">
+     <g id="y2050_line2d_3">
+      <path d="M 214.743489 396.288 
+L 214.743489 32.256 
+" clip-path="url(#y2050_p2cb465e343)" style="fill: none; stroke: #dddddd; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="y2050_line2d_4">
+      <g>
+       <use xlink:href="#y2050_m6e333cc5b1" x="214.743489" y="396.288" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_2">
+      <text style="font-size: 8px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="214.743489" y="410.327063" transform="rotate(-0 214.743489 410.327063)">2,000,000</text>
+     </g>
+    </g>
+    <g id="y2050_xtick_3">
+     <g id="y2050_line2d_5">
+      <path d="M 295.488 396.288 
+L 295.488 32.256 
+" clip-path="url(#y2050_p2cb465e343)" style="fill: none; stroke: #dddddd; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="y2050_line2d_6">
+      <g>
+       <use xlink:href="#y2050_m6e333cc5b1" x="295.488" y="396.288" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_3">
+      <text style="font-size: 8px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="295.488" y="410.327063" transform="rotate(-0 295.488 410.327063)">0</text>
+     </g>
+    </g>
+    <g id="y2050_xtick_4">
+     <g id="y2050_line2d_7">
+      <path d="M 376.232511 396.288 
+L 376.232511 32.256 
+" clip-path="url(#y2050_p2cb465e343)" style="fill: none; stroke: #dddddd; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="y2050_line2d_8">
+      <g>
+       <use xlink:href="#y2050_m6e333cc5b1" x="376.232511" y="396.288" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_4">
+      <text style="font-size: 8px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="376.232511" y="410.327063" transform="rotate(-0 376.232511 410.327063)">2,000,000</text>
+     </g>
+    </g>
+    <g id="y2050_xtick_5">
+     <g id="y2050_line2d_9">
+      <path d="M 456.977022 396.288 
+L 456.977022 32.256 
+" clip-path="url(#y2050_p2cb465e343)" style="fill: none; stroke: #dddddd; stroke-width: 0.7; stroke-linecap: square"/>
+     </g>
+     <g id="y2050_line2d_10">
+      <g>
+       <use xlink:href="#y2050_m6e333cc5b1" x="456.977022" y="396.288" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_5">
+      <text style="font-size: 8px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="456.977022" y="410.327063" transform="rotate(-0 456.977022 410.327063)">4,000,000</text>
+     </g>
+    </g>
+   </g>
+   <g id="y2050_matplotlib.axis_2">
+    <g id="y2050_ytick_1">
+     <g id="y2050_line2d_11">
+      <defs>
+       <path id="y2050_mdb4d250d4c" d="M 0 0 
+L -3.5 0 
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="372.531492" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_6">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="376.490964" transform="rotate(-0 58.664 376.490964)">0-4</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_2">
+     <g id="y2050_line2d_12">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="354.947104" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_7">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="358.906577" transform="rotate(-0 58.664 358.906577)">5-9</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_3">
+     <g id="y2050_line2d_13">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="337.362716" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_8">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="341.322189" transform="rotate(-0 58.664 341.322189)">10-14</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_4">
+     <g id="y2050_line2d_14">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="319.778328" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_9">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="323.737801" transform="rotate(-0 58.664 323.737801)">15-19</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_5">
+     <g id="y2050_line2d_15">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="302.19394" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_10">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="306.153413" transform="rotate(-0 58.664 306.153413)">20-24</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_6">
+     <g id="y2050_line2d_16">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="284.609552" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_11">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="288.569025" transform="rotate(-0 58.664 288.569025)">25-29</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_7">
+     <g id="y2050_line2d_17">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="267.025164" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_12">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="270.984637" transform="rotate(-0 58.664 270.984637)">30-34</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_8">
+     <g id="y2050_line2d_18">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="249.440776" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_13">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="253.400249" transform="rotate(-0 58.664 253.400249)">35-39</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_9">
+     <g id="y2050_line2d_19">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="231.856388" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_14">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="235.815861" transform="rotate(-0 58.664 235.815861)">40-44</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_10">
+     <g id="y2050_line2d_20">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="214.272" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_15">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="218.231473" transform="rotate(-0 58.664 218.231473)">45-49</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_11">
+     <g id="y2050_line2d_21">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="196.687612" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_16">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="200.647085" transform="rotate(-0 58.664 200.647085)">50-54</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_12">
+     <g id="y2050_line2d_22">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="179.103224" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_17">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="183.062697" transform="rotate(-0 58.664 183.062697)">55-59</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_13">
+     <g id="y2050_line2d_23">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="161.518836" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_18">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="165.478309" transform="rotate(-0 58.664 165.478309)">60-64</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_14">
+     <g id="y2050_line2d_24">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="143.934448" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_19">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="147.893921" transform="rotate(-0 58.664 147.893921)">65-69</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_15">
+     <g id="y2050_line2d_25">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="126.35006" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_20">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="130.309533" transform="rotate(-0 58.664 130.309533)">70-74</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_16">
+     <g id="y2050_line2d_26">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="108.765672" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_21">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="112.725145" transform="rotate(-0 58.664 112.725145)">75-79</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_17">
+     <g id="y2050_line2d_27">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="91.181284" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_22">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="95.140757" transform="rotate(-0 58.664 95.140757)">80-84</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_18">
+     <g id="y2050_line2d_28">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="73.596896" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_23">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="77.556369" transform="rotate(-0 58.664 77.556369)">85-89</text>
+     </g>
+    </g>
+    <g id="y2050_ytick_19">
+     <g id="y2050_line2d_29">
+      <g>
+       <use xlink:href="#y2050_mdb4d250d4c" x="65.664" y="56.012508" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="y2050_text_24">
+      <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="58.664" y="59.971981" transform="rotate(-0 58.664 59.971981)">90+</text>
+     </g>
+    </g>
+   </g>
+   <g id="y2050_m0"><title>男性 0-4歳: 1,646,166人</title>
+    <path d="M 295.488 379.741091 
+L 229.028566 379.741091 
+L 229.028566 365.321893 
+L 295.488 365.321893 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m1"><title>男性 5-9歳: 1,784,159人</title>
+    <path d="M 295.488 362.156703 
+L 223.457477 362.156703 
+L 223.457477 347.737505 
+L 295.488 347.737505 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m2"><title>男性 10-14歳: 1,899,611人</title>
+    <path d="M 295.488 344.572315 
+L 218.796419 344.572315 
+L 218.796419 330.153117 
+L 295.488 330.153117 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m3"><title>男性 15-19歳: 2,008,413人</title>
+    <path d="M 295.488 326.987927 
+L 214.403837 326.987927 
+L 214.403837 312.568729 
+L 295.488 312.568729 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m4"><title>男性 20-24歳: 2,168,552人</title>
+    <path d="M 295.488 309.403539 
+L 207.938665 309.403539 
+L 207.938665 294.984341 
+L 295.488 294.984341 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m5"><title>男性 25-29歳: 2,330,707人</title>
+    <path d="M 295.488 291.819151 
+L 201.392101 291.819151 
+L 201.392101 277.399953 
+L 295.488 277.399953 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m6"><title>男性 30-34歳: 2,688,905人</title>
+    <path d="M 295.488 274.234763 
+L 186.93084 274.234763 
+L 186.93084 259.815565 
+L 295.488 259.815565 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m7"><title>男性 35-39歳: 2,994,785人</title>
+    <path d="M 295.488 256.650375 
+L 174.581775 256.650375 
+L 174.581775 242.231177 
+L 295.488 242.231177 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m8"><title>男性 40-44歳: 3,109,660人</title>
+    <path d="M 295.488 239.065987 
+L 169.944012 239.065987 
+L 169.944012 224.646789 
+L 295.488 224.646789 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m9"><title>男性 45-49歳: 3,206,489人</title>
+    <path d="M 295.488 221.481599 
+L 166.034807 221.481599 
+L 166.034807 207.062401 
+L 295.488 207.062401 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m10"><title>男性 50-54歳: 3,307,589人</title>
+    <path d="M 295.488 203.897211 
+L 161.953172 203.897211 
+L 161.953172 189.478013 
+L 295.488 189.478013 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m11"><title>男性 55-59歳: 3,196,374人</title>
+    <path d="M 295.488 186.312823 
+L 166.443172 186.312823 
+L 166.443172 171.893625 
+L 295.488 171.893625 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m12"><title>男性 60-64歳: 3,235,752人</title>
+    <path d="M 295.488 168.728435 
+L 164.853393 168.728435 
+L 164.853393 154.309237 
+L 295.488 154.309237 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m13"><title>男性 65-69歳: 3,454,320人</title>
+    <path d="M 295.488 151.144047 
+L 156.02931 151.144047 
+L 156.02931 136.724849 
+L 295.488 136.724849 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m14"><title>男性 70-74歳: 3,666,346人</title>
+    <path d="M 295.488 133.559659 
+L 147.469342 133.559659 
+L 147.469342 119.140461 
+L 295.488 119.140461 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m15"><title>男性 75-79歳: 3,855,618人</title>
+    <path d="M 295.488 115.975271 
+L 139.828005 115.975271 
+L 139.828005 101.556073 
+L 295.488 101.556073 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m16"><title>男性 80-84歳: 2,882,340人</title>
+    <path d="M 295.488 98.390883 
+L 179.121433 98.390883 
+L 179.121433 83.971685 
+L 295.488 83.971685 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m17"><title>男性 85-89歳: 1,918,458人</title>
+    <path d="M 295.488 80.806495 
+L 218.035523 80.806495 
+L 218.035523 66.387297 
+L 295.488 66.387297 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_m18"><title>男性 90+歳: 1,450,334人</title>
+    <path d="M 295.488 63.222107 
+L 236.934745 63.222107 
+L 236.934745 48.802909 
+L 295.488 48.802909 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #997fff"/>
+   </g>
+   <g id="y2050_f0"><title>女性 0-4歳: 1,565,993人</title>
+    <path d="M 295.488 379.741091 
+L 358.71067 379.741091 
+L 358.71067 365.321893 
+L 295.488 365.321893 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f1"><title>女性 5-9歳: 1,699,348人</title>
+    <path d="M 295.488 362.156703 
+L 364.094512 362.156703 
+L 364.094512 347.737505 
+L 295.488 347.737505 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f2"><title>女性 10-14歳: 1,810,848人</title>
+    <path d="M 295.488 344.572315 
+L 368.596018 344.572315 
+L 368.596018 330.153117 
+L 295.488 330.153117 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f3"><title>女性 15-19歳: 1,923,522人</title>
+    <path d="M 295.488 326.987927 
+L 373.144922 326.987927 
+L 373.144922 312.568729 
+L 295.488 312.568729 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f4"><title>女性 20-24歳: 2,100,371人</title>
+    <path d="M 295.488 309.403539 
+L 380.284715 309.403539 
+L 380.284715 294.984341 
+L 295.488 294.984341 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f5"><title>女性 25-29歳: 2,229,992人</title>
+    <path d="M 295.488 291.819151 
+L 385.517807 291.819151 
+L 385.517807 277.399953 
+L 295.488 277.399953 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f6"><title>女性 30-34歳: 2,565,427人</title>
+    <path d="M 295.488 274.234763 
+L 399.060074 274.234763 
+L 399.060074 259.815565 
+L 295.488 259.815565 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f7"><title>女性 35-39歳: 2,852,338人</title>
+    <path d="M 295.488 256.650375 
+L 410.643319 256.650375 
+L 410.643319 242.231177 
+L 295.488 242.231177 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f8"><title>女性 40-44歳: 2,970,784人</title>
+    <path d="M 295.488 239.065987 
+L 415.425251 239.065987 
+L 415.425251 224.646789 
+L 295.488 224.646789 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f9"><title>女性 45-49歳: 3,053,378人</title>
+    <path d="M 295.488 221.481599 
+L 418.759757 221.481599 
+L 418.759757 207.062401 
+L 295.488 207.062401 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f10"><title>女性 50-54歳: 3,169,548人</title>
+    <path d="M 295.488 203.897211 
+L 423.449802 203.897211 
+L 423.449802 189.478013 
+L 295.488 189.478013 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f11"><title>女性 55-59歳: 3,087,213人</title>
+    <path d="M 295.488 186.312823 
+L 420.125752 186.312823 
+L 420.125752 171.893625 
+L 295.488 171.893625 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f12"><title>女性 60-64歳: 3,202,236人</title>
+    <path d="M 295.488 168.728435 
+L 424.76949 168.728435 
+L 424.76949 154.309237 
+L 295.488 154.309237 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f13"><title>女性 65-69歳: 3,534,242人</title>
+    <path d="M 295.488 151.144047 
+L 438.173321 151.144047 
+L 438.173321 136.724849 
+L 295.488 136.724849 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f14"><title>女性 70-74歳: 3,891,785人</title>
+    <path d="M 295.488 133.559659 
+L 452.608138 133.559659 
+L 452.608138 119.140461 
+L 295.488 119.140461 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f15"><title>女性 75-79歳: 4,360,092人</title>
+    <path d="M 295.488 115.975271 
+L 471.514748 115.975271 
+L 471.514748 101.556073 
+L 295.488 101.556073 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f16"><title>女性 80-84歳: 3,621,550人</title>
+    <path d="M 295.488 98.390883 
+L 441.698142 98.390883 
+L 441.698142 83.971685 
+L 295.488 83.971685 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f17"><title>女性 85-89歳: 2,852,469人</title>
+    <path d="M 295.488 80.806495 
+L 410.648607 80.806495 
+L 410.648607 66.387297 
+L 295.488 66.387297 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_f18"><title>女性 90+歳: 3,390,672人</title>
+    <path d="M 295.488 63.222107 
+L 432.377076 63.222107 
+L 432.377076 48.802909 
+L 295.488 48.802909 
+z
+" clip-path="url(#y2050_p2cb465e343)" style="fill: #ff99ff"/>
+   </g>
+   <g id="y2050_line2d_30">
+    <path d="M 295.488 396.288 
+L 295.488 32.256 
+" clip-path="url(#y2050_p2cb465e343)" style="fill: none; stroke: #999999; stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="y2050_patch_3">
+    <path d="M 65.664 396.288 
+L 525.312 396.288 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="y2050_text_25">
+    <text style="font-size: 13px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="295.488" y="26.256" transform="rotate(-0 295.488 26.256)">日本 の人口ピラミッド 2050年</text>
+   </g>
+   <g id="y2050_legend_1">
+    <g id="y2050_patch_4">
+     <path d="M 243.288 438.071425 
+L 261.288 438.071425 
+L 261.288 431.771425 
+L 243.288 431.771425 
+z
+" style="fill: #997fff"/>
+    </g>
+    <g id="y2050_text_26">
+     <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="268.488" y="438.071425" transform="rotate(-0 268.488 438.071425)">男性</text>
+    </g>
+    <g id="y2050_patch_5">
+     <path d="M 304.488 438.071425 
+L 322.488 438.071425 
+L 322.488 431.771425 
+L 304.488 431.771425 
+z
+" style="fill: #ff99ff"/>
+    </g>
+    <g id="y2050_text_27">
+     <text style="font-size: 9px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="329.688" y="438.071425" transform="rotate(-0 329.688 438.071425)">女性</text>
+    </g>
+   </g>
+  </g>
+  <g id="y2050_text_28">
+   <text style="font-size: 7px; font-family: 'BIZ UDGothic', 'Noto Sans CJK JP', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #888888" x="273.6" y="451.584" transform="rotate(-0 273.6 451.584)">出典: 国勢調査を独自集計、「日本の地域別将来推計人口(令和5(2023)年推計)」(国立社会保障・人口問題研究所)</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="y2050_p2cb465e343">
+   <rect x="65.664" y="32.256" width="459.648" height="364.032"/>
+  </clipPath>
+ </defs>
+</svg>
