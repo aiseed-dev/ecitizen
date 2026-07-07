@@ -12,3 +12,5 @@ data/raw/
 
 # e-Stat appId 等の秘匿設定 (K5: ローカルバッチ専用。リポジトリにコミットしない)
 secrets.json
+# GA4/AdSense の実ID (README 参照。環境ごとの設定なのでコミットしない)
+config.json
