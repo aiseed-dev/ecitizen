@@ -1,31 +1,10 @@
 /* eCitizenStatic 共通スタイル (K1: Bootstrap 廃止後の自前 CSS)
    ブレークポイントは旧サイト踏襲: 767px 以下 = モバイル */
 
-/* モリサワ BIZ UD ゴシック (SIL OFL, セルフホスト。ライセンスは /fonts/OFL.txt) */
-@font-face {
-    font-family: "BIZ UDPGothic";
-    font-weight: 400;
-    font-display: swap;
-    src: url("/fonts/BIZUDPGothic-Regular.woff2") format("woff2");
-}
-@font-face {
-    font-family: "BIZ UDPGothic";
-    font-weight: 700;
-    font-display: swap;
-    src: url("/fonts/BIZUDPGothic-Bold.woff2") format("woff2");
-}
-@font-face {
-    font-family: "BIZ UDGothic";
-    font-weight: 400;
-    font-display: swap;
-    src: url("/fonts/BIZUDGothic-Regular.woff2") format("woff2");
-}
-@font-face {
-    font-family: "BIZ UDPMincho";
-    font-weight: 400;
-    font-display: swap;
-    src: url("/fonts/BIZUDPMincho-Regular.woff2") format("woff2");
-}
+/* フォントは Web フォント配信をやめ、システムフォントを使う。
+   BIZ UD ゴシック/明朝は Windows 10 (1809) 以降に標準搭載。
+   それ以外の OS は各系のヒラギノ/Noto にフォールバック。
+   (assets/fonts/ の TTF はビルド時の matplotlib チャート描画専用) */
 
 :root {
     --nav-bg: #222222;

@@ -17,8 +17,9 @@ pip install -r requirements.txt
 
 人口系の一次データ (旧 eCitizen の App_Data から移設) は `data/legacy/` に
 git 管理で同梱。旧リポジトリのローカル checkout は不要。
-フォントはモリサワ BIZ UD ゴシック / BIZ UD 明朝 (SIL OFL) を `assets/fonts/` に同梱
-(サイト配信用 woff2 + matplotlib 用 TTF。ライセンスは同ディレクトリの OFL.txt)。
+フォントはモリサワ BIZ UD ゴシック / BIZ UD 明朝 (SIL OFL) の TTF を
+`assets/fonts/` に同梱 (ビルド時の matplotlib チャート描画専用。Web フォント
+配信はしない — 閲覧側はシステムフォント。ライセンスは同ディレクトリの OFL.txt)。
 2020年国勢調査・将来推計は IPSS「日本の地域別将来推計人口(令和5年推計)」
 (`data/raw/ipss/`、`tools/fetch_ipss.py` で1回限り取得。DESIGN.md §13)。
 Country(海外)ページは Eurostat(census/EUROPOP2023) + ONS(UKのみ将来推計)

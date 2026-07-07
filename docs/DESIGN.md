@@ -345,7 +345,8 @@ Jinja2 の `{% block %}` に 1:1 で対応させる。
   SVG 文字列をテンプレートに渡して **HTML にインライン埋め込み**する
   (別ファイルにしないので Pages のファイル数上限に影響しない)。
 - 日本語フォント: モリサワ BIZ UDGothic (K9)。`svg.fonttype='none'` で
-  テキストはテキストのまま出力し、CSS の `@font-face` (セルフホスト woff2) で解決。
+  テキストはテキストのまま出力し、閲覧側はシステムフォントで描画する
+  (font-family に BIZ UDGothic → Noto 等のフォールバックを指定)。
   matplotlib には `assets/fonts/*.ttf` を登録してレイアウト計算に使う。
 - **決定性**: `svg.hashsalt` をコード固定し、matplotlib のバージョンを
   `requirements.txt` でピン止めする (同じ data/ → 同じ public/ の原則を維持)。
@@ -461,7 +462,7 @@ Git 連携ビルド。定期更新(Phase 3 の e-Stat 系)は cron で
 | K6 | Analytics / AdSense | **変更する**。UA タグ → GA4 (gtag.js) に差し替え。AdSense は現行推奨タグへ更新。測定 ID・クライアント ID・スロットはビルド設定 (`config.json`) で注入し、テンプレートに直書きしない。**自動広告 (Auto ads) は使わない** — ページ遷移毎の全画面インタースティシャル (vignette) が過剰広告・不快なUXの原因になっていたため。手動配置のバナー1枠+レクタングル1枠のみ (`templates/_layout.html` 実装済み)。本番で旧 AdSense アカウントを引き継ぐ際は、アカウント側の自動広告設定を明示的にオフにする |
 | K7 | ホスティング先 | **Cloudflare Pages** (制約と構成は §9.1) |
 | K8 | グラフ描画 | **Python によるビルド時 SVG 生成**(描画層の一部としてローカル処理)。クライアント側チャートライブラリ (Highcharts/ECharts/D3 等) は使わない。詳細は §8.6 |
-| K9 | フォント | **モリサワ BIZ UD ゴシック / BIZ UD 明朝** (SIL OFL 版) をセルフホスト。本文 = BIZ UDPGothic (400/700)、見出し (h2〜h6) = BIZ UDPMincho (400)、表・グラフ SVG = BIZ UDGothic (等幅数字で桁揃え)。woff2 + OFL.txt を `/fonts/` で配信、TTF はリポジトリ同梱で matplotlib のレイアウト計算にも使用。外部フォント配信 (Google Fonts CDN / TypeSquare) は使わない。商用版 UD 新ゴへの差し替えは Morisawa Fonts 契約が必要なため不採用 |
+| K9 | フォント | **Web フォントは使わない** (2026-07-07 改定。自己ホスト woff2 配信 約9.5MB も廃止)。閲覧側はシステムフォント: 本文 = BIZ UDPGothic (Windows 10 1809+ 標準搭載) → ヒラギノ → Noto、見出し (h2〜h6) = BIZ UDPMincho → 明朝系、表・グラフ SVG = BIZ UDGothic (等幅数字で桁揃え)。モリサワ BIZ UD (SIL OFL 版) の TTF はリポジトリ同梱で、ビルド時の matplotlib レイアウト計算専用。外部フォント配信 (Google Fonts CDN / TypeSquare) も使わない |
 | K10 | 3D グラフ | **廃止**。`City3d`/`Country3d`/`Prefecture3d` は移植しない。積み上げ縦棒・人口ピラミッドで代替できるため必要性が薄く、保守コストも避ける (§8.6) |
 | K11 | 2020年国勢調査・将来推計の更新 | City/Pref の census に2020年列(実績値)を追加(8→9列)、projection を IPSS「日本の地域別将来推計人口(令和5(2023)年推計)」(2020-2050) に全面差し替え。取得は e-Stat API ではなく **IPSS公式サイトの都道府県別 Excel を1回限りダウンロード**(§13)。旧C#にハードコードされていた e-Stat appId (`22977f64c46f47314804ef3f49822e88964bdb89`) はユーザー判断で今回のみ他用途(統計表検索)に再利用したが、恒久的な組み込みは行っていない。Country(海外)は対象外、旧データ(2015年国勢調査+平成30年推計)のまま |
 | K12 | Country(海外)のデータ更新 | census を **Eurostat `demo_pjangroup`**(1980-2020、appId不要のオープンAPI)に、projection を **Eurostat `proj_23np`(EUROPOP2023、基準シナリオ)**(2025-2050)に全面差し替え。**UKのみEUROPOP2023対象外(EU離脱国)のため英国統計局(ONS)「National population projections: 2024-based」を使用**、その旨をUKページに脚注表示。表示年はUKも含め全国で5年刻み(2025,2030,...,2050)に統一。JPはCountryとしては対象外(旧データのまま)。詳細は §14 |
