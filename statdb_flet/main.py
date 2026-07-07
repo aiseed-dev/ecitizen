@@ -19,7 +19,14 @@ UPDATE_TYPE_LABEL = {0: "新規", 1: "更新", 2: "新規", 3: "更新", 4: "変
 
 def main(page: ft.Page):
     page.title = "統計データAPI エクスプローラ - 統計メモ帳"
-    page.theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL)
+    # BIZ UDPGothic を同梱して全プラットフォームで使う (Android の
+    # フォールバックは Noto なので、見た目を揃えるためアプリに添付。K9)
+    page.fonts = {
+        "BIZ UDPGothic": "/fonts/BIZUDPGothic-Regular.ttf",
+        "BIZ UDPGothic Bold": "/fonts/BIZUDPGothic-Bold.ttf",
+    }
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL,
+                          font_family="BIZ UDPGothic")
     try:  # デスクトップのみ (Web/モバイルでは window が無い/効かない)
         if page.window.width and page.window.width > 1100:
             page.window.width = 1000
@@ -289,4 +296,4 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.run(main, assets_dir="assets")
