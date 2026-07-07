@@ -23,6 +23,12 @@ FONT_CHOICES = [
     ("OS 標準", "system"),
 ]
 
+THEME_CHOICES = [
+    ("ライト", "light"),
+    ("ダーク", "dark"),
+    ("OS 設定に従う", "system"),
+]
+
 FONT_NOTE = (
     "フォントはアプリに同梱していません。インストール済みのものが使われ、"
     "無い場合は OS 既定の表示になるだけで問題はありません。\n"
@@ -39,12 +45,15 @@ def main(page: ft.Page):
     # 無ければ OS 既定にフォールバック)。入手方法は設定画面に案内。
     # key はフォント名・"system" (OS標準)・または直接指定
     font_state = {"key": FONT_CHOICES[0][1]}
+    theme_state = {"key": "system"}
 
     def set_font(key: str, save: bool = True):
         font_state["key"] = key
-        page.theme = ft.Theme(
-            color_scheme_seed=ft.Colors.TEAL,
-            font_family=None if key == "system" else key)
+        family = None if key == "system" else key
+        page.theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL,
+                              font_family=family)
+        page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL,
+                                   font_family=family)
         if save:
             try:
                 page.client_storage.set("font_family", key)
@@ -52,14 +61,28 @@ def main(page: ft.Page):
                 pass
             page.update()
 
-    # 既定は BIZ UDゴシック (あれば使う。無ければ OS 既定に落ちる)。
-    # 設定画面で変更可
-    saved_font = "BIZ UDPGothic"
+    def set_theme_mode(key: str, save: bool = True):
+        theme_state["key"] = key
+        page.theme_mode = {"light": ft.ThemeMode.LIGHT,
+                           "dark": ft.ThemeMode.DARK}.get(key,
+                                                          ft.ThemeMode.SYSTEM)
+        if save:
+            try:
+                page.client_storage.set("theme_mode", key)
+            except Exception:
+                pass
+            page.update()
+
+    # 既定: フォントは BIZ UDゴシック (あれば使う。無ければ OS 既定に
+    # 落ちる)、テーマは OS 設定に従う。どちらも設定画面で変更可
+    saved_font, saved_theme = "BIZ UDPGothic", "system"
     try:
         saved_font = page.client_storage.get("font_family") or saved_font
+        saved_theme = page.client_storage.get("theme_mode") or saved_theme
     except Exception:
         pass
     set_font(saved_font, save=False)
+    set_theme_mode(saved_theme, save=False)
     try:  # デスクトップのみ (Web/モバイルでは window が無い/効かない)
         if page.window.width and page.window.width > 1100:
             page.window.width = 1000
@@ -170,12 +193,33 @@ def main(page: ft.Page):
                           if font_state["key"] == fam else None),
                 on_click=lambda _, f=fam: choose(f)))
 
+        theme_tiles: list[ft.ListTile] = []
+
+        def choose_theme(key: str):
+            set_theme_mode(key)
+            for tile, (_, k) in zip(theme_tiles, THEME_CHOICES):
+                tile.trailing = (ft.Icon(ft.Icons.CHECK)
+                                 if theme_state["key"] == k else None)
+            page.update()
+
+        for label, key in THEME_CHOICES:
+            theme_tiles.append(ft.ListTile(
+                title=ft.Text(label),
+                trailing=(ft.Icon(ft.Icons.CHECK)
+                          if theme_state["key"] == key else None),
+                on_click=lambda _, k=key: choose_theme(k)))
+
+        def section(title: str) -> ft.Container:
+            return ft.Container(ft.Text(title, weight=ft.FontWeight.BOLD),
+                                padding=ft.Padding(16, 16, 16, 4))
+
         return ft.View(
             route="/settings",
             appbar=ft.AppBar(title=ft.Text("設定")),
             controls=[ft.ListView(
-                [ft.Container(ft.Text("フォント", weight=ft.FontWeight.BOLD),
-                              padding=ft.Padding(16, 16, 16, 4))]
+                [section("テーマ")]
+                + theme_tiles
+                + [section("フォント")]
                 + tiles
                 + [ft.Container(ft.Text(FONT_NOTE, size=12,
                                         color=ft.Colors.GREY_700),

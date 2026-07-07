@@ -23,11 +23,29 @@ const fontChoices = [
 
 final fontFamily = ValueNotifier<String>('BIZ UDPGothic');
 
+/// テーマモード (ライト / ダーク / OS 設定に従う)。
+const themeChoices = [
+  ('ライト', 'light'),
+  ('ダーク', 'dark'),
+  ('OS 設定に従う', 'system'),
+];
+
+final themeModeKey = ValueNotifier<String>('system');
+
+Future<void> _savePref(String key, String value) async {
+  try {
+    (await SharedPreferences.getInstance()).setString(key, value);
+  } catch (_) {}
+}
+
 Future<void> setFont(String key) async {
   fontFamily.value = key;
-  try {
-    (await SharedPreferences.getInstance()).setString('font_family', key);
-  } catch (_) {}
+  await _savePref('font_family', key);
+}
+
+Future<void> setThemeMode(String key) async {
+  themeModeKey.value = key;
+  await _savePref('theme_mode', key);
 }
 
 Future<void> main() async {
@@ -35,6 +53,7 @@ Future<void> main() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     fontFamily.value = prefs.getString('font_family') ?? fontFamily.value;
+    themeModeKey.value = prefs.getString('theme_mode') ?? themeModeKey.value;
   } catch (_) {}
   runApp(const StatdbApp());
 }
@@ -79,17 +98,32 @@ class StatdbApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<String>(
-      valueListenable: fontFamily,
-      builder: (context, font, _) => MaterialApp.router(
-        title: '統計データAPI エクスプローラ - 統計メモ帳',
-        theme: ThemeData(
-          colorSchemeSeed: Colors.teal,
-          useMaterial3: true,
-          fontFamily: font == 'system' ? null : font,
-        ),
-        routerConfig: _router,
-      ),
+    return AnimatedBuilder(
+      animation: Listenable.merge([fontFamily, themeModeKey]),
+      builder: (context, _) {
+        final font =
+            fontFamily.value == 'system' ? null : fontFamily.value;
+        return MaterialApp.router(
+          title: '統計データAPI エクスプローラ - 統計メモ帳',
+          theme: ThemeData(
+            colorSchemeSeed: Colors.teal,
+            useMaterial3: true,
+            fontFamily: font,
+          ),
+          darkTheme: ThemeData(
+            colorSchemeSeed: Colors.teal,
+            brightness: Brightness.dark,
+            useMaterial3: true,
+            fontFamily: font,
+          ),
+          themeMode: switch (themeModeKey.value) {
+            'light' => ThemeMode.light,
+            'dark' => ThemeMode.dark,
+            _ => ThemeMode.system,
+          },
+          routerConfig: _router,
+        );
+      },
     );
   }
 }
@@ -172,6 +206,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 CheckedPopupMenuItem(
                   value: key,
                   checked: fontFamily.value == key,
+                  child: Text(label),
+                ),
+            ],
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.brightness_6),
+            tooltip: 'テーマ',
+            onSelected: setThemeMode,
+            itemBuilder: (_) => [
+              for (final (label, key) in themeChoices)
+                CheckedPopupMenuItem(
+                  value: key,
+                  checked: themeModeKey.value == key,
                   child: Text(label),
                 ),
             ],

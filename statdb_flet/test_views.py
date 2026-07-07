@@ -118,13 +118,20 @@ def run():
     t = view_texts(page.views[-1])
     assert "フォント" in t and "教科書体" in t, t
     settings = page.views[-1]
+    import flet as _ft
     tiles = [c for c in settings.controls[0].controls
-             if isinstance(c, __import__("flet").ListTile)]
-    tiles[1].on_click(None)   # 教科書体を選択
+             if isinstance(c, _ft.ListTile)]
+    # 先頭3タイルがテーマ、続く3タイルがフォント
+    tiles[1].on_click(None)   # ダーク
+    assert page.theme_mode == _ft.ThemeMode.DARK
+    tiles[2].on_click(None)   # OS 設定に従う
+    assert page.theme_mode == _ft.ThemeMode.SYSTEM
+    tiles[4].on_click(None)   # 教科書体を選択
     assert page.theme.font_family == "Klee One", page.theme.font_family
-    tiles[2].on_click(None)   # OS 標準
+    assert page.dark_theme.font_family == "Klee One"
+    tiles[5].on_click(None)   # OS 標準
     assert page.theme.font_family is None
-    tiles[0].on_click(None)   # 標準に戻す
+    tiles[3].on_click(None)   # 標準に戻す
     assert page.theme.font_family == "BIZ UDPGothic"
     print("settings OK")
 
