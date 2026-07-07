@@ -18,19 +18,27 @@ UPDATE_TYPE_LABEL = {0: "新規", 1: "更新", 2: "新規", 3: "更新", 4: "変
 
 
 FONT_CHOICES = [
-    ("標準 (BIZ UDゴシック)", "BIZ UDPGothic"),
-    ("教科書体 (Klee One)", "Klee One"),
+    ("BIZ UDゴシック (要インストール、Windows は標準搭載)", "BIZ UDPGothic"),
+    ("教科書体 (Klee One、同梱)", "Klee One"),
     ("OS 標準", "system"),
 ]
+
+FONT_NOTE = (
+    "BIZ UD フォントはアプリに同梱していません。Windows には標準搭載、"
+    "他の OS では自分でインストールしてください (無料):\n"
+    "・Google Fonts の「BIZ UDPGothic」\n"
+    "・Debian/Ubuntu: sudo apt install fonts-morisawa-bizud-gothic\n"
+    "・モリサワ Fonts (フリープラン) — UD デジタル教科書体などもここから。\n"
+    "インストール済みフォントは下の欄で名前を直接指定できます。"
+    "未インストールの場合は OS 既定の表示になるだけで問題はありません。")
 
 
 def main(page: ft.Page):
     page.title = "統計データAPI エクスプローラ - 統計メモ帳"
-    # フォントを同梱して全プラットフォームで使う (Android の
-    # フォールバックは Noto なので、見た目を揃えるためアプリに添付。K9)
+    # 同梱は教科書体 (Klee One) のみ。BIZ UD は同梱せず名前指定 —
+    # Windows は標準搭載、他 OS は本人がインストール (設定画面に案内)。
+    # 未インストールなら OS 既定にフォールバックするだけで害はない
     page.fonts = {
-        "BIZ UDPGothic": "/fonts/BIZUDPGothic-Regular.ttf",
-        "BIZ UDPGothic Bold": "/fonts/BIZUDPGothic-Bold.ttf",
         "Klee One": "/fonts/KleeOne-Regular.ttf",
     }
 
@@ -50,8 +58,8 @@ def main(page: ft.Page):
                 pass
             page.update()
 
-    # 既定は BIZ UDゴシック (OS 標準は環境によって見た目が悪いため、
-    # 同梱で必ず使える BIZ UD を既定にする)。設定画面で変更可
+    # 既定は BIZ UDゴシック (あれば使う。無ければ OS 既定に落ちる)。
+    # 設定画面で変更可
     saved_font = "BIZ UDPGothic"
     try:
         saved_font = page.client_storage.get("font_family") or saved_font
@@ -175,7 +183,10 @@ def main(page: ft.Page):
                 [ft.Container(ft.Text("フォント", weight=ft.FontWeight.BOLD),
                               padding=ft.Padding(16, 16, 16, 4))]
                 + tiles
-                + [ft.Container(custom, padding=16)],
+                + [ft.Container(ft.Text(FONT_NOTE, size=12,
+                                        color=ft.Colors.GREY_700),
+                                padding=ft.Padding(16, 8, 16, 4)),
+                   ft.Container(custom, padding=16)],
                 spacing=0, expand=True)],
         )
 
