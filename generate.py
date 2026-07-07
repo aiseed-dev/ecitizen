@@ -799,12 +799,17 @@ def main() -> None:
     n_country = len(list(PUBLIC.glob("Population/Country/*/index.html")))
     assert (PUBLIC / "Population" / "Census2010" / "index.html").exists()
     n_files = sum(1 for p in PUBLIC.rglob("*") if p.is_file())
-    assert n_html == len(codes), f"HTML {n_html} != {len(codes)}"
-    assert n_json == len(codes), f"JSON {n_json} != {len(codes)}"
-    assert n_list == 47
-    assert n_pyramid == len(codes), f"CityPyramid {n_pyramid} != {len(codes)}"
     if codes == list(masters.CITY_DIC):
+        assert n_html == len(codes), f"HTML {n_html} != {len(codes)}"
+        assert n_json == len(codes), f"JSON {n_json} != {len(codes)}"
+        assert n_pyramid == len(codes), f"CityPyramid {n_pyramid} != {len(codes)}"
         assert n_pref == 47 and n_country == 33 and n_pref_pyramid == 47
+    else:
+        # 部分ビルド (--codes/--limit): 既存のフルビルド出力が残っていてよいので
+        # 総数でなく、指定分が生成されたことだけ確認する
+        for c in codes:
+            assert (PUBLIC / "Population" / "City" / c / "index.html").exists(), c
+    assert n_list == 47
     print(f"HTML {n_html} / CityData {n_json} / CityList {n_list} / "
           f"CityPyramid {n_pyramid} / Prefecture {n_pref} / PrefPyramid {n_pref_pyramid} / "
           f"Country {n_country} / 総ファイル数 {n_files}")
