@@ -672,8 +672,8 @@ def copy_statdb_data() -> None:
 def copy_assets(source: Path) -> None:
     shutil.copytree(ROOT / "assets" / "css", PUBLIC / "css", dirs_exist_ok=True)
     shutil.copytree(ROOT / "assets" / "js", PUBLIC / "js", dirs_exist_ok=True)
-    # フォントは配信しない (Web フォント不使用。システムフォント +
-    # assets/fonts/ の TTF はビルド時の matplotlib 専用)
+    # フォントは配信しない (Web フォント不使用。閲覧側も生成側も
+    # システムフォントを使う — リポジトリにフォントは同梱しない)
     (PUBLIC / "images").mkdir(parents=True, exist_ok=True)
     wwwroot = source / "wwwroot"
     for name in ("icon36x36.png", "excel.svg"):

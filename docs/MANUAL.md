@@ -27,6 +27,9 @@ python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 pip install -e ../cf-publish        # デプロイ用 (ローカルの cf-publish)
 
+# チャート用フォント (リポジトリに同梱しない)
+sudo apt install fonts-morisawa-bizud-gothic
+
 # e-Stat appId (Statdb カタログ取得に必要)
 mkdir -p ~/.config/ecitizen && chmod 700 ~/.config/ecitizen
 cp secrets.json.example ~/.config/ecitizen/secrets.json   # → estat_app_id を書き込む
@@ -167,7 +170,7 @@ cd statdb_app
 |------|------|
 | generate.py の assert で停止 | data/ が古い。`build_data.py` を先に実行 |
 | fetch_statdb.py で `secrets.json が見つかりません` | §1 の secrets.json を作成 |
-| チャートの日本語が豆腐 | `assets/fonts/` の TTF が無い (リポジトリ同梱。checkout し直す) |
+| ビルドが「チャート用フォントが見つかりません」で停止 | `sudo apt install fonts-morisawa-bizud-gothic` (§1) |
 | Flet デスクトップが起動しない | `pip install "flet[all]"` (flet だけでは desktop/web が入らない) |
 | Statdb 実機でデータ読込エラー | サイト未デプロイ。§7 でデプロイするか `ECITIZEN_STATDB_DATA` をローカルに向ける |
 | デプロイが 401/403 | DEPLOY.md §5 (トークン権限・アカウントID) |

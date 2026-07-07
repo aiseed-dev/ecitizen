@@ -30,9 +30,9 @@ Copyright (C) aiseed.dev
 生成サイト (ecitizen.jp) 上の統計データの利用も同条件
 (CC BY 4.0 + 各ページ記載の出典明記)。
 
-## フォント — SIL Open Font License 1.1
+## フォント
 
-`assets/fonts/` のモリサワ BIZ UDゴシック / BIZ UD明朝
-(ビルド時の matplotlib 用) と `statdb_app/test/fonts/` (テスト用) は
-SIL OFL 1.1 (ライセンス全文は各ディレクトリに同梱)。
-配布物 (サイト・アプリ) にはフォントを同梱しない (名前指定のみ)。
+フォントはリポジトリに同梱しない。チャート生成 (matplotlib) と
+テストは、ビルド環境にインストールされたモリサワ BIZ UDゴシック
+(SIL OFL 1.1。Debian/Ubuntu は fonts-morisawa-bizud-gothic) を使う。
+配信サイト・アプリもフォントを同梱・配信しない (システムフォント方針)。

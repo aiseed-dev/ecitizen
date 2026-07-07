@@ -67,7 +67,7 @@ flutter:
   uses-material-design: true
 
   # フォントは同梱しない (名前指定のみ。無ければ OS 既定にフォールバック)。
-  # test/fonts/ の TTF はチャート描画回帰テスト専用 (FontLoader で直読み)
+  # テストはシステムの BIZ UD を使う (fonts-morisawa-bizud-gothic)
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -11,8 +11,22 @@ void main() {
   testWidgets('pyramid text-SVG renders to PNG with BIZ UD font',
       (tester) async {
     await tester.runAsync(() async {
-      final fontData = File('test/fonts/BIZUDGothic-Regular.ttf')
-          .readAsBytesSync();
+      // フォントは同梱しない — システムの BIZ UD を使う
+      // (Debian/Ubuntu: sudo apt install fonts-morisawa-bizud-gothic)
+      const candidates = [
+        '/usr/share/fonts/truetype/bizud-gothic/BIZUDGothic-Regular.ttf',
+        '/usr/share/fonts/truetype/fonts-morisawa-bizud-gothic/BIZUDGothic-Regular.ttf',
+      ];
+      final path = candidates.firstWhere(
+        (p) => File(p).existsSync(),
+        orElse: () => '',
+      );
+      if (path.isEmpty) {
+        markTestSkipped('BIZ UDGothic が未インストールのためスキップ '
+            '(sudo apt install fonts-morisawa-bizud-gothic)');
+        return;
+      }
+      final fontData = File(path).readAsBytesSync();
       final loader = FontLoader('BIZ UDGothic')
         ..addFont(Future.value(ByteData.view(fontData.buffer)));
       await loader.load();
