@@ -4,9 +4,9 @@ eCitizen (統計メモ帳 / ecitizen.jp) の静的サイト版。
 ASP.NET Core 2.2 の動的サイトを「静的サイト + Python によるデータ(JSON)生成」に
 移行するプロジェクト。
 
-- 日常の操作手順: **[MANUAL.md](MANUAL.md)** (Zed の Run → Spawn Task にも登録済み)
-- デプロイ: [DEPLOY.md](DEPLOY.md)
-- 設計: [DESIGN.md](DESIGN.md) / JSON スキーマ: [DATA_CONTRACT.md](DATA_CONTRACT.md)
+- 日常の操作手順: **[MANUAL.md](docs/MANUAL.md)** (Zed の Run → Spawn Task にも登録済み)
+- デプロイ: [DEPLOY.md](docs/DEPLOY.md)
+- 設計: [DESIGN.md](docs/DESIGN.md) / JSON スキーマ: [DATA_CONTRACT.md](docs/DATA_CONTRACT.md)
 
 ## セットアップ
 
@@ -17,12 +17,6 @@ pip install -r requirements.txt
 
 人口系の一次データ (旧 eCitizen の App_Data から移設) は `data/legacy/` に
 git 管理で同梱。旧リポジトリのローカル checkout は不要。
-
-## ライセンス
-
-プログラムは **AGPL-3.0-or-later** ([LICENSE](LICENSE))。
-同梱の加工済みデータは **CC BY 4.0** (© aiseed.dev。元データの出典明記も必要)、
-フォントは SIL OFL 1.1。区分の詳細は [NOTICE.md](NOTICE.md) を参照。
 フォントはモリサワ BIZ UD ゴシック / BIZ UD 明朝 (SIL OFL) を `assets/fonts/` に同梱
 (サイト配信用 woff2 + matplotlib 用 TTF。ライセンスは同ディレクトリの OFL.txt)。
 2020年国勢調査・将来推計は IPSS「日本の地域別将来推計人口(令和5年推計)」
@@ -30,6 +24,12 @@ git 管理で同梱。旧リポジトリのローカル checkout は不要。
 Country(海外)ページは Eurostat(census/EUROPOP2023) + ONS(UKのみ将来推計)
 (`data/raw/eurostat/`, `data/raw/ons/`、`tools/fetch_eurostat.py`/
 `tools/fetch_ons.py` で1回限り取得。DESIGN.md §14)。
+
+## ライセンス
+
+プログラムは **AGPL-3.0-or-later** ([LICENSE](LICENSE))。
+同梱の加工済みデータは **CC BY 4.0** (© aiseed.dev。元データの出典明記も必要)、
+フォントは SIL OFL 1.1。区分の詳細は [NOTICE.md](NOTICE.md) を参照。
 
 ## ビルド
 
@@ -76,7 +76,7 @@ ANDROID_HOME=$HOME/Android/sdk .venv/bin/flet build apk --yes   # APK (build/apk
 
 ## デプロイ (Cloudflare Pages)
 
-[cf-publish](https://github.com/aiseed-dev/cf-publish) を使う。手順は [DEPLOY.md](DEPLOY.md)。
+[cf-publish](https://github.com/aiseed-dev/cf-publish) を使う。手順は [DEPLOY.md](docs/DEPLOY.md)。
 
 ```bash
 ./deploy.py --dry-run   # 確認

@@ -1,4 +1,4 @@
-// Zed の Run → Spawn Task に載る操作一覧 (MANUAL.md の各手順に対応)。
+// Zed の Run → Spawn Task に載る操作一覧 (docs/MANUAL.md の各手順に対応)。
 // eCitizenStatic をワークスペースとして開いた場合に読み込まれる。
 [
   {
