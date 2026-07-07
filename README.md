@@ -15,7 +15,7 @@
 - **データ同梱**: 確定した歴史統計 (国勢調査 1980–2015 等) は
   `data/legacy/` に git 管理で同梱 — clone するだけでビルドできる
 - **外部 API はローカルバッチだけ**: e-Stat 等の取得は `tools/` の
-  スクリプトで行い、成果物をスナップショットとして凍結 (設計原則 K5)
+  スクリプトで行い、成果物をスナップショットとして凍結する
 - **アプリも同じスナップショットを参照**: Flutter 版 (Web/PC/スマホ) と
   Flet 版 (Python) の統計APIエクスプローラが、サイトと同一の静的 JSON で動く
 
@@ -26,8 +26,8 @@ git clone https://github.com/aiseed-dev/ecitizen.git && cd ecitizen
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 
-python build_data.py            # 取得層: data/ に中間 JSON (約1分)
-python generate.py --clean      # 描画層: public/ にサイト一式 (5〜15分)
+python build_data.py            # data/ に中間 JSON を生成 (約1分)
+python generate.py --clean      # public/ にサイト一式を生成 (5〜15分)
 python -m http.server 5012 --directory public
 # → http://localhost:5012/
 ```
@@ -40,7 +40,7 @@ python -m http.server 5012 --directory public
 | 文書 | 内容 |
 |------|------|
 | [docs/MANUAL.md](docs/MANUAL.md) | 運用マニュアル (セットアップ・ビルド・デプロイ・トラブル対応) |
-| [docs/DESIGN.md](docs/DESIGN.md) | 設計書 (方針 K1〜、フェーズ計画、各機能の設計) |
+| [docs/DESIGN.md](docs/DESIGN.md) | 設計書 (設計方針と各機能の設計) |
 | [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md) | データ契約 (中間 JSON のスキーマ) |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | デプロイ手順 (Cloudflare Pages + cf-publish) |
 | [docs/STATUS.md](docs/STATUS.md) | 実装状況 (フェーズ別チェックリスト) |
