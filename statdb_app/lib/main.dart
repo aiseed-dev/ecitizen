@@ -6,13 +6,36 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'data.dart';
 
 final data = StatdbData();
 
-void main() {
+/// 日本語フォントの選択 (Flet 版と同方針: 同梱せず名前指定のみ。
+/// インストール済みなら使われ、無ければ OS 既定にフォールバック)。
+const fontChoices = [
+  ('BIZ UDゴシック', 'BIZ UDPGothic'),
+  ('教科書体 (Klee One)', 'Klee One'),
+  ('OS 標準', 'system'),
+];
+
+final fontFamily = ValueNotifier<String>('BIZ UDPGothic');
+
+Future<void> setFont(String key) async {
+  fontFamily.value = key;
+  try {
+    (await SharedPreferences.getInstance()).setString('font_family', key);
+  } catch (_) {}
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    fontFamily.value = prefs.getString('font_family') ?? fontFamily.value;
+  } catch (_) {}
   runApp(const StatdbApp());
 }
 
@@ -56,10 +79,17 @@ class StatdbApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: '統計データAPI エクスプローラ - 統計メモ帳',
-      theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
-      routerConfig: _router,
+    return ValueListenableBuilder<String>(
+      valueListenable: fontFamily,
+      builder: (context, font, _) => MaterialApp.router(
+        title: '統計データAPI エクスプローラ - 統計メモ帳',
+        theme: ThemeData(
+          colorSchemeSeed: Colors.teal,
+          useMaterial3: true,
+          fontFamily: font == 'system' ? null : font,
+        ),
+        routerConfig: _router,
+      ),
     );
   }
 }
@@ -130,7 +160,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('統計データAPI エクスプローラ')),
+      appBar: AppBar(
+        title: const Text('統計データAPI エクスプローラ'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.text_fields),
+            tooltip: '日本語フォント',
+            onSelected: setFont,
+            itemBuilder: (_) => [
+              for (final (label, key) in fontChoices)
+                CheckedPopupMenuItem(
+                  value: key,
+                  checked: fontFamily.value == key,
+                  child: Text(label),
+                ),
+            ],
+          ),
+        ],
+      ),
       body: Loader<Map<String, dynamic>>(
         future: data.catalog(),
         builder: (context, catalog) {
