@@ -20,6 +20,7 @@ UPDATE_TYPE_LABEL = {0: "新規", 1: "更新", 2: "新規", 3: "更新", 4: "変
 FONT_CHOICES = [
     ("標準 (BIZ UDゴシック)", "BIZ UDPGothic"),
     ("教科書体 (Klee One)", "Klee One"),
+    ("OS 標準", "system"),
 ]
 
 
@@ -33,30 +34,28 @@ def main(page: ft.Page):
         "Klee One": "/fonts/KleeOne-Regular.ttf",
     }
 
-    def set_font(family: str, save: bool = True):
-        page.theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL,
-                              font_family=family)
+    # フォント設定。key は同梱フォント名・"system" (OS標準)・または
+    # インストール済みフォントの直接指定 (PC でモリサワ Fonts 等を入れた場合)
+    font_state = {"key": FONT_CHOICES[0][1]}
+
+    def set_font(key: str, save: bool = True):
+        font_state["key"] = key
+        page.theme = ft.Theme(
+            color_scheme_seed=ft.Colors.TEAL,
+            font_family=None if key == "system" else key)
         if save:
             try:
-                page.client_storage.set("font_family", family)
+                page.client_storage.set("font_family", key)
             except Exception:
                 pass
             page.update()
 
-    saved_font = FONT_CHOICES[0][1]
+    saved_font = font_state["key"]
     try:
         saved_font = page.client_storage.get("font_family") or saved_font
     except Exception:
         pass
     set_font(saved_font, save=False)
-
-    def font_menu() -> ft.PopupMenuButton:
-        return ft.PopupMenuButton(
-            icon=ft.Icons.TEXT_FIELDS,
-            tooltip="フォント",
-            items=[ft.PopupMenuItem(content=ft.Text(label),
-                                    on_click=lambda _, f=fam: set_font(f))
-                   for label, fam in FONT_CHOICES])
     try:  # デスクトップのみ (Web/モバイルでは window が無い/効かない)
         if page.window.width and page.window.width > 1100:
             page.window.width = 1000
@@ -127,9 +126,55 @@ def main(page: ft.Page):
 
         return ft.View(
             route="/",
-            appbar=ft.AppBar(title=ft.Text("統計データAPI エクスプローラ"),
-                             actions=[font_menu()]),
+            appbar=ft.AppBar(
+                title=ft.Text("統計データAPI エクスプローラ"),
+                actions=[ft.IconButton(
+                    ft.Icons.SETTINGS, tooltip="設定",
+                    on_click=lambda _: page.push_route("/settings"))]),
             controls=header + [listing],
+        )
+
+    def settings_view() -> ft.View:
+        builtin = [fam for _, fam in FONT_CHOICES]
+        tiles: list[ft.ListTile] = []
+
+        custom = ft.TextField(
+            label="フォント名を直接指定",
+            hint_text="例: UD デジタル 教科書体 N-R",
+            helper="PC にインストール済みのフォント (モリサワ Fonts の"
+                   "フリープラン等) を名前で指定できます。Enter で適用",
+            on_submit=lambda e: choose(e.control.value.strip()))
+
+        def refresh():
+            for tile, (_, fam) in zip(tiles, FONT_CHOICES):
+                tile.trailing = (ft.Icon(ft.Icons.CHECK)
+                                 if font_state["key"] == fam else None)
+            custom.value = ("" if font_state["key"] in builtin
+                            else font_state["key"])
+            page.update()
+
+        def choose(key: str):
+            if not key:
+                return
+            set_font(key)
+            refresh()
+
+        for label, fam in FONT_CHOICES:
+            tiles.append(ft.ListTile(
+                title=ft.Text(label),
+                trailing=(ft.Icon(ft.Icons.CHECK)
+                          if font_state["key"] == fam else None),
+                on_click=lambda _, f=fam: choose(f)))
+
+        return ft.View(
+            route="/settings",
+            appbar=ft.AppBar(title=ft.Text("設定")),
+            controls=[ft.ListView(
+                [ft.Container(ft.Text("フォント", weight=ft.FontWeight.BOLD),
+                              padding=ft.Padding(16, 16, 16, 4))]
+                + tiles
+                + [ft.Container(custom, padding=16)],
+                spacing=0, expand=True)],
         )
 
     def table_tile(r: dict, show_statics: bool = False) -> ft.ListTile:
@@ -292,6 +337,8 @@ def main(page: ft.Page):
             return latest_view()
         if troute.match("/latest/:id"):
             return latest_tables_view(troute.id)
+        if troute.match("/settings"):
+            return settings_view()
         return home_view()
 
     def route_change(_):

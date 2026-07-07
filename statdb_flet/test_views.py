@@ -113,6 +113,21 @@ def run():
     assert "更新" in t
     print("latest OK")
 
+    # 設定 (フォント選択)
+    page.push_route("/settings")
+    t = view_texts(page.views[-1])
+    assert "フォント" in t and "教科書体" in t, t
+    settings = page.views[-1]
+    tiles = [c for c in settings.controls[0].controls
+             if isinstance(c, __import__("flet").ListTile)]
+    tiles[1].on_click(None)   # 教科書体を選択
+    assert page.theme.font_family == "Klee One", page.theme.font_family
+    tiles[2].on_click(None)   # OS 標準
+    assert page.theme.font_family is None
+    tiles[0].on_click(None)   # 標準に戻す
+    assert page.theme.font_family == "BIZ UDPGothic"
+    print("settings OK")
+
     # ディープリンク (ホームが底に積まれる)
     page2 = FakePage()
     page2.route = "/stats/1/00200502"
