@@ -48,10 +48,12 @@ python -m http.server 5012 --directory public
 
 ## Statdb (統計APIエクスプローラ) アプリ
 
-- `statdb_app/` — **Flutter 版** (配布本命。Web はサイトの `/Statdb/` に同居、
-  PC・Android にも展開。アプリID: dev.aiseed.ecitizen)
-- `statdb_flet/` — **Flet 版** (Python。Android・Chromebook の Linux 環境・
-  デスクトップ向けの実験場)
+- `statdb_app/` — **Flutter 版**。ブラウザで今すぐ使える
+  ([ecitizen.jp/Statdb/](https://ecitizen.jp/Statdb/))。同じコードから
+  PC・Android アプリも作れる
+- `statdb_flet/` — **Python (Flet) 版**。デスクトップや Android、
+  Chromebook の Linux 環境で動く。Python が読めれば自分好みに
+  改造しやすい
 
 e-Stat の全統計表カタログ (約24万表) を検索・閲覧して目的の統計表に
 たどり着くためのツール。カタログはビルド時に取得した静的スナップショットを
