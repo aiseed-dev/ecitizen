@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg_cjk_friendly/flutter_svg_cjk_friendly.dart';
 
 class ChartSvg extends StatelessWidget {
   const ChartSvg.string(this.svg, {super.key}) : url = null;
@@ -18,7 +19,7 @@ class ChartSvg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final picture = svg != null
-        ? SvgPicture.string(svg!, fit: BoxFit.contain)
+        ? SvgPicture.string(cjkFriendlySvg(svg!, preferred: const ['BIZ UDGothic', 'BIZ UDPGothic']), fit: BoxFit.contain)
         : SvgPicture.network(url!, fit: BoxFit.contain,
             placeholderBuilder: (_) =>
                 const Center(child: CircularProgressIndicator()));
