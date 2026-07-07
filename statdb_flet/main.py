@@ -17,16 +17,46 @@ KIND_LABEL = {1: "統計", 2: "小地域・地域メッシュ"}
 UPDATE_TYPE_LABEL = {0: "新規", 1: "更新", 2: "新規", 3: "更新", 4: "変更"}
 
 
+FONT_CHOICES = [
+    ("標準 (BIZ UDゴシック)", "BIZ UDPGothic"),
+    ("教科書体 (Klee One)", "Klee One"),
+]
+
+
 def main(page: ft.Page):
     page.title = "統計データAPI エクスプローラ - 統計メモ帳"
-    # BIZ UDPGothic を同梱して全プラットフォームで使う (Android の
+    # フォントを同梱して全プラットフォームで使う (Android の
     # フォールバックは Noto なので、見た目を揃えるためアプリに添付。K9)
     page.fonts = {
         "BIZ UDPGothic": "/fonts/BIZUDPGothic-Regular.ttf",
         "BIZ UDPGothic Bold": "/fonts/BIZUDPGothic-Bold.ttf",
+        "Klee One": "/fonts/KleeOne-Regular.ttf",
     }
-    page.theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL,
-                          font_family="BIZ UDPGothic")
+
+    def set_font(family: str, save: bool = True):
+        page.theme = ft.Theme(color_scheme_seed=ft.Colors.TEAL,
+                              font_family=family)
+        if save:
+            try:
+                page.client_storage.set("font_family", family)
+            except Exception:
+                pass
+            page.update()
+
+    saved_font = FONT_CHOICES[0][1]
+    try:
+        saved_font = page.client_storage.get("font_family") or saved_font
+    except Exception:
+        pass
+    set_font(saved_font, save=False)
+
+    def font_menu() -> ft.PopupMenuButton:
+        return ft.PopupMenuButton(
+            icon=ft.Icons.TEXT_FIELDS,
+            tooltip="フォント",
+            items=[ft.PopupMenuItem(content=ft.Text(label),
+                                    on_click=lambda _, f=fam: set_font(f))
+                   for label, fam in FONT_CHOICES])
     try:  # デスクトップのみ (Web/モバイルでは window が無い/効かない)
         if page.window.width and page.window.width > 1100:
             page.window.width = 1000
@@ -97,7 +127,8 @@ def main(page: ft.Page):
 
         return ft.View(
             route="/",
-            appbar=ft.AppBar(title=ft.Text("統計データAPI エクスプローラ")),
+            appbar=ft.AppBar(title=ft.Text("統計データAPI エクスプローラ"),
+                             actions=[font_menu()]),
             controls=header + [listing],
         )
 

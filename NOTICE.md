@@ -32,5 +32,6 @@ Copyright (C) aiseed.dev
 
 ## フォント — SIL Open Font License 1.1
 
-`assets/fonts/` のモリサワ BIZ UDゴシック / BIZ UD明朝は
-SIL OFL 1.1 ([assets/fonts/OFL.txt](assets/fonts/OFL.txt))。
+`assets/fonts/` のモリサワ BIZ UDゴシック / BIZ UD明朝、および
+アプリ同梱 (`statdb_flet/assets/fonts/` 等) の BIZ UD・Klee One (Fontworks) は
+いずれも SIL OFL 1.1 (ライセンス全文は各ディレクトリに同梱)。
