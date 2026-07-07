@@ -121,9 +121,11 @@ packages:
   flutter_svg_cjk_friendly:
     dependency: "direct main"
     description:
-      path: "../../flutter-svg-cjk-friendly"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "8169a3cc530db5ba6d9b4b5b3e4440f4ad2c7cb4"
+      url: "https://github.com/aiseed-dev/flutter_svg_cjk_friendly.git"
+    source: git
     version: "0.1.0"
   flutter_test:
     dependency: "direct dev"

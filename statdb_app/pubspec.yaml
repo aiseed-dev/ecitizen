@@ -40,7 +40,7 @@ dependencies:
   url_launcher: ^6.3.2
   path_provider: ^2.1.6
   flutter_svg_cjk_friendly:
-    path: ../../flutter-svg-cjk-friendly
+    git: https://github.com/aiseed-dev/flutter_svg_cjk_friendly.git
   flutter_svg: ^2.3.0
 
 dev_dependencies:
