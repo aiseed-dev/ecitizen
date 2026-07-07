@@ -3,6 +3,7 @@ name = "ecitizen"
 version = "0.1.0"
 description = "統計データAPI エクスプローラ - 統計メモ帳"
 authors = [{ name = "ecitizen.jp" }]
+license = "AGPL-3.0-or-later"
 requires-python = ">=3.10"
 dependencies = ["flet==0.85.3"]
 
