@@ -28,13 +28,16 @@ pip install -r requirements.txt
 pip install -e ../cf-publish        # デプロイ用 (ローカルの cf-publish)
 
 # e-Stat appId (Statdb カタログ取得に必要。git 管理外)
-echo '{"estat_app_id": "..."}' > secrets.json
+cp secrets.json.example secrets.json   # → estat_app_id を書き込む
+# appId の取得 (無料): https://www.e-stat.go.jp/api/
 ```
 
 人口系の一次データは `data/legacy/` に同梱 (git 管理) なので checkout だけで
 ビルドできる。旧 eCitizen リポジトリは不要。Statdb アプリの開発環境は §5 を参照。
 
 ## 2. データ取得 (tools/) — いつ何を実行するか
+
+詳細は [tools/README.md](../tools/README.md)。
 
 | ツール | 取得元 | 実行タイミング |
 |--------|--------|---------------|

@@ -37,8 +37,9 @@ class EstatClient:
         if not path.exists():
             raise EstatError(
                 f"{path} が見つかりません。"
-                '{"estat_app_id": "..."} の形式で appId を保存してください '
-                "(git 管理外。.gitignore 済み)。")
+                "secrets.json.example をコピーして appId を書き込んでください "
+                "(取得: https://www.e-stat.go.jp/api/ の利用登録。"
+                "git 管理外。.gitignore 済み)。")
         secrets = json.loads(path.read_text(encoding="utf-8"))
         app_id = secrets.get("estat_app_id")
         if not app_id:
